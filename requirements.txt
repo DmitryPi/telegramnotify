@@ -1,0 +1,5 @@
+django==4.0.8
+
+pre-commit
+pytest
+pytest-sugar
