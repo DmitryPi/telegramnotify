@@ -1,5 +1,9 @@
 django==4.0.8
 
+python_telegram_bot==20.0a4
+
 pre-commit
 pytest
 pytest-sugar
+
+supervisor

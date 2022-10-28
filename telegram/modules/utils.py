@@ -10,7 +10,11 @@ def build_config(config_name="config.ini") -> None:
             "MAIN": {
                 "debug": True,
             },
-            "DB": {"table": "scrapers"},
+            "TELEGRAM": {
+                "api_token": "",
+                "admin_id": "",
+                "admin_password": 1234,
+            },
             "SENTRY": {"dsn": "", "log_level": 20},
         }
     )
