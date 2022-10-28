@@ -277,3 +277,4 @@ tags
 .envs/*
 !.envs/.local/
 config.ini
+*.sqlite3
