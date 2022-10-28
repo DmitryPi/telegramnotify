@@ -7,15 +7,17 @@ from .utils import handle_error, load_config
 class Database:
     def __init__(self):
         self.config = load_config()
-        self.sql_create_project_table = """
-            CREATE TABLE IF NOT EXISTS {} (
-                id integer PRIMARY KEY,
-                uid integer NOT NULL UNIQUE,
-                example_bool boolean NOT NULL,
-                created text NOT NULL
-            );""".format(
-            self.config["DB"]["table"]
-        )
+        self.sql_create_users_table = """
+            CREATE TABLE IF NOT EXISTS users (
+                uid integer PRIMARY KEY,
+                username text NOT NULL,
+                first_name text NOT NULL,
+                full_name text NOT NULL,
+                phone_num int NOT NULL,
+                role text NOT NULL,
+                created text NOT NULL,
+                updated text NOT NULL
+            );"""
 
     def create_connection(self, db_file="db.sqlite3"):
         """Connect to db/Create `db.sqlite3` in root folder if not exist"""
