@@ -8,7 +8,7 @@ class TestUtils(TestCase):
         pass
 
     def test_load_config(self):
-        sections = ["MAIN", "DB", "SENTRY"]
+        sections = ["MAIN", "TELEGRAM", "SENTRY"]
         config = load_config()
         self.assertTrue(config)
         config_sections = config.sections()

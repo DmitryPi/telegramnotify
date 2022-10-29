@@ -1,40 +1,38 @@
 import logging
 import sqlite3
 
+from .users import User
 from .utils import handle_error, load_config
 
 
 class Database:
-    def __init__(self):
-        self.config = load_config()
+    def __init__(self, config=""):
+        self.config = config if config else load_config()
         self.sql_create_users_table = """
             CREATE TABLE IF NOT EXISTS users (
                 uid integer PRIMARY KEY,
                 username text NOT NULL,
                 first_name text NOT NULL,
-                full_name text NOT NULL,
-                phone_num int NOT NULL,
                 role text NOT NULL,
                 created text NOT NULL,
                 updated text NOT NULL
             );"""
 
-    def create_connection(self, db_file="db.sqlite3"):
+    def create_connection(self, db_file="db.sqlite3", check_same_thread=True):
         """Connect to db/Create `db.sqlite3` in root folder if not exist"""
         conn = None
         try:
-            conn = sqlite3.connect(db_file)
+            conn = sqlite3.connect(db_file, check_same_thread=check_same_thread)
             logging.info("Connected to db\n")
         except Exception as e:
             handle_error(e)
         return conn
 
-    def create_table(self, conn, sql=""):
+    def create_table(self, conn, sql):
         """Create project table from `self.sql_create_project_table`
         Optional `sql` kwarg if you want to create new table
         """
         try:
-            sql = sql if sql else self.sql_create_project_table
             cur = conn.cursor()
             cur.execute(sql)
             return True
@@ -68,6 +66,21 @@ class Database:
             conn.commit()
         except Exception as e:
             handle_error(e)
+
+    def insert_user(self, conn, user: User) -> None:
+        """Insert user into users from User keys/values"""
+        keys = tuple(user.__dict__.keys())
+        values = tuple(user.__dict__.values())
+        self.insert_object(conn, "users", keys, values)
+
+    def get_user(self, conn, user_id) -> User:
+        user = self.get_objects_filter_by_value(conn, "users", "uid", user_id)[0]
+        return User(*user)
+
+    def get_admins(self, conn) -> list[User]:
+        users = self.get_objects_filter_by_value(conn, "users", "role", "Админ")
+        users = [User(*user) for user in users]
+        return users
 
     def get_objects_all(self, conn, table: str) -> list:
         """Return queryset of table objects"""

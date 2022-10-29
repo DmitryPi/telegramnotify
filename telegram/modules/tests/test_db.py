@@ -3,6 +3,7 @@ from pathlib import Path
 from unittest import TestCase
 
 from ..db import Database
+from ..users import User, build_user
 
 test_db = "testdb.sqlite3"
 
@@ -26,9 +27,43 @@ class TestDatabase(TestCase):
             );""".format(
             self.db_table
         )
+        # create users table
+        self.db.create_table(self.db_conn, self.db.sql_create_users_table)
+        self.user_tg = {
+            "is_bot": False,
+            "username": "DmitrydevPy",
+            "first_name": "Dmitry",
+            "id": 5156307333,
+            "language_code": "ru",
+        }
+        self.user_tgg = {
+            "is_bot": False,
+            "username": "test",
+            "first_name": "test",
+            "id": 5,
+            "language_code": "ru",
+        }
 
     def tearDown(self):
         self.db_conn.close()
+
+    def test_insert_get_user(self):
+        user = build_user(self.user_tg)
+        self.db.insert_user(self.db_conn, user)
+        user = self.db.get_user(self.db_conn, self.user_tg["id"])
+        assert isinstance(user, User)
+        assert len(list(user.__dict__.keys())) == 6
+        assert len(list(user.__dict__.values())) == 6
+
+    def test_insert_get_admins(self):
+        user = build_user(self.user_tg, admin=True)
+        user1 = build_user(self.user_tgg, admin=False)
+        self.db.insert_user(self.db_conn, user)
+        self.db.insert_user(self.db_conn, user1)
+        users = self.db.get_admins(self.db_conn)
+        assert len(users) == 1
+        assert users[0].username == "DmitrydevPy"
+        assert users[0].role == "Админ"
 
     def insert_test_objects(self):
         test_fields = ("test_bool", "test_text")
@@ -42,8 +77,6 @@ class TestDatabase(TestCase):
 
     def test_db_create_table(self):
         created = self.db.create_table(self.db_conn, sql=self.sql_test_table)
-        self.assertTrue(created)
-        created = self.db.create_table(self.db_conn)
         self.assertTrue(created)
 
     def test_insert_object_get_objects_all(self):
