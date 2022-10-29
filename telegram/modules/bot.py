@@ -52,7 +52,7 @@ class TelegramBot:
     def auth_invalid_msg(self) -> str:
         return f"Пройдите регистрацию.\nИспользуйте команду - {self.commands['start']}"
 
-    def build_keyboard_markup(self, context: list[str], grid=3) -> InlineKeyboardMarkup:
+    def build_inline_keyboard(self, context: list[str], grid=3) -> InlineKeyboardMarkup:
         """TODO: btn grid division"""
         btns = [InlineKeyboardButton(s, callback_data=s) for s in context]
         reply_markup = InlineKeyboardMarkup([btns])
@@ -77,7 +77,7 @@ class TelegramBot:
                     "\nВыбери сервис:",
                 ]
             )
-            reply_markup = self.build_keyboard_markup(self.services)
+            reply_markup = self.build_inline_keyboard(self.services)
             await update.message.reply_text(msg, reply_markup=reply_markup)
             return ONE
 
@@ -116,7 +116,7 @@ class TelegramBot:
                 "\nПодтверждаете?",
             ]
         )
-        reply_markup = self.build_keyboard_markup(self.yesno)
+        reply_markup = self.build_inline_keyboard(self.yesno)
         await update.message.reply_text(msg, reply_markup=reply_markup)
         return THREE
 
@@ -154,6 +154,24 @@ class TelegramBot:
         """Баланса"""
         """"""
         print(context)
+
+    async def command_pay(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> int:
+        """1111 1111 1111 1026, 12/22, CVC 000."""
+        msg = "\n".join(
+            [
+                "Введите желаемое количество пополнения.",
+                "*Минимальное количество 100 рублей*",
+            ]
+        )
+        await update.message.reply_text(msg)
+        return ONE
+
+    async def pay_amount(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> int:
+        pass
 
     async def command_help(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
@@ -231,9 +249,18 @@ class TelegramBot:
             fallbacks=[CommandHandler("cancel", self.command_cancel_conv)],
             per_user=True,
         )
+        pay_conv_handler = ConversationHandler(
+            entry_points=[CommandHandler("oplata", self.command_pay)],
+            states={
+                ONE: [MessageHandler(filters.TEXT & ~filters.COMMAND, self.pay_amount)]
+            },
+            fallbacks=[CommandHandler("cancel", self.command_cancel_conv)],
+            per_user=True,
+        )
         # generic handlers
         application.add_handler(start_conv_handler)
         application.add_handler(CommandHandler("help", self.command_help))
+        application.add_handler(pay_conv_handler)
         # ...and the error handler
         application.add_error_handler(self.error_handler)
         # Run the bot until the user presses Ctrl-C
