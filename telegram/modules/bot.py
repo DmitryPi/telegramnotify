@@ -39,10 +39,18 @@ class TelegramBot:
         self.db_conn = self.db.create_connection()
         self.services = ["FL.ru", "avito"]
         self.yesno = ["Да", "Нет"]
+        self.commands = {
+            "start": "/start",
+            "help": "/help",
+            "pay": "/oplata",
+            "bill": "/tarif",
+            "settings": "/settings",
+            "cancel": "/cancel",
+        }
 
     @property
     def auth_invalid_msg(self) -> str:
-        return "Пройдите регистрацию.\nИспользуйте команду - /start"
+        return f"Пройдите регистрацию.\nИспользуйте команду - {self.commands['start']}"
 
     def build_keyboard_markup(self, context: list[str], grid=3) -> InlineKeyboardMarkup:
         """TODO: btn grid division"""
@@ -87,7 +95,7 @@ class TelegramBot:
                 "*Вы можете ввести сразу несколько слов, через запятую*",
                 "*Минимальная длина слова - 3 символа*",
                 "*В пробном периоде доступно до 5 слов-фраз*",
-                "\nОтмена операции - /cancel\n",
+                f"\nОтмена операции - {self.commands['cancel']}\n",
                 "Пример: парсинг, дизайн страницы, бот, верстка, написать на питоне",
             ]
         )
@@ -129,7 +137,7 @@ class TelegramBot:
                     "Слова для поиска: " + user_words,
                     "\nВы находитесь в пробном периоде.",
                     "Чтобы продлить период работы, пополните баланс",
-                    "Вызвав команду - /pay",
+                    "Вызвав команду - " + self.commands["pay"],
                 ]
             )
             await query.edit_message_text(text=msg)
@@ -153,9 +161,12 @@ class TelegramBot:
             msg = "\n".join(
                 [
                     "<b>Доступные команды:</b>",
-                    "/start - Регистрация",
-                    "/help - Помошник команд",
-                    "/cancel - Прервать диалог",
+                    f"{self.commands['start']} - Регистрация",
+                    f"{self.commands['help']} - Помошник команд",
+                    f"{self.commands['pay']} - Пополнить баланс",
+                    f"{self.commands['bill']} - Текущий тарифный план",
+                    f"{self.commands['settings']} - Настройки оповещения",
+                    f"{self.commands['cancel']} - Прервать диалог",
                 ]
             )
             await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
