@@ -7,6 +7,9 @@ import traceback
 from telegram import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
+    KeyboardButton,
+    LabeledPrice,
+    ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
     Update,
 )
@@ -51,6 +54,11 @@ class TelegramBot:
     @property
     def auth_invalid_msg(self) -> str:
         return f"Пройдите регистрацию.\nИспользуйте команду - {self.commands['start']}"
+
+    def build_keyboard(self, context: list[str]) -> list[KeyboardButton]:
+        btns = [KeyboardButton(s, callback_data=s) for s in context]
+        reply_markup = ReplyKeyboardMarkup([btns])
+        return reply_markup
 
     def build_inline_keyboard(self, context: list[str], grid=3) -> InlineKeyboardMarkup:
         """TODO: btn grid division"""
@@ -158,20 +166,50 @@ class TelegramBot:
     async def command_pay(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
-        """1111 1111 1111 1026, 12/22, CVC 000."""
         msg = "\n".join(
             [
-                "Введите желаемое количество пополнения.",
-                "*Минимальное количество 100 рублей*",
+                "Введите желаемое количество для пополнения.",
+                "Минимальное сумма пополнения - 100 рублей",
             ]
         )
-        await update.message.reply_text(msg)
+        reply_markup = self.build_keyboard([100, 200, 300, 400, 500])
+        await update.message.reply_text(msg, reply_markup=reply_markup)
         return ONE
 
-    async def pay_amount(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
-    ) -> int:
-        pass
+    async def pay_bill(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        """TEST: 1111 1111 1111 1026, 12/22, CVC 000."""
+        try:
+            pay_amount = int(update.message.text)
+            if pay_amount < 100:
+                raise ValueError
+        except ValueError:
+            msg = "\n".join(
+                [
+                    "Неверное количество.",
+                    "Минимальное сумма пополнения - 100 рублей",
+                    "\nДля отмены - /cancel",
+                ]
+            )
+            await update.message.reply_text(msg)
+            return ONE
+        chat_id = update.message.chat_id
+        title = "Пополнение баланса:"
+        description = "Описание услуги"
+        payload = "Custom-Payload"
+        provider_token = self.config["TELEGRAM"]["yokassa"]
+        currency = "RUB"
+        prices = [LabeledPrice("Test", pay_amount * 100)]
+        await update.message.reply_text(".", reply_markup=ReplyKeyboardRemove())
+        await context.bot.send_invoice(
+            chat_id,
+            title,
+            description,
+            payload,
+            provider_token,
+            currency,
+            prices,
+        )
+        return ConversationHandler.END
 
     async def command_help(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
@@ -252,7 +290,7 @@ class TelegramBot:
         pay_conv_handler = ConversationHandler(
             entry_points=[CommandHandler("oplata", self.command_pay)],
             states={
-                ONE: [MessageHandler(filters.TEXT & ~filters.COMMAND, self.pay_amount)]
+                ONE: [MessageHandler(filters.TEXT & ~filters.COMMAND, self.pay_bill)]
             },
             fallbacks=[CommandHandler("cancel", self.command_cancel_conv)],
             per_user=True,
