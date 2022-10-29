@@ -38,6 +38,7 @@ class TelegramBot:
         self.db = Database()
         self.db_conn = self.db.create_connection()
         self.services = ["FL.ru", "avito"]
+        self.yesno = ["Да", "Нет"]
 
     @property
     def auth_invalid_msg(self) -> str:
@@ -75,6 +76,7 @@ class TelegramBot:
     async def auth_service(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
+        """Выбор сервиса для поиска"""
         query = update.callback_query
         await query.answer()
         context.user_data.update({"auth_service": query.data})
@@ -95,6 +97,7 @@ class TelegramBot:
     async def auth_words(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
+        """TODO: очистка слов от всего плохого"""
         words = update.message.text.split(",")[:5]  # only 5 words allowed
         words = [w.strip() for w in words]
         context.user_data.update({"auth_words": words})
@@ -105,13 +108,14 @@ class TelegramBot:
                 "\nПодтверждаете?",
             ]
         )
-        reply_markup = self.build_keyboard_markup(["Да", "Нет"])
+        reply_markup = self.build_keyboard_markup(self.yesno)
         await update.message.reply_text(msg, reply_markup=reply_markup)
         return THREE
 
     async def auth_words_confirm(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
+        """Подтверждение введенных пользователем слов"""
         query = update.callback_query
         await query.answer()
         answer = query.data
@@ -137,6 +141,10 @@ class TelegramBot:
             return TWO
 
     async def auth_complete(self, context: dict) -> int:
+        """Добавление в бд"""
+        """Обновление статуса премиум"""
+        """Баланса"""
+        """"""
         print(context)
 
     async def command_help(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
