@@ -8,6 +8,7 @@ from telegram import Update
 from telegram.constants import ParseMode
 from telegram.ext import Application, CommandHandler, ContextTypes
 
+from .db import Database
 from .utils import load_config
 
 
@@ -19,15 +20,43 @@ class TelegramBot:
     def __init__(self, api_token: str):
         self.api_token = api_token
         self.config = load_config()
+        self.db = Database()
+        self.db_conn = self.db.create_connection()
 
     @property
     def auth_invalid_msg(self) -> str:
-        return "Пройдите идентификацию.\nИспользуйте команду - /start"
+        return "Пройдите регистрацию.\nИспользуйте команду - /start"
 
     async def command_start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        user_id = update.effective_user.id
-        print(user_id)
-        await update.message.reply_text("starting")
+        try:
+            self.db.get_user(self.db_conn, update.effective_user.id)
+            msg = "\n".join(
+                [
+                    "Постоянное приветствие",
+                ]
+            )
+            await update.message.reply_text("")
+        except IndexError:
+            msg = "\n".join(
+                [
+                    "Первое приветствие",
+                ]
+            )
+            await update.message.reply_text(msg)
+
+    async def command_help(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        try:
+            self.db.get_user(self.db_conn, update.effective_user.id)
+            msg = "\n".join(
+                [
+                    "<b>Доступные команды:</b>",
+                    "/start - Регистрация",
+                    "/help - Помошник команд",
+                ]
+            )
+            await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
+        except IndexError:
+            await update.message.reply_text(self.auth_invalid_msg)
 
     async def error_handler(
         self, update: object, context: ContextTypes.DEFAULT_TYPE
@@ -70,6 +99,7 @@ class TelegramBot:
         application = Application.builder().token(self.api_token).build()
         # generic handlers
         application.add_handler(CommandHandler("start", self.command_start))
+        application.add_handler(CommandHandler("help", self.command_help))
         # ...and the error handler
         application.add_error_handler(self.error_handler)
         # Run the bot until the user presses Ctrl-C
