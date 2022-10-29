@@ -1,6 +1,7 @@
 import logging
 
 import sentry_sdk
+from modules.bot import TelegramBot
 from modules.db import Database
 from modules.utils import load_config
 from sentry_sdk.integrations.logging import LoggingIntegration
@@ -28,3 +29,8 @@ if __name__ == "__main__":
     db = Database()
     db_conn = db.create_connection()
     db.create_table(db_conn, sql=db.sql_create_users_table)
+
+    # Init TelegramBot
+    api_token = config["TELEGRAM"]["api_token"]
+    telegram_bot = TelegramBot(api_token)
+    telegram_bot.run()
