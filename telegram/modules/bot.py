@@ -4,7 +4,12 @@ import json
 import logging
 import traceback
 
-from telegram import ReplyKeyboardRemove, Update
+from telegram import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    ReplyKeyboardRemove,
+    Update,
+)
 from telegram.constants import ParseMode
 from telegram.ext import Application, CommandHandler, ContextTypes, ConversationHandler
 
@@ -24,10 +29,17 @@ class TelegramBot:
         self.config = load_config()
         self.db = Database()
         self.db_conn = self.db.create_connection()
+        self.services = ["FL.ru", "avito"]
 
     @property
     def auth_invalid_msg(self) -> str:
         return "Пройдите регистрацию.\nИспользуйте команду - /start"
+
+    def build_keyboard_markup(self, context: list[str], grid=3) -> InlineKeyboardMarkup:
+        """TODO: btn grid division"""
+        btns = [InlineKeyboardButton(s, callback_data=s) for s in context]
+        reply_markup = InlineKeyboardMarkup([btns])
+        return reply_markup
 
     async def command_start(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -43,10 +55,13 @@ class TelegramBot:
         except IndexError:
             msg = "\n".join(
                 [
-                    "Первое приветствие",
+                    "Привет, я тебя еще не видел!",
+                    "Я могу оповещать тебя о новых работах и проектах",
+                    "\nВыбери сервис:",
                 ]
             )
-            await update.message.reply_text(msg)
+            reply_markup = self.build_keyboard_markup(self.services)
+            await update.message.reply_text(msg, reply_markup=reply_markup)
             return ONE
 
     async def command_help(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -64,7 +79,7 @@ class TelegramBot:
         except IndexError:
             await update.message.reply_text(self.auth_invalid_msg)
 
-    async def command_cancel(
+    async def command_cancel_conv(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
         """Cancels and ends the conversation."""
@@ -117,7 +132,7 @@ class TelegramBot:
             states={
                 ONE: [],
             },
-            fallbacks=[CommandHandler("cancel", self.command_cancel)],
+            fallbacks=[CommandHandler("cancel", self.command_cancel_conv)],
             per_user=True,
         )
         # generic handlers
