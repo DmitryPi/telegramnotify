@@ -11,12 +11,20 @@ from telegram import (
     Update,
 )
 from telegram.constants import ParseMode
-from telegram.ext import Application, CommandHandler, ContextTypes, ConversationHandler
+from telegram.ext import (
+    Application,
+    CallbackQueryHandler,
+    CommandHandler,
+    ContextTypes,
+    ConversationHandler,
+    MessageHandler,
+    filters,
+)
 
 from .db import Database
 from .utils import load_config
 
-ONE, TWO, THREE = (i for i in range(1, 4))
+ONE, TWO, THREE, FOUR = (i for i in range(1, 5))
 
 
 class SenderBot:
@@ -55,14 +63,81 @@ class TelegramBot:
         except IndexError:
             msg = "\n".join(
                 [
-                    "Привет, я тебя еще не видел!",
-                    "Я могу оповещать тебя о новых работах и проектах",
+                    "Привет!",
+                    "Я могу оповещать тебя о новых заказах и проектах",
                     "\nВыбери сервис:",
                 ]
             )
             reply_markup = self.build_keyboard_markup(self.services)
             await update.message.reply_text(msg, reply_markup=reply_markup)
             return ONE
+
+    async def auth_service(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> int:
+        query = update.callback_query
+        await query.answer()
+        context.user_data.update({"auth_service": query.data})
+        msg = "\n".join(
+            [
+                "Вы выбрали - " + query.data,
+                "\nВведи несколько фраз-слов для поиска.\n",
+                "*Вы можете ввести сразу несколько слов, через запятую*",
+                "*Минимальная длина слова - 3 символа*",
+                "*В пробном периоде доступно до 5 слов-фраз*",
+                "\nОтмена операции - /cancel\n",
+                "Пример: парсинг, дизайн страницы, бот, верстка, написать на питоне",
+            ]
+        )
+        await query.edit_message_text(text=msg)
+        return TWO
+
+    async def auth_words(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> int:
+        words = update.message.text.split(",")[:5]  # only 5 words allowed
+        words = [w.strip() for w in words]
+        context.user_data.update({"auth_words": words})
+        msg = "\n".join(
+            [
+                "Ваши слова для поиска:\n",
+                str(words),
+                "\nПодтверждаете?",
+            ]
+        )
+        reply_markup = self.build_keyboard_markup(["Да", "Нет"])
+        await update.message.reply_text(msg, reply_markup=reply_markup)
+        return THREE
+
+    async def auth_words_confirm(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> int:
+        query = update.callback_query
+        await query.answer()
+        answer = query.data
+        if answer == "Да":
+            user_service = context.user_data["auth_service"]
+            user_words = str(context.user_data["auth_words"])
+            msg = "\n".join(
+                [
+                    "Спасибо за регистрацию!\n",
+                    "Вы выбрали сервис: " + user_service,
+                    "Слова для поиска: " + user_words,
+                    "\nВы находитесь в пробном периоде.",
+                    "Чтобы продлить период работы, пополните баланс",
+                    "Вызвав команду - /pay",
+                ]
+            )
+            await query.edit_message_text(text=msg)
+            await self.auth_complete(context.user_data)
+            return ConversationHandler.END
+        else:
+            msg = "Введите новые слова:"
+            await query.edit_message_text(text=msg)
+            return TWO
+
+    async def auth_complete(self, context: dict) -> int:
+        print(context)
 
     async def command_help(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
@@ -130,7 +205,9 @@ class TelegramBot:
         start_conv_handler = ConversationHandler(
             entry_points=[CommandHandler("start", self.command_start)],
             states={
-                ONE: [],
+                ONE: [CallbackQueryHandler(self.auth_service)],
+                TWO: [MessageHandler(filters.TEXT & ~filters.COMMAND, self.auth_words)],
+                THREE: [CallbackQueryHandler(self.auth_words_confirm)],
             },
             fallbacks=[CommandHandler("cancel", self.command_cancel_conv)],
             per_user=True,
