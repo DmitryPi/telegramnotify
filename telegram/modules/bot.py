@@ -176,7 +176,9 @@ class TelegramBot:
         await update.message.reply_text(msg, reply_markup=reply_markup)
         return ONE
 
-    async def pay_bill(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    async def build_invoice(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> int:
         """TEST: 1111 1111 1111 1026, 12/22, CVC 000."""
         try:
             pay_amount = int(update.message.text)
@@ -290,7 +292,9 @@ class TelegramBot:
         pay_conv_handler = ConversationHandler(
             entry_points=[CommandHandler("oplata", self.command_pay)],
             states={
-                ONE: [MessageHandler(filters.TEXT & ~filters.COMMAND, self.pay_bill)]
+                ONE: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, self.build_invoice)
+                ]
             },
             fallbacks=[CommandHandler("cancel", self.command_cancel_conv)],
             per_user=True,
