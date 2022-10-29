@@ -4,12 +4,14 @@ import json
 import logging
 import traceback
 
-from telegram import Update
+from telegram import ReplyKeyboardRemove, Update
 from telegram.constants import ParseMode
-from telegram.ext import Application, CommandHandler, ContextTypes
+from telegram.ext import Application, CommandHandler, ContextTypes, ConversationHandler
 
 from .db import Database
 from .utils import load_config
+
+ONE, TWO, THREE = (i for i in range(1, 4))
 
 
 class SenderBot:
@@ -27,7 +29,9 @@ class TelegramBot:
     def auth_invalid_msg(self) -> str:
         return "Пройдите регистрацию.\nИспользуйте команду - /start"
 
-    async def command_start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+    async def command_start(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> int:
         try:
             self.db.get_user(self.db_conn, update.effective_user.id)
             msg = "\n".join(
@@ -43,6 +47,7 @@ class TelegramBot:
                 ]
             )
             await update.message.reply_text(msg)
+            return ONE
 
     async def command_help(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
@@ -52,11 +57,20 @@ class TelegramBot:
                     "<b>Доступные команды:</b>",
                     "/start - Регистрация",
                     "/help - Помошник команд",
+                    "/cancel - Прервать диалог",
                 ]
             )
             await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
         except IndexError:
             await update.message.reply_text(self.auth_invalid_msg)
+
+    async def command_cancel(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> int:
+        """Cancels and ends the conversation."""
+        msg = "Операция прервана"
+        await update.message.reply_text(msg, reply_markup=ReplyKeyboardRemove())
+        return ConversationHandler.END
 
     async def error_handler(
         self, update: object, context: ContextTypes.DEFAULT_TYPE
@@ -97,8 +111,17 @@ class TelegramBot:
         """Run telegram bot instance"""
         # Create the Application and pass it your bot's token.
         application = Application.builder().token(self.api_token).build()
+        # conversations
+        start_conv_handler = ConversationHandler(
+            entry_points=[CommandHandler("start", self.command_start)],
+            states={
+                ONE: [],
+            },
+            fallbacks=[CommandHandler("cancel", self.command_cancel)],
+            per_user=True,
+        )
         # generic handlers
-        application.add_handler(CommandHandler("start", self.command_start))
+        application.add_handler(start_conv_handler)
         application.add_handler(CommandHandler("help", self.command_help))
         # ...and the error handler
         application.add_error_handler(self.error_handler)
