@@ -51,6 +51,20 @@ class TestDatabase(TestCase):
     def tearDown(self):
         self.db_conn.close()
 
+    def test_update_user_wallet(self):
+        user = build_user(self.user_tg, self.user_data)
+        self.db.insert_user(self.db_conn, user)
+        user = self.db.get_user(self.db_conn, self.user_tg["id"])
+        assert user.wallet == 0.0
+        self.db.update_user_wallet(self.db_conn, self.user_tg["id"], 100)
+        user = self.db.get_user(self.db_conn, self.user_tg["id"])
+        assert user.wallet == 100.0
+        self.db.update_user_wallet(self.db_conn, self.user_tg["id"], 55)
+        self.db.update_user_wallet(self.db_conn, self.user_tg["id"], 33.3)
+        self.db.update_user_wallet(self.db_conn, self.user_tg["id"], 255.5)
+        user = self.db.get_user(self.db_conn, self.user_tg["id"])
+        assert user.wallet == 443.8
+
     def test_insert_get_user(self):
         user = build_user(self.user_tg, self.user_data)
         self.db.insert_user(self.db_conn, user)

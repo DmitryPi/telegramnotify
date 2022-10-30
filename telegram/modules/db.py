@@ -72,6 +72,11 @@ class Database:
         except Exception as e:
             handle_error(e)
 
+    def update_user_wallet(self, conn, user_id: int, amount: float) -> None:
+        user = self.get_user(conn, user_id)
+        user_wallet = user.wallet + amount
+        self.update_object(conn, "users", "wallet", "uid", (user_wallet, user_id))
+
     def insert_user(self, conn, user: User) -> None:
         """Insert user into users from User keys/values"""
         keys = tuple(user.__dict__.keys())

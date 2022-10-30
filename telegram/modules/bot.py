@@ -48,6 +48,7 @@ class TelegramBot:
             "start": "/start",
             "help": "/help",
             "pay": "/oplata",
+            "balance": "/balans",
             "bill": "/tarif",
             "settings": "/settings",
             "cancel": "/cancel",
@@ -184,7 +185,6 @@ class TelegramBot:
     async def build_invoice(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
-        """TEST: 1111 1111 1111 1026, 12/22, CVC 000."""
         try:
             pay_amount = int(update.message.text)
             if pay_amount < 100:
@@ -233,8 +233,24 @@ class TelegramBot:
     async def successful_payment_callback(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
-        """Confirms the successful payment."""
-        msg = "Спасибо! Оплата прошла успешно."
+        """Confirms the successful payment.
+        TEST CARD: 1111 1111 1111 1026, 12/22, CVC 000.
+        ORDER: {
+         'invoice_payload': 'Secret-Payload',
+         'currency': 'RUB',
+         'order_info': {},
+         'telegram_payment_charge_id': '5432524_519367_706459', 'provider_payment_charge_id': '2af0afbc-0000-198bce8',
+         'total_amount': 10000}"""
+        user_id = update.effective_user["id"]
+        order = update.message.successful_payment
+        amount = order["total_amount"] / 100
+        msg = "\n".join(
+            [
+                "Спасибо! Оплата прошла успешно.",
+                "Вывести ваш баланс - " + self.commands["balance"],
+            ]
+        )
+        self.db.update_user_wallet(self.db_conn, user_id, amount)
         await update.message.reply_text(msg)
 
     async def command_help(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
