@@ -20,4 +20,3 @@ class TestUsers(TestCase):
         assert user.first_name == self.user_tg["first_name"]
         assert user.role == UserRole.USER.value
         assert isinstance(user.created, str)
-        assert isinstance(user.updated, str)

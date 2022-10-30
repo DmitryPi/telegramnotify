@@ -14,8 +14,12 @@ class Database:
                 username text NOT NULL,
                 first_name text NOT NULL,
                 role text NOT NULL,
-                created text NOT NULL,
-                updated text NOT NULL
+                bill real NOT NULL,
+                wallet real NOT NULL,
+                services text NOT NULL,
+                premium_status text NOT NULL,
+                premium_expire text NOT NULL,
+                created text NOT NULL
             );"""
 
     def create_connection(self, db_file="db.sqlite3", check_same_thread=True):

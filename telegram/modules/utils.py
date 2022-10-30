@@ -1,5 +1,6 @@
 import codecs
 import configparser
+from datetime import datetime
 
 
 def build_config(config_name="config.ini") -> None:
@@ -42,3 +43,7 @@ def handle_error(error, to_file=False, to_file_path="error_log.txt"):
             f.write(error + "\n")
     else:
         raise error
+
+
+def datetime_days_ahead(days) -> str:
+    return str(datetime.now())

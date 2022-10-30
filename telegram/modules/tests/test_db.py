@@ -52,8 +52,8 @@ class TestDatabase(TestCase):
         self.db.insert_user(self.db_conn, user)
         user = self.db.get_user(self.db_conn, self.user_tg["id"])
         assert isinstance(user, User)
-        assert len(list(user.__dict__.keys())) == 6
-        assert len(list(user.__dict__.values())) == 6
+        assert len(list(user.__dict__.keys())) == 10
+        assert len(list(user.__dict__.values())) == 10
 
     def test_insert_get_admins(self):
         user = build_user(self.user_tg, admin=True)
