@@ -253,7 +253,35 @@ class TelegramBot:
         self.db.update_user_wallet(self.db_conn, user_id, amount)
         await update.message.reply_text(msg)
 
-    async def command_help(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+    async def command_balance(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
+        try:
+            user = self.db.get_user(self.db_conn, update.effective_user.id)
+            msg = f"Ваш баланс: {user.wallet}"
+            await update.message.reply_text(msg)
+        except IndexError:
+            await update.message.reply_text(self.auth_invalid_msg)
+
+    async def command_bill(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
+        try:
+            user = self.db.get_user(self.db_conn, update.effective_user.id)
+            msg = "\n".join(
+                [
+                    f"Тарифный план: {user.premium_status}",
+                    f"Потребление в день: {user.bill}",
+                    f"Потребление в месяц: {user.bill * 30}",
+                ]
+            )
+            await update.message.reply_text(msg)
+        except IndexError:
+            await update.message.reply_text(self.auth_invalid_msg)
+
+    async def command_help(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
         try:
             self.db.get_user(self.db_conn, update.effective_user.id)
             msg = "\n".join(
@@ -341,6 +369,8 @@ class TelegramBot:
         )
         # generic handlers
         application.add_handler(start_conv_handler)
+        application.add_handler(CommandHandler("balans", self.command_balance))
+        application.add_handler(CommandHandler("tarif", self.command_bill))
         application.add_handler(CommandHandler("help", self.command_help))
         # payments
         application.add_handler(pay_conv_handler)
