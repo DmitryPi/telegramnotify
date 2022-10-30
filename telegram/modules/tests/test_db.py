@@ -64,6 +64,9 @@ class TestDatabase(TestCase):
         self.db.update_user_wallet(self.db_conn, self.user_tg["id"], 255.5)
         user = self.db.get_user(self.db_conn, self.user_tg["id"])
         assert user.wallet == 443.8
+        self.db.update_user_wallet(self.db_conn, self.user_tg["id"], -3)
+        user = self.db.get_user(self.db_conn, self.user_tg["id"])
+        assert user.wallet == 440.8
 
     def test_insert_get_user(self):
         user = build_user(self.user_tg, self.user_data)
