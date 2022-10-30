@@ -21,6 +21,7 @@ from telegram.ext import (
     ContextTypes,
     ConversationHandler,
     MessageHandler,
+    PreCheckoutQueryHandler,
     filters,
 )
 
@@ -197,7 +198,7 @@ class TelegramBot:
         chat_id = update.message.chat_id
         title = "Пополнение баланса:"
         description = "Описание услуги"
-        payload = "Custom-Payload"
+        payload = "Secret-Payload"
         provider_token = self.config["TELEGRAM"]["yokassa"]
         currency = "RUB"
         prices = [LabeledPrice("Test", pay_amount * 100)]
@@ -212,6 +213,26 @@ class TelegramBot:
             prices,
         )
         return ConversationHandler.END
+
+    async def precheckout_callback(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
+        """Answers the PreQecheckoutQuery"""
+        query = update.pre_checkout_query
+        # check the payload, is this from your bot?
+        if query.invoice_payload != "Secret-Payload":
+            # answer False pre_checkout_query
+            await query.answer(ok=False, error_message="Что-то пошло не так...")
+        else:
+            await query.answer(ok=True)
+
+    async def successful_payment_callback(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
+        """Confirms the successful payment."""
+        # logic goes here
+        msg = "Спасибо! Оплата прошла успешно."
+        await update.message.reply_text(msg)
 
     async def command_help(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
@@ -302,8 +323,13 @@ class TelegramBot:
         # generic handlers
         application.add_handler(start_conv_handler)
         application.add_handler(CommandHandler("help", self.command_help))
+        # payments
         application.add_handler(pay_conv_handler)
-        # ...and the error handler
+        application.add_handler(PreCheckoutQueryHandler(self.precheckout_callback))
+        application.add_handler(
+            MessageHandler(filters.SUCCESSFUL_PAYMENT, self.successful_payment_callback)
+        )
+        #  error handler
         application.add_error_handler(self.error_handler)
         # Run the bot until the user presses Ctrl-C
         application.run_polling()
