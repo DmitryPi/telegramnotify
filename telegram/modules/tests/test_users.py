@@ -20,6 +20,7 @@ class TestUsers(TestCase):
         assert user.first_name == self.user_tg["first_name"]
         assert user.role == UserRole.USER.value
         assert user.services == ""
+        assert user.words == ""
         assert user.bill == 0.0
         assert user.wallet == 0.0
         assert user.premium_status == PremiumStatus.TRIAL.value
@@ -33,6 +34,7 @@ class TestUsers(TestCase):
         assert user.first_name == self.user_tg["first_name"]
         assert user.role == UserRole.ADMIN.value
         assert user.services == ""
+        assert user.words == ""
         assert user.bill == 0.0
         assert user.wallet == 0.0
         assert user.premium_status == PremiumStatus.TRIAL.value

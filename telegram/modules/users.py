@@ -14,6 +14,7 @@ class PremiumStatus(Enum):
     TRIAL = "Trial"
     GENERIC = "Generic"
     GIGAPREMIUM = "GIGAPremium"
+    EXPIRED = "Expired"
 
 
 @dataclass
@@ -22,9 +23,10 @@ class User:
     username: str
     first_name: str
     role: UserRole
+    services: str  # json list
+    words: str  # json list
     bill: float
     wallet: float
-    services: str  # json field
     premium_status: PremiumStatus
     premium_expire: str
     created: str
@@ -40,6 +42,7 @@ def build_user(tg_data: dict, admin=False) -> User:
         first_name=tg_data["first_name"],
         role=user_role,
         services="",
+        words="",
         bill=0.0,
         wallet=0.0,
         premium_status=PremiumStatus.TRIAL.value,

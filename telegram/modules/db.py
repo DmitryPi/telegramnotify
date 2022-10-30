@@ -14,9 +14,10 @@ class Database:
                 username text NOT NULL,
                 first_name text NOT NULL,
                 role text NOT NULL,
+                services text NOT NULL,
+                words text NOT NULL,
                 bill real NOT NULL,
                 wallet real NOT NULL,
-                services text NOT NULL,
                 premium_status text NOT NULL,
                 premium_expire text NOT NULL,
                 created text NOT NULL

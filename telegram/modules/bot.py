@@ -26,6 +26,7 @@ from telegram.ext import (
 )
 
 from .db import Database
+from .users import build_user  # noqa flake8:skip
 from .utils import load_config
 
 ONE, TWO, THREE, FOUR = (i for i in range(1, 5))
@@ -150,19 +151,21 @@ class TelegramBot:
                 ]
             )
             await query.edit_message_text(text=msg)
-            await self.auth_complete(context.user_data)
+            await self.auth_complete(update, context)
             return ConversationHandler.END
         else:
             msg = "Введите новые слова:"
             await query.edit_message_text(text=msg)
             return TWO
 
-    async def auth_complete(self, context: dict) -> int:
+    async def auth_complete(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
         """Добавление в бд"""
         """Обновление статуса премиум"""
         """Баланса"""
         """"""
-        print(context)
+        pass
 
     async def command_pay(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
