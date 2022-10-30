@@ -12,10 +12,10 @@ class UserRole(Enum):
 
 
 class PremiumStatus(Enum):
-    TRIAL = "Trial"
-    GENERIC = "Generic"
-    GIGAPREMIUM = "GIGAPremium"
-    EXPIRED = "Expired"
+    TRIAL = "Пробный период"
+    GENERIC = "Обычный"
+    GIGAPREMIUM = "ГИГАПремиум"
+    INACTIVE = "Приостановлен"
 
 
 @dataclass

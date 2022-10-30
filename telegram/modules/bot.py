@@ -240,7 +240,9 @@ class TelegramBot:
          'currency': 'RUB',
          'order_info': {},
          'telegram_payment_charge_id': '5432524_519367_706459', 'provider_payment_charge_id': '2af0afbc-0000-198bce8',
-         'total_amount': 10000}"""
+         'total_amount': 10000}
+        TODO: save order info
+        """
         user_id = update.effective_user["id"]
         order = update.message.successful_payment
         amount = order["total_amount"] / 100
@@ -258,7 +260,7 @@ class TelegramBot:
     ) -> None:
         try:
             user = self.db.get_user(self.db_conn, update.effective_user.id)
-            msg = f"Ваш баланс: {user.wallet}"
+            msg = f"Ваш баланс: {user.wallet} рублей"
             await update.message.reply_text(msg)
         except IndexError:
             await update.message.reply_text(self.auth_invalid_msg)
@@ -271,8 +273,8 @@ class TelegramBot:
             msg = "\n".join(
                 [
                     f"Тарифный план: {user.premium_status}",
-                    f"Потребление в день: {user.bill}",
-                    f"Потребление в месяц: {user.bill * 30}",
+                    f"Потребление в день: {user.bill} рубля",
+                    f"Потребление в месяц: {user.bill * 30} рублей",
                 ]
             )
             await update.message.reply_text(msg)
