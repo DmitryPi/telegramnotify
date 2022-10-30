@@ -23,7 +23,7 @@ class TestUsers(TestCase):
         assert user.bill == 0.0
         assert user.wallet == 0.0
         assert user.premium_status == PremiumStatus.TRIAL.value
-        assert user.premium_expire == ""
+        assert isinstance(user.premium_expire, str)
         assert isinstance(user.created, str)
 
     def test_build_user_data_admin(self):
@@ -36,5 +36,5 @@ class TestUsers(TestCase):
         assert user.bill == 0.0
         assert user.wallet == 0.0
         assert user.premium_status == PremiumStatus.TRIAL.value
-        assert user.premium_expire == ""
+        assert isinstance(user.premium_expire, str)
         assert isinstance(user.created, str)

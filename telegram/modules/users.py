@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 
+from .utils import datetime_days_ahead
+
 
 class UserRole(Enum):
     USER = "Пользователь"
@@ -41,7 +43,7 @@ def build_user(tg_data: dict, admin=False) -> User:
         bill=0.0,
         wallet=0.0,
         premium_status=PremiumStatus.TRIAL.value,
-        premium_expire="",
+        premium_expire=str(datetime_days_ahead(3)),
         created=str(datetime.now()),
     )
     return user
