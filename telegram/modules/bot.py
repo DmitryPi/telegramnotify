@@ -75,10 +75,10 @@ class TelegramBot:
             self.db.get_user(self.db_conn, update.effective_user.id)
             msg = "\n".join(
                 [
-                    "Постоянное приветствие",
+                    "Вы уже зарегистрированы",
                 ]
             )
-            await update.message.reply_text("")
+            await update.message.reply_text(msg)
         except IndexError:
             msg = "\n".join(
                 [
@@ -161,25 +161,25 @@ class TelegramBot:
     async def auth_complete(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
-        """Добавление в бд"""
-        """Обновление статуса премиум"""
-        """Баланса"""
-        """"""
         user = build_user(update.effective_user, context.user_data)
-        print(user)
+        self.db.insert_user(self.db_conn, user)
 
     async def command_pay(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
-        msg = "\n".join(
-            [
-                "Введите желаемое количество для пополнения.",
-                "Минимальное сумма пополнения - 100 рублей",
-            ]
-        )
-        reply_markup = self.build_keyboard([100, 200, 300, 400, 500])
-        await update.message.reply_text(msg, reply_markup=reply_markup)
-        return ONE
+        try:
+            self.db.get_user(self.db_conn, update.effective_user.id)
+            msg = "\n".join(
+                [
+                    "Введите желаемое количество для пополнения.",
+                    "Минимальное сумма пополнения - 100 рублей",
+                ]
+            )
+            reply_markup = self.build_keyboard([100, 200, 300, 400, 500])
+            await update.message.reply_text(msg, reply_markup=reply_markup)
+            return ONE
+        except IndexError:
+            await update.message.reply_text(self.auth_invalid_msg)
 
     async def build_invoice(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -234,7 +234,6 @@ class TelegramBot:
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
         """Confirms the successful payment."""
-        # logic goes here
         msg = "Спасибо! Оплата прошла успешно."
         await update.message.reply_text(msg)
 
