@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
@@ -32,17 +33,17 @@ class User:
     created: str
 
 
-def build_user(tg_data: dict, admin=False) -> User:
-    """user_data - из json файла; tg_data - объект телеграм пользователя"""
-    username = tg_data["username"] if tg_data["username"] else tg_data["first_name"]
+def build_user(tg_user: object, user_data: dict, admin=False) -> User:
+    """tg_user - объект телеграм пользователя; user_data - telegram dict context"""
+    username = tg_user["username"] if tg_user["username"] else tg_user["first_name"]
     user_role = UserRole.ADMIN.value if admin else UserRole.USER.value
     user = User(
-        uid=tg_data["id"],
+        uid=tg_user["id"],
         username=username,
-        first_name=tg_data["first_name"],
+        first_name=tg_user["first_name"],
         role=user_role,
-        services="",
-        words="",
+        services=json.dumps(user_data["service"]),
+        words=json.dumps(user_data["words"]),
         bill=0.0,
         wallet=0.0,
         premium_status=PremiumStatus.TRIAL.value,

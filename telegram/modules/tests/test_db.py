@@ -43,12 +43,16 @@ class TestDatabase(TestCase):
             "id": 5,
             "language_code": "ru",
         }
+        self.user_data = {
+            "service": ["Fl.ru"],
+            "words": ["test", "parse", "bot"],
+        }
 
     def tearDown(self):
         self.db_conn.close()
 
     def test_insert_get_user(self):
-        user = build_user(self.user_tg)
+        user = build_user(self.user_tg, self.user_data)
         self.db.insert_user(self.db_conn, user)
         user = self.db.get_user(self.db_conn, self.user_tg["id"])
         assert isinstance(user, User)
@@ -56,8 +60,8 @@ class TestDatabase(TestCase):
         assert len(list(user.__dict__.values())) == 11
 
     def test_insert_get_admins(self):
-        user = build_user(self.user_tg, admin=True)
-        user1 = build_user(self.user_tgg, admin=False)
+        user = build_user(self.user_tg, self.user_data, admin=True)
+        user1 = build_user(self.user_tgg, self.user_data, admin=False)
         self.db.insert_user(self.db_conn, user)
         self.db.insert_user(self.db_conn, user1)
         users = self.db.get_admins(self.db_conn)

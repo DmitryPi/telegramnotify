@@ -26,7 +26,7 @@ from telegram.ext import (
 )
 
 from .db import Database
-from .users import build_user  # noqa flake8:skip
+from .users import build_user
 from .utils import load_config
 
 ONE, TWO, THREE, FOUR = (i for i in range(1, 5))
@@ -97,7 +97,7 @@ class TelegramBot:
         """Выбор сервиса для поиска"""
         query = update.callback_query
         await query.answer()
-        context.user_data.update({"auth_service": query.data})
+        context.user_data.update({"service": query.data.split(" ")})
         msg = "\n".join(
             [
                 "Вы выбрали - " + query.data,
@@ -118,7 +118,7 @@ class TelegramBot:
         """TODO: очистка слов от всего плохого"""
         words = update.message.text.split(",")[:5]  # only 5 words allowed
         words = [w.strip() for w in words]
-        context.user_data.update({"auth_words": words})
+        context.user_data.update({"words": words})
         msg = "\n".join(
             [
                 "Ваши слова для поиска:\n",
@@ -138,8 +138,8 @@ class TelegramBot:
         await query.answer()
         answer = query.data
         if answer == "Да":
-            user_service = context.user_data["auth_service"]
-            user_words = str(context.user_data["auth_words"])
+            user_service = context.user_data["service"][0]
+            user_words = str(context.user_data["words"])
             msg = "\n".join(
                 [
                     "Спасибо за регистрацию!\n",
@@ -165,7 +165,8 @@ class TelegramBot:
         """Обновление статуса премиум"""
         """Баланса"""
         """"""
-        pass
+        user = build_user(update.effective_user, context.user_data)
+        print(user)
 
     async def command_pay(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
