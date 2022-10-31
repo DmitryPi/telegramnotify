@@ -47,9 +47,9 @@ class TelegramBot:
         self.commands = {
             "start": "/start",
             "help": "/help",
-            "pay": "/oplata",
-            "balance": "/balans",
-            "bill": "/tarif",
+            "pay": "/pay",
+            "balance": "/balance",
+            "bill": "/bill",
             "settings": "/settings",
             "cancel": "/cancel",
         }
@@ -260,7 +260,7 @@ class TelegramBot:
     ) -> None:
         try:
             user = self.db.get_user(self.db_conn, update.effective_user.id)
-            msg = f"Ваш баланс: {user.wallet} рублей"
+            msg = f"<b>Ваш баланс</b>: {user.wallet} рублей"
             await update.message.reply_text(msg)
         except IndexError:
             await update.message.reply_text(self.auth_invalid_msg)
@@ -272,12 +272,20 @@ class TelegramBot:
             user = self.db.get_user(self.db_conn, update.effective_user.id)
             msg = "\n".join(
                 [
-                    f"Тарифный план: {user.premium_status}",
-                    f"Потребление в день: {user.bill} рубля",
-                    f"Потребление в месяц: {user.bill * 30} рублей",
+                    f"<b>Тарифный план</b>: {user.premium_status}",
+                    f"<b>Потребление в день</b>: {user.bill} рубля",
+                    f"<b>Потребление в месяц</b>: {user.bill * 30} рублей",
                 ]
             )
-            await update.message.reply_text(msg)
+            await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
+        except IndexError:
+            await update.message.reply_text(self.auth_invalid_msg)
+
+    async def command_settings(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
+        try:
+            self.db.get_user(self.db_conn, update.effective_user.id)
         except IndexError:
             await update.message.reply_text(self.auth_invalid_msg)
 
@@ -360,7 +368,7 @@ class TelegramBot:
             per_user=True,
         )
         pay_conv_handler = ConversationHandler(
-            entry_points=[CommandHandler("oplata", self.command_pay)],
+            entry_points=[CommandHandler("pay", self.command_pay)],
             states={
                 ONE: [
                     MessageHandler(filters.TEXT & ~filters.COMMAND, self.build_invoice)
@@ -369,10 +377,17 @@ class TelegramBot:
             fallbacks=[CommandHandler("cancel", self.command_cancel_conv)],
             per_user=True,
         )
+        settings_conv_handler = ConversationHandler(
+            entry_points=[CommandHandler("settings", self.command_settings)],
+            states={},
+            fallbacks=[CommandHandler("cancel", self.command_cancel_conv)],
+            per_user=True,
+        )
         # generic handlers
         application.add_handler(start_conv_handler)
-        application.add_handler(CommandHandler("balans", self.command_balance))
-        application.add_handler(CommandHandler("tarif", self.command_bill))
+        application.add_handler(settings_conv_handler)
+        application.add_handler(CommandHandler("balance", self.command_balance))
+        application.add_handler(CommandHandler("bill", self.command_bill))
         application.add_handler(CommandHandler("help", self.command_help))
         # payments
         application.add_handler(pay_conv_handler)
