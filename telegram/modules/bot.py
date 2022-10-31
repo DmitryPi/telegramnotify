@@ -43,6 +43,12 @@ class TelegramBot:
         self.db = Database()
         self.db_conn = self.db.create_connection()
         self.services = ["FL.ru", "avito"]
+        self.settings = [
+            "Добавить сервис",
+            "Добавить слова",
+            "Удалить сервис",
+            "Удалить слово",
+        ]
         self.yesno = ["Да", "Нет"]
         self.commands = {
             "start": "/start",
@@ -64,10 +70,10 @@ class TelegramBot:
         reply_markup = ReplyKeyboardMarkup([btns])
         return reply_markup
 
-    def build_inline_keyboard(self, context: list[str], grid=3) -> InlineKeyboardMarkup:
+    def build_inline_keyboard(self, context: list[str], grid=2) -> InlineKeyboardMarkup:
         """TODO: btn grid division"""
-        btns = [InlineKeyboardButton(s, callback_data=s) for s in context]
-        reply_markup = InlineKeyboardMarkup([btns])
+        btns = [[InlineKeyboardButton(s, callback_data=s) for s in context]]
+        reply_markup = InlineKeyboardMarkup(btns)
         return reply_markup
 
     async def command_start(
@@ -288,16 +294,62 @@ class TelegramBot:
 
     async def command_settings(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
-    ) -> None:
+    ) -> int:
         """
-        Изменение/Добавление сервисов
-        Изменение слов
+        Добавление сервис / Добавить слова
+        Удалить сервис / Удалить слово
         Отключение/Включение работы
         """
         try:
-            self.db.get_user(self.db_conn, update.effective_user.id)
+            user = self.db.get_user(self.db_conn, update.effective_user.id)
+            context.user_data.update({"user": user})
+            reply_markup = self.build_inline_keyboard(self.settings)
+            msg = "<b>Настройки:</b>"
+            await update.message.reply_text(
+                msg, reply_markup=reply_markup, parse_mode=ParseMode.HTML
+            )
+            return ONE
         except IndexError:
             await update.message.reply_text(self.auth_invalid_msg)
+
+    async def settings_choose(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> int:
+        user = context.user_data["user"]
+        query = update.callback_query
+        await query.answer()
+        answer = query.data
+        if answer == self.settings[0]:  # Сервисы
+            reply_markup = self.build_inline_keyboard(self.services)
+            await query.edit_message_text(text=answer, reply_markup=reply_markup)
+            return TWO
+        elif answer == self.settings[1]:  # Слова
+            user_words = json.loads(user.words)
+            reply_markup = self.build_inline_keyboard(user_words)
+            await query.edit_message_text(text=answer, reply_markup=reply_markup)
+            return THREE
+
+    async def settings_services(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> int:
+        print(context.user_data["user"])
+        query = update.callback_query
+        await query.answer()
+        answer = query.data
+        print(answer)
+        await query.edit_message_text(text=answer)
+        return ConversationHandler.END
+
+    async def settings_words(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> int:
+        print(context.user_data["user"])
+        query = update.callback_query
+        await query.answer()
+        answer = query.data
+        print(answer)
+        await query.edit_message_text(text=answer)
+        return ConversationHandler.END
 
     async def command_techsupport(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -409,7 +461,11 @@ class TelegramBot:
         )
         settings_conv_handler = ConversationHandler(
             entry_points=[CommandHandler("settings", self.command_settings)],
-            states={},
+            states={
+                ONE: [CallbackQueryHandler(self.settings_choose)],
+                TWO: [CallbackQueryHandler(self.settings_services)],
+                THREE: [CallbackQueryHandler(self.settings_words)],
+            },
             fallbacks=[CommandHandler("cancel", self.command_cancel_conv)],
             per_user=True,
         )
