@@ -85,11 +85,13 @@ class TelegramBot:
                 [
                     "Привет!",
                     "Я могу оповещать тебя о новых заказах и проектах",
-                    "\nВыбери сервис:",
+                    "\n<b>Выбери сервис:</b>",
                 ]
             )
             reply_markup = self.build_inline_keyboard(self.services)
-            await update.message.reply_text(msg, reply_markup=reply_markup)
+            await update.message.reply_text(
+                msg, reply_markup=reply_markup, parse_mode=ParseMode.HTML
+            )
             return ONE
 
     async def auth_service(
@@ -107,10 +109,10 @@ class TelegramBot:
                 "*Минимальная длина слова - 3 символа*",
                 "*В пробном периоде доступно до 5 слов-фраз*",
                 f"\nОтмена операции - {self.commands['cancel']}\n",
-                "Пример: парсинг, дизайн страницы, бот, верстка, написать на питоне",
+                "<b>Пример</b>: парсинг, дизайн страницы, бот, верстка, написать на питоне",
             ]
         )
-        await query.edit_message_text(text=msg)
+        await query.edit_message_text(text=msg, parse_mode=ParseMode.HTML)
         return TWO
 
     async def auth_words(
@@ -124,11 +126,13 @@ class TelegramBot:
             [
                 "Ваши слова для поиска:\n",
                 str(words),
-                "\nПодтверждаете?",
+                "\n<b>Подтверждаете?</b>",
             ]
         )
         reply_markup = self.build_inline_keyboard(self.yesno)
-        await update.message.reply_text(msg, reply_markup=reply_markup)
+        await update.message.reply_text(
+            msg, reply_markup=reply_markup, parse_mode=ParseMode.HTML
+        )
         return THREE
 
     async def auth_words_confirm(
@@ -155,8 +159,8 @@ class TelegramBot:
             await self.auth_complete(update, context)
             return ConversationHandler.END
         else:
-            msg = "Введите новые слова:"
-            await query.edit_message_text(text=msg)
+            msg = "<b>Введите новые слова:</b>"
+            await query.edit_message_text(text=msg, parse_mode=ParseMode.HTML)
             return TWO
 
     async def auth_complete(
@@ -173,7 +177,7 @@ class TelegramBot:
             msg = "\n".join(
                 [
                     "Введите желаемое количество для пополнения.",
-                    "Минимальное сумма пополнения - 100 рублей",
+                    "Минимальное сумма пополнения - 100 рублей.",
                 ]
             )
             reply_markup = self.build_keyboard([100, 200, 300, 400, 500])
@@ -192,12 +196,12 @@ class TelegramBot:
         except ValueError:
             msg = "\n".join(
                 [
-                    "Неверное количество.",
-                    "Минимальное сумма пополнения - 100 рублей",
+                    "<b>Неверное количество!</b>",
+                    "Минимальное сумма пополнения - 100 рублей.",
                     "\nДля отмены - /cancel",
                 ]
             )
-            await update.message.reply_text(msg)
+            await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
             return ONE
         chat_id = update.message.chat_id
         title = "Пополнение баланса:"
@@ -261,7 +265,7 @@ class TelegramBot:
         try:
             user = self.db.get_user(self.db_conn, update.effective_user.id)
             msg = f"<b>Ваш баланс</b>: {user.wallet} рублей"
-            await update.message.reply_text(msg)
+            await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
         except IndexError:
             await update.message.reply_text(self.auth_invalid_msg)
 
