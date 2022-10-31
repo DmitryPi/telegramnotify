@@ -51,6 +51,7 @@ class TelegramBot:
             "balance": "/balance",
             "bill": "/bill",
             "settings": "/settings",
+            "techsupport": "/techsupport",
             "cancel": "/cancel",
         }
 
@@ -288,10 +289,34 @@ class TelegramBot:
     async def command_settings(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
+        """
+        Изменение/Добавление сервисов
+        Изменение слов
+        Отключение/Включение работы
+        """
         try:
             self.db.get_user(self.db_conn, update.effective_user.id)
         except IndexError:
             await update.message.reply_text(self.auth_invalid_msg)
+
+    async def command_techsupport(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> int:
+        try:
+            self.db.get_user(self.db_conn, update.effective_user.id)
+            msg = "<b>Задайте вопрос:</b>\nДля отмены - /cancel"
+            await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
+            return ONE
+        except IndexError:
+            await update.message.reply_text(self.auth_invalid_msg)
+
+    async def techsupport_msg(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> int:
+        """TODO: save techsupport ticket - update.message.text"""
+        msg = "<b>Вопрос отправлен!</b>В ближайшее время, вы получите ответ."
+        await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
+        return ConversationHandler.END
 
     async def command_help(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -306,6 +331,7 @@ class TelegramBot:
                     f"{self.commands['pay']} - Пополнить баланс",
                     f"{self.commands['bill']} - Текущий тарифный план",
                     f"{self.commands['settings']} - Настройки оповещения",
+                    f"{self.commands['techsupport']} - Техническая поддержка",
                     f"{self.commands['cancel']} - Прервать диалог",
                 ]
             )
@@ -387,9 +413,22 @@ class TelegramBot:
             fallbacks=[CommandHandler("cancel", self.command_cancel_conv)],
             per_user=True,
         )
+        techsupport_conv_handler = ConversationHandler(
+            entry_points=[CommandHandler("techsupport", self.command_techsupport)],
+            states={
+                ONE: [
+                    MessageHandler(
+                        filters.TEXT & ~filters.COMMAND, self.techsupport_msg
+                    )
+                ]
+            },
+            fallbacks=[CommandHandler("cancel", self.command_cancel_conv)],
+            per_user=True,
+        )
         # generic handlers
         application.add_handler(start_conv_handler)
         application.add_handler(settings_conv_handler)
+        application.add_handler(techsupport_conv_handler)
         application.add_handler(CommandHandler("balance", self.command_balance))
         application.add_handler(CommandHandler("bill", self.command_bill))
         application.add_handler(CommandHandler("help", self.command_help))
