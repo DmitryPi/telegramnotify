@@ -2,7 +2,6 @@ import asyncio  # noqa skip
 import html
 import json
 import logging
-import os
 import traceback
 
 from environ import Env
@@ -27,16 +26,8 @@ from telegram.ext import (
     filters,
 )
 
-# configure django
-import django  # noqa isort:skip
-
-os.environ.setdefault(
-    "DJANGO_SETTINGS_MODULE", "config.settings.local"
-)  # noqa isort:skip
-django.setup()  # noqa isort:skip
-
 # django imports
-from telegramservice.users.models import User  # noqa E402
+from telegramservice.users.models import User
 
 ONE, TWO, THREE, FOUR = (i for i in range(1, 5))
 
