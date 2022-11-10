@@ -272,3 +272,7 @@ tags
 telegramparserservice/media/
 
 .pytest_cache/
+
+
+# Project
+.env
