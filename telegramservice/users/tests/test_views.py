@@ -8,10 +8,10 @@ from django.http import HttpRequest, HttpResponseRedirect
 from django.test import RequestFactory
 from django.urls import reverse
 
-from telegramparserservice.users.forms import UserAdminChangeForm
-from telegramparserservice.users.models import User
-from telegramparserservice.users.tests.factories import UserFactory
-from telegramparserservice.users.views import (
+from telegramservice.users.forms import UserAdminChangeForm
+from telegramservice.users.models import User
+from telegramservice.users.tests.factories import UserFactory
+from telegramservice.users.views import (
     UserRedirectView,
     UserUpdateView,
     user_detail_view,

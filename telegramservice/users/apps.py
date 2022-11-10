@@ -3,11 +3,11 @@ from django.utils.translation import gettext_lazy as _
 
 
 class UsersConfig(AppConfig):
-    name = "telegramparserservice.users"
+    name = "telegramservice.users"
     verbose_name = _("Users")
 
     def ready(self):
         try:
-            import telegramparserservice.users.signals  # noqa F401
+            import telegramservice.users.signals  # noqa F401
         except ImportError:
             pass

@@ -1,6 +1,6 @@
 from django.urls import resolve, reverse
 
-from telegramparserservice.users.models import User
+from telegramservice.users.models import User
 
 
 def test_detail(user: User):

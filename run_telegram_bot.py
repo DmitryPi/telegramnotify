@@ -1,6 +1,6 @@
 import environ
 
-from telegramparserservice.bots.bot import TelegramBot
+from telegramservice.bots.bot import TelegramBot
 
 if __name__ == "__main__":
     env = environ.Env()

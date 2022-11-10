@@ -6,8 +6,8 @@ from pathlib import Path
 import environ
 
 ROOT_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
-# telegramparserservice/
-APPS_DIR = ROOT_DIR / "telegramparserservice"
+# telegramservice/
+APPS_DIR = ROOT_DIR / "telegramservice"
 env = environ.Env()
 
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=True)
@@ -44,7 +44,7 @@ LOCALE_PATHS = [str(ROOT_DIR / "locale")]
 DATABASES = {
     "default": env.db(
         "DATABASE_URL",
-        default="postgres:///telegramparserservice",
+        default="postgres:///telegramservice",
     ),
 }
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
@@ -80,8 +80,9 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    "telegramparserservice.users",
-    # Your stuff: custom apps go here
+    "telegramservice.users",
+    "telegramservice.bots",
+    "telegramservice.core",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -89,7 +90,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # MIGRATIONS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#migration-modules
-MIGRATION_MODULES = {"sites": "telegramparserservice.contrib.sites.migrations"}
+MIGRATION_MODULES = {"sites": "telegramservice.contrib.sites.migrations"}
 
 # AUTHENTICATION
 # ------------------------------------------------------------------------------
@@ -184,7 +185,7 @@ TEMPLATES = [
                 "django.template.context_processors.static",
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
-                "telegramparserservice.users.context_processors.allauth_settings",
+                "telegramservice.users.context_processors.allauth_settings",
             ],
         },
     }
@@ -267,15 +268,13 @@ ACCOUNT_EMAIL_REQUIRED = True
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-ACCOUNT_ADAPTER = "telegramparserservice.users.adapters.AccountAdapter"
+ACCOUNT_ADAPTER = "telegramservice.users.adapters.AccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/forms.html
-ACCOUNT_FORMS = {"signup": "telegramparserservice.users.forms.UserSignupForm"}
+ACCOUNT_FORMS = {"signup": "telegramservice.users.forms.UserSignupForm"}
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-SOCIALACCOUNT_ADAPTER = "telegramparserservice.users.adapters.SocialAccountAdapter"
+SOCIALACCOUNT_ADAPTER = "telegramservice.users.adapters.SocialAccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/forms.html
-SOCIALACCOUNT_FORMS = {
-    "signup": "telegramparserservice.users.forms.UserSocialSignupForm"
-}
+SOCIALACCOUNT_FORMS = {"signup": "telegramservice.users.forms.UserSocialSignupForm"}
 
 
 # Your stuff...

@@ -1,6 +1,6 @@
 from django.urls import reverse
 
-from telegramparserservice.users.models import User
+from telegramservice.users.models import User
 
 
 class TestUserAdmin:

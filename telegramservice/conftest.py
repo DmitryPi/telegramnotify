@@ -1,7 +1,7 @@
 import pytest
 
-from telegramparserservice.users.models import User
-from telegramparserservice.users.tests.factories import UserFactory
+from telegramservice.users.models import User
+from telegramservice.users.tests.factories import UserFactory
 
 
 @pytest.fixture(autouse=True)

@@ -269,7 +269,7 @@ Session.vim
 tags
 
 ### Project template
-telegramparserservice/media/
+telegramservice/media/
 
 .pytest_cache/
 
