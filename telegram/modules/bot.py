@@ -308,7 +308,7 @@ class TelegramBot:
             await update.message.reply_text(
                 msg, reply_markup=reply_markup, parse_mode=ParseMode.HTML
             )
-            return ONE
+            return ConversationHandler.END
         except IndexError:
             await update.message.reply_text(self.auth_invalid_msg)
 
