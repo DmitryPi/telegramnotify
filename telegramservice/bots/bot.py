@@ -4,6 +4,7 @@ import json
 import logging
 import traceback
 
+from asgiref.sync import sync_to_async
 from environ import Env
 from telegram import (
     InlineKeyboardButton,
@@ -78,14 +79,14 @@ class TelegramBot:
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
         try:
-            User.objects.get(tg_id=update.effective_user.id)
+            await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
             msg = "\n".join(
                 [
                     "Вы уже зарегистрированы",
                 ]
             )
             await update.message.reply_text(msg)
-        except IndexError:
+        except User.DoesNotExist:
             msg = "\n".join(
                 [
                     "Привет!",
@@ -172,13 +173,13 @@ class TelegramBot:
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
         user = build_user(update.effective_user, context.user_data)  # noqa skip
-        self.db.insert_user(self.db_conn, user)
+        sync_to_async(User.objects.create)(tg_id=update.effective_user.id)
 
     async def command_pay(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
         try:
-            self.db.get_user(self.db_conn, update.effective_user.id)
+            await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
             msg = "\n".join(
                 [
                     "Введите желаемое количество для пополнения.",
@@ -188,7 +189,7 @@ class TelegramBot:
             reply_markup = self.build_keyboard([100, 200, 300, 400, 500])
             await update.message.reply_text(msg, reply_markup=reply_markup)
             return ONE
-        except IndexError:
+        except User.DoesNotExist:
             await update.message.reply_text(self.auth_invalid_msg)
 
     async def build_invoice(
@@ -268,17 +269,17 @@ class TelegramBot:
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
         try:
-            user = self.db.get_user(self.db_conn, update.effective_user.id)
+            user = await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
             msg = f"<b>Ваш баланс</b>: {user.wallet} рублей"
             await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
-        except IndexError:
+        except User.DoesNotExist:
             await update.message.reply_text(self.auth_invalid_msg)
 
     async def command_bill(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
         try:
-            user = self.db.get_user(self.db_conn, update.effective_user.id)
+            user = await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
             msg = "\n".join(
                 [
                     f"<b>Тарифный план</b>: {user.premium_status}",
@@ -287,7 +288,7 @@ class TelegramBot:
                 ]
             )
             await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
-        except IndexError:
+        except User.DoesNotExist:
             await update.message.reply_text(self.auth_invalid_msg)
 
     async def command_settings(
@@ -299,7 +300,7 @@ class TelegramBot:
         Отключение/Включение работы
         """
         try:
-            user = self.db.get_user(self.db_conn, update.effective_user.id)
+            user = await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
             context.user_data.update({"user": user})
             reply_markup = self.build_inline_keyboard(self.settings)
             msg = "<b>Настройки:</b>"
@@ -307,7 +308,7 @@ class TelegramBot:
                 msg, reply_markup=reply_markup, parse_mode=ParseMode.HTML
             )
             return ConversationHandler.END
-        except IndexError:
+        except User.DoesNotExist:
             await update.message.reply_text(self.auth_invalid_msg)
 
     async def settings_choose(
@@ -353,7 +354,7 @@ class TelegramBot:
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
         try:
-            self.db.get_user(self.db_conn, update.effective_user.id)
+            await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
             msg = "<b>Задайте вопрос:</b>\nДля отмены - /cancel"
             await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
             return ONE
@@ -372,7 +373,7 @@ class TelegramBot:
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
         try:
-            self.db.get_user(self.db_conn, update.effective_user.id)
+            await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
             msg = "\n".join(
                 [
                     "<b>Доступные команды:</b>",
@@ -386,7 +387,7 @@ class TelegramBot:
                 ]
             )
             await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
-        except IndexError:
+        except User.DoesNotExist:
             await update.message.reply_text(self.auth_invalid_msg)
 
     async def command_cancel_conv(
