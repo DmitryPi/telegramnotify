@@ -4,6 +4,7 @@ import json
 import logging
 import traceback
 
+from environ import Env
 from telegram import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
@@ -25,10 +26,6 @@ from telegram.ext import (
     filters,
 )
 
-from .db import Database
-from .users import build_user
-from .utils import load_config
-
 ONE, TWO, THREE, FOUR = (i for i in range(1, 5))
 
 
@@ -37,11 +34,11 @@ class SenderBot:
 
 
 class TelegramBot:
-    def __init__(self, api_token: str):
-        self.api_token = api_token
-        self.config = load_config()
-        self.db = Database()
-        self.db_conn = self.db.create_connection()
+    def __init__(self, env: Env):
+        self.env = env
+        self.api_token = self.env("TELEGRAM_API_TOKEN")
+        self.db = ""
+        self.db_conn = ""
         self.services = ["FL.ru", "avito"]
         self.settings = [
             "Добавить сервис",
@@ -173,7 +170,7 @@ class TelegramBot:
     async def auth_complete(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
-        user = build_user(update.effective_user, context.user_data)
+        user = build_user(update.effective_user, context.user_data)  # noqa skip
         self.db.insert_user(self.db_conn, user)
 
     async def command_pay(
@@ -214,7 +211,7 @@ class TelegramBot:
         title = "Пополнение баланса:"
         description = "Описание услуги"
         payload = "Secret-Payload"
-        provider_token = self.config["TELEGRAM"]["yokassa"]
+        provider_token = self.env["YOKASSA_TOKEN"]
         currency = "RUB"
         prices = [LabeledPrice("Test", pay_amount * 100)]
         await update.message.reply_text(".", reply_markup=ReplyKeyboardRemove())
@@ -429,7 +426,7 @@ class TelegramBot:
 
         # Finally, send the message
         await context.bot.send_message(
-            chat_id=self.config["TELEGRAM"]["admin_id"],
+            chat_id=self.env["TELEGRAM_ADMIN_ID"],
             text=message,
             parse_mode=ParseMode.HTML,
         )
@@ -498,3 +495,12 @@ class TelegramBot:
         application.add_error_handler(self.error_handler)
         # Run the bot until the user presses Ctrl-C
         application.run_polling()
+
+
+if __name__ == "__main__":
+    import environ
+
+    env = environ.Env()
+    api_token = env.bool("TELEGRAM_API_TOKEN", False)
+    telegram_bot = TelegramBot(api_token=api_token)
+    telegram_bot.run()
