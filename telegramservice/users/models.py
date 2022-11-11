@@ -33,12 +33,12 @@ class User(AbstractUser):
         _("Баланс"), max_digits=11, decimal_places=2, default=0
     )
     premium_status = models.CharField(
-        _("Premium Status"),
+        _("Статус"),
         max_length=55,
         choices=PremiumStatus.choices,
         default=PremiumStatus.expired,
     )
-    premium_expire = models.DateTimeField(blank=True, default="")
+    premium_expire = models.DateTimeField(_("Действует до"), blank=True, default="")
 
     def get_absolute_url(self):
         return reverse("users:detail", kwargs={"username": self.username})
