@@ -23,8 +23,8 @@ class Order(TimeStampedModel):
     invoice_payload = models.CharField(max_length=55)
     currency = models.CharField(max_length=5)
     total_amount = models.DecimalField(max_digits=11, decimal_places=2)
-    telegram_payment_charge_id = models.CharField(max_length=100)
-    provider_payment_charge_id = models.CharField(max_length=100)
+    telegram_payment_charge_id = models.CharField(max_length=100, editable=False)
+    provider_payment_charge_id = models.CharField(max_length=100, editable=False)
 
     class Meta:
         verbose_name = _("Order")
