@@ -57,7 +57,7 @@ class TelegramBot:
             "balance": "/balance",
             "bill": "/bill",
             "settings": "/settings",
-            "techsupport": "/techsupport",
+            "techsupport": "/support",
             "cancel": "/cancel",
         }
 
@@ -262,11 +262,13 @@ class TelegramBot:
          'invoice_payload': 'Secret-Payload',
          'currency': 'RUB',
          'order_info': {},
-         'telegram_payment_charge_id': '5432524_519367_706459', 'provider_payment_charge_id': '2af0afbc-0000-198bce8',
-         'total_amount': 10000}
+         'telegram_payment_charge_id': '5432524_519367_706459',
+         'provider_payment_charge_id': '2af0afbc-0000-198bce8',
+         'total_amount': 10000
+        }
         TODO: save order info
         """
-        user_id = update.effective_user["id"]
+        user = await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
         order = update.message.successful_payment
         amount = order["total_amount"] / 100
         msg = "\n".join(
@@ -275,7 +277,9 @@ class TelegramBot:
                 "Вывести ваш баланс - " + self.commands["balance"],
             ]
         )
-        self.db.update_user_wallet(self.db_conn, user_id, amount)
+        # wallet update
+        await sync_to_async(user.update_wallet)(amount)
+        # send success msg
         await update.message.reply_text(msg)
 
     async def command_balance(
@@ -394,7 +398,7 @@ class TelegramBot:
                     f"{self.commands['help']} - Помошник команд",
                     f"{self.commands['pay']} - Пополнить баланс",
                     f"{self.commands['bill']} - Текущий тарифный план",
-                    f"{self.commands['settings']} - Настройки оповещения",
+                    f"{self.commands['settings']} - Настройки",
                     f"{self.commands['techsupport']} - Техническая поддержка",
                     f"{self.commands['cancel']} - Прервать диалог",
                 ]
