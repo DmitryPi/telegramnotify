@@ -38,7 +38,7 @@ class User(AbstractUser):
         choices=PremiumStatus.choices,
         default=PremiumStatus.expired,
     )
-    premium_expire = models.DateTimeField(auto_now_add=True)
+    premium_expire = models.DateTimeField(blank=True, default="")
 
     def get_absolute_url(self):
         return reverse("users:detail", kwargs={"username": self.username})

@@ -16,6 +16,9 @@ class UserAdmin(auth_admin.UserAdmin):
     fieldsets = (
         (None, {"fields": ("username", "password")}),
         (_("Personal info"), {"fields": ("name", "email")}),
+        (_("Сервисы"), {"fields": ("services", "words")}),
+        (_("Кошелек"), {"fields": ("bill", "wallet")}),
+        (_("Премиум"), {"fields": ("premium_status", "premium_expire")}),
         (
             _("Permissions"),
             {
