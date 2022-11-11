@@ -20,7 +20,9 @@ class User(AbstractUser):
         expired = "expired", _("Expired")
 
     # fields
-    tg_id = models.IntegerField(_("Telegram ID"), unique=True, null=True, blank=True)
+    tg_id = models.IntegerField(
+        _("Telegram ID"), db_index=True, unique=True, null=True, blank=True
+    )
     name = models.CharField(_("Name of User"), blank=True, max_length=255)
     first_name = None  # type: ignore
     last_name = None  # type: ignore

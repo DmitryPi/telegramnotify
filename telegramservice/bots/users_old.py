@@ -1,6 +1,5 @@
 import json
 from dataclasses import dataclass
-from datetime import datetime
 from enum import Enum
 
 from .utils import datetime_days_ahead
@@ -38,7 +37,7 @@ def build_user(tg_user: object, user_data: dict, admin=False) -> User:
     username = tg_user["username"] if tg_user["username"] else tg_user["first_name"]
     user_role = UserRole.ADMIN.value if admin else UserRole.USER.value
     user = User(
-        uid=tg_user["id"],
+        tg_id=tg_user["id"],
         username=username,
         first_name=tg_user["first_name"],
         role=user_role,
@@ -48,6 +47,5 @@ def build_user(tg_user: object, user_data: dict, admin=False) -> User:
         wallet=0.0,
         premium_status=PremiumStatus.TRIAL.value,
         premium_expire=str(datetime_days_ahead(3)),
-        created=str(datetime.now()),
     )
     return user

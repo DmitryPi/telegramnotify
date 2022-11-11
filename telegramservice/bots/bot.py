@@ -30,6 +30,8 @@ from telegram.ext import (
 # django imports
 from telegramservice.users.models import User
 
+from .users_old import build_user  # noqa
+
 ONE, TWO, THREE, FOUR = (i for i in range(1, 5))
 
 
@@ -172,8 +174,14 @@ class TelegramBot:
     async def auth_complete(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
-        user = build_user(update.effective_user, context.user_data)  # noqa skip
-        sync_to_async(User.objects.create)(tg_id=update.effective_user.id)
+        # user = build_user(update.effective_user, context.user_data)  # noqa skip
+        tg_user = update.effective_user
+        username = tg_user["username"] if tg_user["username"] else tg_user["first_name"]
+        sync_to_async(User.objects.create)(
+            tg_id=tg_user.id,
+            username=username,
+            password=tg_user.id,
+        )
 
     async def command_pay(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
