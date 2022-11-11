@@ -1,7 +1,7 @@
-from datetime import datetime, timedelta
+from django.utils import timezone
 
 
-def datetime_days_ahead(days: int) -> datetime:
-    now = datetime.now()
-    delta = timedelta(days=days)
+def datetime_days_ahead(days: int) -> timezone:
+    now = timezone.now()
+    delta = timezone.timedelta(days=days)
     return now + delta

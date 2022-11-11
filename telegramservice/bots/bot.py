@@ -28,9 +28,8 @@ from telegram.ext import (
 )
 
 # django imports
+from telegramservice.core.utils import datetime_days_ahead
 from telegramservice.users.models import User
-
-from .users_old import build_user  # noqa
 
 ONE, TWO, THREE, FOUR = (i for i in range(1, 5))
 
@@ -174,13 +173,19 @@ class TelegramBot:
     async def auth_complete(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
-        # user = build_user(update.effective_user, context.user_data)  # noqa skip
         tg_user = update.effective_user
         username = tg_user["username"] if tg_user["username"] else tg_user["first_name"]
-        sync_to_async(User.objects.create)(
+        await sync_to_async(User.objects.create)(
             tg_id=tg_user.id,
             username=username,
-            password=tg_user.id,
+            password=str(tg_user.id),
+            name=tg_user["first_name"],
+            services=context.user_data["service"],
+            words=context.user_data["words"],
+            bill=0,
+            wallet=0,
+            premium_status=User.PremiumStatus.trial,
+            premium_expire=datetime_days_ahead(3),
         )
 
     async def command_pay(
