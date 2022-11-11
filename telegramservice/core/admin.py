@@ -25,4 +25,4 @@ class OrderAdmin(admin.ModelAdmin):
         ),
     )
 
-    list_display = ["uuid", "status", "currency", "total_amount"]
+    list_display = ["uuid", "status", "total_amount", "currency"]
