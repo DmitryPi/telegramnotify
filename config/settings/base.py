@@ -81,7 +81,6 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "telegramservice.users",
-    "telegramservice.bots",
     "telegramservice.core",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
