@@ -88,3 +88,7 @@ class ParserEntry(TimeStampedModel):
 
     def __str__(self):
         return f"{self.source} : {self.title}"
+
+    @property
+    def short_title(self, len=40):
+        return self.title[:len]
