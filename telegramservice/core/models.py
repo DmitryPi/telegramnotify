@@ -47,3 +47,10 @@ class Ticket(TimeStampedModel):
     status = models.CharField(
         max_length=55, choices=Status.choices, default=Status.UNSOLVED
     )
+
+    class Meta:
+        verbose_name = _("Ticket")
+        verbose_name_plural = _("Tickets")
+
+    def __str__(self):
+        return f"{self.user} : {self.status}"

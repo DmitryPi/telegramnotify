@@ -44,6 +44,9 @@ class User(AbstractUser):
     )
     premium_expire = models.DateTimeField(_("Действует до"), blank=True, default="")
 
+    def __str__(self):
+        return f"{self.tg_id} : {self.username}"
+
     def get_absolute_url(self):
         return reverse("users:detail", kwargs={"username": self.username})
 
