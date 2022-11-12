@@ -30,4 +30,4 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(Ticket)
 class TicketAdmin(admin.ModelAdmin):
-    list_display = ["user", "status", "created"]
+    list_display = ["user", "short_message", "status", "created"]

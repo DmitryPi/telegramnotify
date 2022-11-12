@@ -28,7 +28,7 @@ from telegram.ext import (
     filters,
 )
 
-from telegramservice.core.models import Order
+from telegramservice.core.models import Order, Ticket
 # django imports
 from telegramservice.core.utils import datetime_days_ahead
 from telegramservice.users.models import User
@@ -381,21 +381,29 @@ class TelegramBot:
     async def command_techsupport(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
-        try:
-            await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
-            msg = "<b>Задайте вопрос:</b>\nДля отмены - /cancel"
-            await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
-            return ONE
-        except IndexError:
-            await update.message.reply_text(self.auth_invalid_msg)
+        await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
+        msg = "<b>Задайте вопрос:</b>\nДля отмены - /cancel"
+        await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
+        return ONE
 
     async def techsupport_msg(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
-        """TODO: save techsupport ticket - update.message.text"""
-        msg = "<b>Вопрос отправлен!</b>В ближайшее время, вы получите ответ."
-        await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
-        return ConversationHandler.END
+        try:
+            user = await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
+            msg = "<b>Вопрос отправлен!</b>"
+            # save Ticket
+            await sync_to_async(Ticket.objects.create)(
+                user=user,
+                message=str(update.message.text),
+                status=Ticket.Status.UNSOLVED,
+            )
+            # send succes msg
+            await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
+            return ConversationHandler.END
+        except IndexError:
+            await update.message.reply_text(self.auth_invalid_msg)
+            return ConversationHandler.END
 
     async def command_help(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -497,7 +505,7 @@ class TelegramBot:
             per_user=True,
         )
         techsupport_conv_handler = ConversationHandler(
-            entry_points=[CommandHandler("techsupport", self.command_techsupport)],
+            entry_points=[CommandHandler("support", self.command_techsupport)],
             states={
                 ONE: [
                     MessageHandler(

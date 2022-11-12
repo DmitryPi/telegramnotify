@@ -54,3 +54,7 @@ class Ticket(TimeStampedModel):
 
     def __str__(self):
         return f"{self.user} : {self.status}"
+
+    @property
+    def short_message(self, len=40):
+        return self.message[:len]
