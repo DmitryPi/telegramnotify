@@ -7,6 +7,8 @@ from model_utils.models import TimeStampedModel
 
 
 class Order(TimeStampedModel):
+    """User buy order"""
+
     # choices
     class Status(models.TextChoices):
         FAILED = "FAILED", _("Failed")
@@ -35,6 +37,8 @@ class Order(TimeStampedModel):
 
 
 class Ticket(TimeStampedModel):
+    """User support ticket"""
+
     # choices
     class Status(models.TextChoices):
         SOLVED = "SOLVED", _("Solved")
@@ -58,3 +62,29 @@ class Ticket(TimeStampedModel):
     @property
     def short_message(self, len=40):
         return self.message[:len]
+
+
+class ParserEntry(TimeStampedModel):
+    """Parser record"""
+
+    # choices
+    class Source(models.TextChoices):
+        FL = "FL", _("FL.ru")
+
+    # fields
+    title = models.CharField(_("Title"), max_length=200)
+    description = models.TextField(_("Description"), blank=True)
+    budget = models.CharField(_("Budget"), max_length=55)
+    deadline = models.CharField(_("Deadline"), max_length=55)
+    url = models.URLField(_("URL"), max_length=200)
+    source = models.CharField(
+        _("Source"), max_length=55, choices=Source.choices, default=Source.FL
+    )
+    sent = models.BooleanField(_("Sent"), default=False)
+
+    class Meta:
+        verbose_name = _("Entry")
+        verbose_name_plural = _("Entries")
+
+    def __str__(self):
+        return f"{self.source} : {self.title}"
