@@ -32,3 +32,18 @@ class Order(TimeStampedModel):
 
     def __str__(self):
         return f"{self.status} : {self.uuid}"
+
+
+class Ticket(TimeStampedModel):
+    # choices
+    class Status(models.TextChoices):
+        SOLVED = "SOLVED", _("Solved")
+        UNSOLVED = "UNSOLVED", _("Unsolved")
+
+    # relations
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    # fields
+    message = models.TextField(_("Message"))
+    status = models.CharField(
+        max_length=55, choices=Status.choices, default=Status.UNSOLVED
+    )
