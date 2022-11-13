@@ -1,6 +1,5 @@
 from collections import namedtuple
 
-from environ import Env
 from requests_html import HTMLSession
 
 from .models import Target
@@ -8,17 +7,17 @@ from .utils import get_parser_entry, save_parser_entry
 
 
 class FLParser:
-    def __init__(self, env: Env):
-        self.env = env
+    def __init__(self):
         self.target = ""
-        self.source = "FL.ru"
-        self.set_target()
+        self.source = ""
+        self.set_target_source()
 
-    def set_target(self) -> None:
+    def set_target_source(self) -> None:
         """Fl.ru target - https://www.fl.ru/projects/"""
         try:
             target = Target.objects.get(title="FL.ru")
             self.target = target
+            self.source = target.title
         except Target.DoesNotExist as e:
             print("Target you are trying to find DoesNotExist")
             raise e
