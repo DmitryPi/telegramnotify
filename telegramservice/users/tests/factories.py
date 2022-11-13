@@ -5,16 +5,24 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from factory import Faker, post_generation
 from factory.django import DjangoModelFactory
+from factory.fuzzy import FuzzyChoice, FuzzyInteger
 
 from ..models import User
 
 
 class UserFactory(DjangoModelFactory):
-    tg_id = Faker("random_number")
+    tg_id = FuzzyInteger(1, 11111111)
     username = Faker("user_name")
     email = Faker("email")
     name = Faker("name")
-    premium_status = User.PremiumStatus.expired
+    premium_status = FuzzyChoice(
+        choices=[
+            User.PremiumStatus.expired,
+            User.PremiumStatus.trial,
+            User.PremiumStatus.regular,
+            User.PremiumStatus.permanent,
+        ]
+    )
     premium_expire = timezone.now()
 
     @post_generation

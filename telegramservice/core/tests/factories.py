@@ -3,7 +3,7 @@ import uuid as uuid_lib
 
 from factory import Faker, LazyAttribute, SubFactory
 from factory.django import DjangoModelFactory
-from factory.fuzzy import FuzzyChoice
+from factory.fuzzy import FuzzyChoice, FuzzyDecimal
 
 from telegramservice.users.tests.factories import UserFactory
 
@@ -15,7 +15,7 @@ class OrderFactory(DjangoModelFactory):
     status = Order.Status.SUCCESS
     invoice_payload = "Payload"
     currency = "RUB"
-    total_amount = Faker("random_number")
+    total_amount = FuzzyDecimal(100, 5000)
     telegram_payment_charge_id = str(uuid_lib.uuid4())
     provider_payment_charge_id = str(uuid_lib.uuid4())
 
