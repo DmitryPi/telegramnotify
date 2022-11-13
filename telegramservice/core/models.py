@@ -67,19 +67,13 @@ class Ticket(TimeStampedModel):
 class ParserEntry(TimeStampedModel):
     """Parser record"""
 
-    # choices
-    class Source(models.TextChoices):
-        FL = "FL", _("FL.ru")
-
     # fields
     title = models.CharField(_("Title"), max_length=200)
     description = models.TextField(_("Description"), blank=True)
     budget = models.CharField(_("Budget"), max_length=55)
     deadline = models.CharField(_("Deadline"), max_length=55)
     url = models.URLField(_("URL"), max_length=200)
-    source = models.CharField(
-        _("Source"), max_length=55, choices=Source.choices, default=Source.FL
-    )
+    source = models.CharField(_("Source"), max_length=55)
     sent = models.BooleanField(_("Sent"), default=False)
 
     class Meta:
@@ -92,3 +86,19 @@ class ParserEntry(TimeStampedModel):
     @property
     def short_title(self, len=40):
         return self.title[:len]
+
+
+class Targets(TimeStampedModel):
+    """Target websites to parse"""
+
+    # fields
+    title = models.CharField(_("Title"), max_length=55)
+    url_body = models.URLField(_("URL body"), max_length=100)
+    url_query = models.URLField(_("URL query"), max_length=100, blank=True)
+
+    class Meta:
+        verbose_name = _("Target")
+        verbose_name_plural = _("Targets")
+
+    def __str__(self):
+        return self.title
