@@ -12,7 +12,13 @@ from ..models import Order, ParserEntry, Target, Ticket
 
 class OrderFactory(DjangoModelFactory):
     user = SubFactory(UserFactory)
-    status = Order.Status.SUCCESS
+    status = FuzzyChoice(
+        choices=[
+            Order.Status.FAILURE,
+            Order.Status.PENDING,
+            Order.Status.SUCCESS,
+        ]
+    )
     invoice_payload = "Payload"
     currency = "RUB"
     total_amount = FuzzyDecimal(100, 5000)
@@ -49,7 +55,12 @@ class TargetFactory(DjangoModelFactory):
 class TicketFactory(DjangoModelFactory):
     user = SubFactory(UserFactory)
     message = Faker("text", locale="ru_RU")
-    status = Order.Status.SUCCESS
+    status = FuzzyChoice(
+        choices=[
+            Ticket.Status.SOLVED,
+            Ticket.Status.UNSOLVED,
+        ]
+    )
 
     class Meta:
         model = Ticket

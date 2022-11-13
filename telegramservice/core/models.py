@@ -11,7 +11,7 @@ class Order(TimeStampedModel):
 
     # choices
     class Status(models.TextChoices):
-        FAILED = "FAILED", _("Failed")
+        FAILURE = "FAILURE", _("Failure")
         PENDING = "PENDING", _("Pending")
         SUCCESS = "SUCCESS", _("Success")
 
