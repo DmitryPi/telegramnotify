@@ -63,6 +63,7 @@ class TestParserEntry(TestCase):
             assert "https" in obj.url
             assert obj.source == "FL.ru"
             assert isinstance(obj.sent, bool)
+            assert len(obj.short_title) > 1
 
 
 class TestTarget(TestCase):
@@ -121,3 +122,4 @@ class TestTicket(TestCase):
             assert obj.user.id
             assert len(obj.message) > 1
             assert isinstance(obj.status, Ticket.Status)
+            assert len(obj.short_message) > 1
