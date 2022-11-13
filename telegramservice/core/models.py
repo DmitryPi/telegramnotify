@@ -68,6 +68,13 @@ class ParserEntry(TimeStampedModel):
     """Parser record"""
 
     # fields
+    pid = models.CharField(
+        _("Project ID"),
+        max_length=100,
+        db_index=True,
+        editable=False,
+        default=uuid_lib.uuid4,
+    )
     title = models.CharField(_("Title"), max_length=200)
     description = models.TextField(_("Description"), blank=True)
     budget = models.CharField(_("Budget"), max_length=55)

@@ -3,13 +3,14 @@ from collections import namedtuple
 from environ import Env
 from requests_html import HTMLSession
 
-from .models import Target
+from .models import ParserEntry, Target
 
 
 class FLParser:
     def __init__(self, env: Env):
         self.env = env
         self.target = ""
+        self.source = "FL.ru"
         self.set_target()
 
     def set_target(self) -> None:
@@ -46,14 +47,14 @@ class FLParser:
         """GET project page data => build data => return Data()"""
         # init named tuple
         Data = namedtuple(
-            "Data", ["id", "url", "title", "body", "budget", "deadline", "sent"]
+            "Data", ["id", "url", "title", "description", "budget", "deadline"]
         )
         # create session
         session = HTMLSession()
         response = session.get(info.url)
         # parse html
         title = response.html.find(".b-page__title", first=True).text.lower()
-        body = (
+        description = (
             response.html.find(f"#projectp{info.id}", first=True)
             .text.replace("\n", " ")
             .lower()
@@ -66,19 +67,28 @@ class FLParser:
             id=info.id,
             url=info.url,
             title=title,
-            body=body,
+            description=description,
             budget=budget,
             deadline=deadline,
-            sent=False,
         )
         return project_data
 
     def save_project_data(self, data: namedtuple) -> None:
-        """Save project data if not exist"""
-        pass
+        """Save ParserEntry data if not exist"""
+        print("Saving: " + data.title)
+        ParserEntry.objects.get_or_create(
+            pid=f"{self.source}-{data.id}",
+            url=data.url,
+            title=data.title,
+            description=data.description,
+            budget=data.budget,
+            deadline=data.deadline,
+            source=self.source,
+            sent=False,
+        )
 
     def run(self):
         projects_info = self.get_projects_info()
-        project_data = self.get_project_data(projects_info[5])
-        print(project_data)
-        self.save_project_data(project_data)
+        for info in projects_info:
+            project_data = self.get_project_data(info)
+            self.save_project_data(project_data)

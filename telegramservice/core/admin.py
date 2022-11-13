@@ -35,7 +35,7 @@ class TicketAdmin(admin.ModelAdmin):
 
 @admin.register(ParserEntry)
 class ParserEntryAdmin(admin.ModelAdmin):
-    list_display = ["short_title", "source", "sent", "created"]
+    list_display = ["pid", "short_title", "source", "sent", "created"]
 
 
 @admin.register(Target)
