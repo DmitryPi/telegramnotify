@@ -36,34 +36,6 @@ class Order(TimeStampedModel):
         return f"{self.status} : {self.uuid}"
 
 
-class Ticket(TimeStampedModel):
-    """User support ticket"""
-
-    # choices
-    class Status(models.TextChoices):
-        SOLVED = "SOLVED", _("Solved")
-        UNSOLVED = "UNSOLVED", _("Unsolved")
-
-    # relations
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    # fields
-    message = models.TextField(_("Message"))
-    status = models.CharField(
-        max_length=55, choices=Status.choices, default=Status.UNSOLVED
-    )
-
-    class Meta:
-        verbose_name = _("Ticket")
-        verbose_name_plural = _("Tickets")
-
-    def __str__(self):
-        return f"{self.user} : {self.status}"
-
-    @property
-    def short_message(self, len=40):
-        return self.message[:len]
-
-
 class ParserEntry(TimeStampedModel):
     """Parser record"""
 
@@ -109,3 +81,31 @@ class Target(TimeStampedModel):
 
     def __str__(self):
         return self.title
+
+
+class Ticket(TimeStampedModel):
+    """User support ticket"""
+
+    # choices
+    class Status(models.TextChoices):
+        SOLVED = "SOLVED", _("Solved")
+        UNSOLVED = "UNSOLVED", _("Unsolved")
+
+    # relations
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    # fields
+    message = models.TextField(_("Message"))
+    status = models.CharField(
+        max_length=55, choices=Status.choices, default=Status.UNSOLVED
+    )
+
+    class Meta:
+        verbose_name = _("Ticket")
+        verbose_name_plural = _("Tickets")
+
+    def __str__(self):
+        return f"{self.user} : {self.status}"
+
+    @property
+    def short_message(self, len=40):
+        return self.message[:len]
