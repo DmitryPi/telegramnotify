@@ -88,7 +88,7 @@ class ParserEntry(TimeStampedModel):
         return self.title[:len]
 
 
-class Targets(TimeStampedModel):
+class Target(TimeStampedModel):
     """Target websites to parse"""
 
     # fields

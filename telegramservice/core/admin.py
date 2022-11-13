@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
-from .models import Order, ParserEntry, Ticket
+from .models import Order, ParserEntry, Ticket, Target
 
 
 @admin.register(Order)
@@ -34,5 +34,10 @@ class TicketAdmin(admin.ModelAdmin):
 
 
 @admin.register(ParserEntry)
-class ParserEntry(admin.ModelAdmin):
+class ParserEntryAdmin(admin.ModelAdmin):
     list_display = ["short_title", "source", "sent", "created"]
+
+
+@admin.register(Target)
+class TargetAdmin(admin.ModelAdmin):
+    list_display = ["title", "url_body", "created"]
