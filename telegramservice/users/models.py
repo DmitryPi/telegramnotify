@@ -42,7 +42,7 @@ class User(AbstractUser):
         choices=PremiumStatus.choices,
         default=PremiumStatus.expired,
     )
-    premium_expire = models.DateTimeField(_("Действует до"), blank=True, default="")
+    premium_expire = models.DateTimeField(_("Действует до"), null=True, blank=True)
 
     def __str__(self):
         return f"{self.tg_id} : {self.username}"
