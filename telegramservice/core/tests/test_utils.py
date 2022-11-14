@@ -35,6 +35,7 @@ class TestUtils(TestCase):
         )
 
     def test_datetime_days_ahead(self):
+        """TODO: refactor"""
         examples = [
             (datetime_days_ahead(0), timezone.now() + timezone.timedelta(days=0)),
             (datetime_days_ahead(3), timezone.now() + timezone.timedelta(days=3)),
