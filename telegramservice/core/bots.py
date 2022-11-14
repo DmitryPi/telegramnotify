@@ -1,4 +1,4 @@
-import asyncio  # noqa skip
+import asyncio
 import decimal
 import html
 import json
@@ -9,6 +9,7 @@ from asgiref.sync import sync_to_async
 from django.contrib.auth import get_user_model
 from environ import Env
 from telegram import (
+    Bot,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     KeyboardButton,
@@ -30,7 +31,7 @@ from telegram.ext import (
 )
 
 from .models import Order, Ticket
-from .utils import datetime_days_ahead
+from .utils import datetime_days_ahead, get_parser_entries, get_users
 
 User = get_user_model()
 ONE, TWO, THREE, FOUR = (i for i in range(1, 5))
@@ -39,9 +40,8 @@ ONE, TWO, THREE, FOUR = (i for i in range(1, 5))
 class SenderBot:
     def __init__(self, env: Env):
         self.env = env
+        self.bot = Bot(self.env("TELEGRAM_API_TOKEN"))
         """
-        Get filtered ParserEntry
-        Get users
         for user in users:
             check service
             check words
@@ -49,8 +49,19 @@ class SenderBot:
                     send msg
         """
 
+    async def raw_send_message(self, chat_id, msg):
+        """Raw api send_message: asyncio.run(self.raw_send_message())"""
+        async with self.bot as bot:
+            await bot.send_message(chat_id, msg)
+
     def run(self):
-        pass
+        entries = get_parser_entries()
+        users = get_users()
+
+        for user in users:
+            for entry in entries:
+                pass
+        asyncio.run(self.raw_send_message(self.env("TELEGRAM_ADMIN_ID"), "test"))
 
 
 class TelegramBot:
