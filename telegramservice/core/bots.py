@@ -37,7 +37,11 @@ ONE, TWO, THREE, FOUR = (i for i in range(1, 5))
 
 
 class SenderBot:
-    pass
+    def __init__(self, env: Env):
+        self.env = env
+
+    def run(self):
+        pass
 
 
 class TelegramBot:
