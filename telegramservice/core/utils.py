@@ -1,3 +1,4 @@
+import re
 from collections import namedtuple
 
 from django.contrib.auth import get_user_model
@@ -40,3 +41,8 @@ def save_parser_entry(data: namedtuple) -> None:
 def get_users() -> [User]:
     users = User.objects.all()
     return users
+
+
+def search_word(text: str, word: str) -> re.Match:
+    """Search whole word in text"""
+    return re.search(rf"\b{word}\b", text, re.IGNORECASE)

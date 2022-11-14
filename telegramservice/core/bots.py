@@ -65,14 +65,18 @@ class SenderBot:
         )
         return msg
 
+    def search_words(self):
+        pass
+
     def run(self):
         entries = get_parser_entries()
         users = get_users()
 
         for user in users:
             for entry in entries:
-                pass
-        asyncio.run(self.raw_send_message(self.env("TELEGRAM_ADMIN_ID"), "test"))
+                asyncio.run(
+                    self.raw_send_message(self.env("TELEGRAM_ADMIN_ID"), "test")
+                )
 
 
 class TelegramBot:

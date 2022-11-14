@@ -12,6 +12,7 @@ from ..utils import (
     get_parser_entry,
     get_users,
     save_parser_entry,
+    search_word,
 )
 from .factories import ParserEntryFactory
 
@@ -78,3 +79,16 @@ class TestUtils(TestCase):
         UserFactory.create_batch(10)
         users = get_users()
         assert len(users) == 10
+
+    def test_search_word(self):
+        Test = namedtuple("Test", ["text", "correct", "incorrect"])
+        tests = [
+            Test("Тест telegramстрока", "тест", "telegram"),
+            Test("Тест bot telegramстрока", "BOT", "telegram"),
+            Test("Тест.bot.telegramстрока", "boT", "telegram"),
+            Test("Тест-бот-telegramстрока", "Бот", "telegram"),
+        ]
+
+        for test in tests:
+            assert search_word(test.text, test.correct)
+            assert not search_word(test.text, test.incorrect)
