@@ -19,7 +19,6 @@ class FLParser:
             self.target = target
             self.source = target.title
         except Target.DoesNotExist as e:
-            print("Target you are trying to find DoesNotExist")
             raise e
 
     def get_projects_info(self) -> [(int, str)]:
