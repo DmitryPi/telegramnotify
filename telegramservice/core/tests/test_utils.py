@@ -3,8 +3,17 @@ from collections import namedtuple
 from django.test import TestCase
 from django.utils import timezone
 
+from telegramservice.users.tests.factories import UserFactory
+
 from ..models import ParserEntry
-from ..utils import datetime_days_ahead, get_parser_entry, save_parser_entry
+from ..utils import (
+    datetime_days_ahead,
+    get_parser_entries,
+    get_parser_entry,
+    get_users,
+    save_parser_entry,
+)
+from .factories import ParserEntryFactory
 
 
 class TestUtils(TestCase):
@@ -59,3 +68,13 @@ class TestUtils(TestCase):
         save_parser_entry(self.project_data)
         res = get_parser_entry("FL.ru-123")
         assert res.pid
+
+    def test_get_parser_entries(self):
+        ParserEntryFactory.create_batch(10)
+        entries = get_parser_entries()
+        assert len(entries) == 10
+
+    def test_get_users(self):
+        UserFactory.create_batch(10)
+        users = get_users()
+        assert len(users) == 10

@@ -1,8 +1,11 @@
 from collections import namedtuple
 
+from django.contrib.auth import get_user_model
 from django.utils import timezone
 
 from .models import ParserEntry
+
+User = get_user_model()
 
 
 def datetime_days_ahead(days: int) -> timezone:
@@ -20,6 +23,11 @@ def get_parser_entry(pid: str) -> ParserEntry:
         return None
 
 
+def get_parser_entries() -> [ParserEntry]:
+    entries = ParserEntry.objects.filter(sent=False)
+    return entries
+
+
 def save_parser_entry(data: namedtuple) -> None:
     """Save ParserEntry data if not exist"""
     if not data:
@@ -27,3 +35,8 @@ def save_parser_entry(data: namedtuple) -> None:
     print("Saving: " + data.title)
     data_dict = data._asdict()
     ParserEntry.objects.get_or_create(**data_dict)
+
+
+def get_users() -> [User]:
+    users = User.objects.all()
+    return users

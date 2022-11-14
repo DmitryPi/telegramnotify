@@ -6,6 +6,7 @@ import logging
 import traceback
 
 from asgiref.sync import sync_to_async
+from django.contrib.auth import get_user_model
 from environ import Env
 from telegram import (
     InlineKeyboardButton,
@@ -28,17 +29,25 @@ from telegram.ext import (
     filters,
 )
 
-from telegramservice.core.models import Order, Ticket
-# django imports
-from telegramservice.core.utils import datetime_days_ahead
-from telegramservice.users.models import User
+from .models import Order, Ticket
+from .utils import datetime_days_ahead
 
+User = get_user_model()
 ONE, TWO, THREE, FOUR = (i for i in range(1, 5))
 
 
 class SenderBot:
     def __init__(self, env: Env):
         self.env = env
+        """
+        Get filtered ParserEntry
+        Get users
+        for user in users:
+            check service
+            check words
+                if word
+                    send msg
+        """
 
     def run(self):
         pass

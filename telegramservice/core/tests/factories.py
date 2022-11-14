@@ -37,7 +37,7 @@ class ParserEntryFactory(DjangoModelFactory):
     deadline = "по договоренности"
     url = "https://www.fl.ru/projects/5073180/dodelat-sayt-php-na-wordpress.html"
     source = FuzzyChoice(choices=["FL.ru"])
-    sent = FuzzyChoice(choices=[False, True])
+    sent = False
 
     class Meta:
         model = ParserEntry
