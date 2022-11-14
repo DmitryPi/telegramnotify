@@ -31,7 +31,7 @@ from telegram.ext import (
 )
 
 from .models import Order, ParserEntry, Ticket
-from .utils import datetime_days_ahead, get_parser_entries, get_users
+from .utils import datetime_days_ahead, get_parser_entries, get_users, search_word
 
 User = get_user_model()
 ONE, TWO, THREE, FOUR = (i for i in range(1, 5))
@@ -65,8 +65,12 @@ class SenderBot:
         )
         return msg
 
-    def search_words(self):
-        pass
+    def search_words(self, entry: ParserEntry):
+        text = entry.title + " " + entry.description
+        for word in entry.words:
+            match = search_word(text, word)
+            if match:
+                return match
 
     def run(self):
         entries = get_parser_entries()
