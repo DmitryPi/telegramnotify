@@ -30,7 +30,7 @@ from telegram.ext import (
     filters,
 )
 
-from .models import Order, Ticket
+from .models import Order, ParserEntry, Ticket
 from .utils import datetime_days_ahead, get_parser_entries, get_users
 
 User = get_user_model()
@@ -53,6 +53,17 @@ class SenderBot:
         """Raw api send_message: asyncio.run(self.raw_send_message())"""
         async with self.bot as bot:
             await bot.send_message(chat_id, msg)
+
+    def build_message(self, entry: ParserEntry) -> str:
+        msg = "".join(
+            [
+                f"<b>{entry.title}</b>",
+                f"<pre>Бюджет: {entry.budget}</pre>",
+                f"<pre>Срок: {entry.deadline}</>",
+                f"<a href='{entry.url}'>{entry.description}</a>",
+            ]
+        )
+        return msg
 
     def run(self):
         entries = get_parser_entries()
