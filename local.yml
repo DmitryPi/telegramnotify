@@ -67,3 +67,11 @@ services:
     ports:
       - "5555:5555"
     command: /start-flower
+
+  telegram:
+    <<: *django
+    container_name: parserservice_local_telegram
+    depends_on:
+      - django
+    ports: []
+    command: python manage.py runscript run_telegram_bot
