@@ -3,6 +3,7 @@ import decimal
 import html
 import json
 import logging
+import re
 import traceback
 
 from asgiref.sync import sync_to_async
@@ -41,13 +42,6 @@ class SenderBot:
     def __init__(self, env: Env):
         self.env = env
         self.bot = Bot(self.env("TELEGRAM_API_TOKEN"))
-        """
-        for user in users:
-            check service
-            check words
-                if word
-                    send msg
-        """
 
     async def raw_send_message(self, chat_id, msg):
         """Raw api send_message: asyncio.run(self.raw_send_message())"""
@@ -55,6 +49,7 @@ class SenderBot:
             await bot.send_message(chat_id, msg)
 
     def build_message(self, entry: ParserEntry) -> str:
+        """Build html message for telegram user"""
         msg = "".join(
             [
                 f"<b>{entry.title}</b>",
@@ -65,7 +60,11 @@ class SenderBot:
         )
         return msg
 
-    def search_words(self, entry: ParserEntry):
+    def search_words(self, entry: ParserEntry) -> re.Match:
+        """Build text - concat entry.title, entry.description
+        Loop through entry.words and search_word in text
+        return re.Match if any
+        """
         text = entry.title + " " + entry.description
         for word in entry.words:
             match = search_word(text, word)
@@ -73,6 +72,13 @@ class SenderBot:
                 return match
 
     def run(self):
+        """
+        get entries with sent=False
+        get users
+        Loop through users and entries
+        If theres match on user words
+        => send message to telegram user
+        """
         entries = get_parser_entries()
         users = get_users()
 
