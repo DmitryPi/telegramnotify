@@ -52,16 +52,27 @@ class SenderBot:
     async def raw_send_message(self, chat_id, msg) -> None:
         """Raw api send_message: asyncio.run(self.raw_send_message())"""
         async with self.bot as bot:
-            await bot.send_message(chat_id, msg)
+            await bot.send_message(
+                chat_id,
+                msg,
+                parse_mode=ParseMode.HTML,
+                disable_web_page_preview=True,
+                protect_content=True,
+            )
 
     def build_message(self, entry: ParserEntry) -> str:
         """Build html message for telegram user"""
+        description = (
+            f"{entry.description[:300].strip()}..."
+            if len(entry.description) > 300
+            else entry.description
+        )
         msg = "".join(
             [
                 f"<b>{entry.title}</b>",
                 f"<pre>Бюджет: {entry.budget}</pre>",
                 f"<pre>Срок: {entry.deadline}</>",
-                f"<a href='{entry.url}'>{entry.description}</a>",
+                f"<a href='{entry.url}'>{description}</a>",
             ]
         )
         return msg
@@ -88,6 +99,9 @@ class SenderBot:
         entries = get_parser_entries()
         users = get_users()
 
+        if not entries:
+            return None
+
         for user in users:
             for entry in entries:
                 # search user words on particular entry
@@ -96,12 +110,7 @@ class SenderBot:
                     continue
                 # if there's match
                 message = self.build_message(entry)
-                asyncio.run(
-                    self.raw_send_message(
-                        user.tg_id, message, parse_mode=ParseMode.HTML
-                    )
-                )
-                break
+                asyncio.run(self.raw_send_message(user.tg_id, message))
         # update entries set sent=True
         update_parser_entries_sent(entries)
 
