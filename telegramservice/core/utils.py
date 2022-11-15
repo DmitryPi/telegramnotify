@@ -25,6 +25,7 @@ def get_parser_entry(pid: str) -> ParserEntry:
 
 
 def get_parser_entries() -> [ParserEntry]:
+    """Get ParserEntry with sent=False"""
     entries = ParserEntry.objects.filter(sent=False)
     return entries
 

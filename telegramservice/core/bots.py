@@ -43,7 +43,7 @@ class SenderBot:
         self.env = env
         self.bot = Bot(self.env("TELEGRAM_API_TOKEN"))
 
-    async def raw_send_message(self, chat_id, msg):
+    async def raw_send_message(self, chat_id, msg) -> None:
         """Raw api send_message: asyncio.run(self.raw_send_message())"""
         async with self.bot as bot:
             await bot.send_message(chat_id, msg)
@@ -71,7 +71,7 @@ class SenderBot:
             if match:
                 return match
 
-    def run(self):
+    def run(self) -> None:
         """
         get entries with sent=False
         get users
