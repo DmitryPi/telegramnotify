@@ -47,8 +47,8 @@ def update_parser_entries_sent(entries: [ParserEntry]) -> None:
 
 
 def get_users() -> [User]:
-    """Get all users"""
-    users = User.objects.all()
+    """Get all users and exclude those with premium_status=expired"""
+    users = User.objects.exclude(premium_status=User.PremiumStatus.expired)
     return users
 
 

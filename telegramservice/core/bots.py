@@ -81,8 +81,6 @@ class SenderBot:
         """Build text - concat entry.title, entry.description
         Loop through entry.words and search_word in text
         return re.Match if any
-
-        TODO: test
         """
         text = entry.title + " " + entry.description
         for word in user.words:

@@ -26,7 +26,7 @@ class TestFLParser(TestCase):
             assert isinstance(info.url, str)
 
     def test_get_project_data(self):
-        data = self.fl_parser.get_project_data(self.projects_info[10])
+        data = self.fl_parser.get_project_data(self.projects_info[11])
         assert len(data) == 8
         assert re.match(r"^(.*)-(\d+)$", data.pid)  # match Fl.ru-123
         assert "https" in data.url

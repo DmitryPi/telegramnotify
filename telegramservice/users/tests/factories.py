@@ -15,6 +15,8 @@ class UserFactory(DjangoModelFactory):
     username = Faker("user_name")
     email = Faker("email")
     name = Faker("name")
+    services = ["FL.ru"]
+    words = ["bot", "api", "апи", "бот"]
     premium_status = FuzzyChoice(
         choices=[
             User.PremiumStatus.expired,

@@ -1,5 +1,6 @@
 from collections import namedtuple
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import timezone
 
@@ -16,6 +17,8 @@ from ..utils import (
     update_parser_entries_sent,
 )
 from .factories import ParserEntryFactory
+
+User = get_user_model()
 
 
 class TestUtils(TestCase):
@@ -86,9 +89,10 @@ class TestUtils(TestCase):
         assert not len(entries)
 
     def test_get_users(self):
-        UserFactory.create_batch(10)
+        UserFactory.create_batch(20)
         users = get_users()
-        assert len(users) == 10
+        for user in users:
+            assert user.premium_status != User.PremiumStatus.expired
 
     def test_search_word(self):
         Test = namedtuple("Test", ["text", "correct", "incorrect"])
