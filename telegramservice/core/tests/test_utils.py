@@ -13,6 +13,7 @@ from ..utils import (
     get_users,
     save_parser_entry,
     search_word,
+    update_parser_entries_sent,
 )
 from .factories import ParserEntryFactory
 
@@ -74,6 +75,15 @@ class TestUtils(TestCase):
         ParserEntryFactory.create_batch(10)
         entries = get_parser_entries()
         assert len(entries) == 10
+
+    def test_update_parser_entries_sent(self):
+        ParserEntryFactory.create_batch(10)
+        entries = get_parser_entries()
+        assert len(entries) == 10
+        # update
+        update_parser_entries_sent(entries)
+        entries = get_parser_entries()
+        assert not len(entries)
 
     def test_get_users(self):
         UserFactory.create_batch(10)

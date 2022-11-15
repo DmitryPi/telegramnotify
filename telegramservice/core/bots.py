@@ -32,7 +32,13 @@ from telegram.ext import (
 )
 
 from .models import Order, ParserEntry, Ticket
-from .utils import datetime_days_ahead, get_parser_entries, get_users, search_word
+from .utils import (
+    datetime_days_ahead,
+    get_parser_entries,
+    get_users,
+    search_word,
+    update_parser_entries_sent,
+)
 
 User = get_user_model()
 ONE, TWO, THREE, FOUR = (i for i in range(1, 5))
@@ -87,6 +93,9 @@ class SenderBot:
                 asyncio.run(
                     self.raw_send_message(self.env("TELEGRAM_ADMIN_ID"), "test")
                 )
+
+        # update entries sent=True
+        update_parser_entries_sent(entries)
 
 
 class TelegramBot:

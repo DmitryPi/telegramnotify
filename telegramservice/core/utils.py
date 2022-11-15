@@ -39,7 +39,15 @@ def save_parser_entry(data: namedtuple) -> None:
     ParserEntry.objects.get_or_create(**data_dict)
 
 
+def update_parser_entries_sent(entries: [ParserEntry]) -> None:
+    """Update field sent=True on given ParserEntry objects"""
+    for entry in entries:
+        entry.sent = True
+        entry.save(update_fields=["sent"])
+
+
 def get_users() -> [User]:
+    """Get all users"""
     users = User.objects.all()
     return users
 
