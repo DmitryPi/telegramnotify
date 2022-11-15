@@ -28,8 +28,6 @@ def parse_flru_task(self):
     Parse fl.ru projects from /projects page
     Visit each project
     save parser entry
-
-    TODO: test
     """
     parser = FLParser()
     projects_info = parser.get_projects_info()
@@ -51,8 +49,6 @@ def sender_bot_task(self):
     Loop through users and entries
     If theres match on user words
     => send message to telegram user
-
-    TODO: test
     """
     entries = get_parser_entries()
 
@@ -63,9 +59,10 @@ def sender_bot_task(self):
     sender_bot = SenderBot()
 
     for i, user in enumerate(users):
+        # update task progress
         self.update_state(state="PROGRESS", meta={"current": i, "total": len(users)})
+        # search user words on particular entry
         for entry in entries:
-            # search user words on particular entry
             match = sender_bot.search_words(user, entry)
             if not match:
                 continue
