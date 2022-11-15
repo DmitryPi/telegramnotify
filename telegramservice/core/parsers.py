@@ -67,9 +67,14 @@ class FLParser:
         response = session.get(info.url)
         # parse html
         title = response.html.find(".b-page__title", first=True).text.capitalize()
-        description = response.html.find(
-            f"#projectp{info.id}", first=True
-        ).text.replace("\n", " ")
+        try:
+            description = response.html.find(
+                f"#projectp{info.id}", first=True
+            ).text.replace("\n", " ")
+        except AttributeError:
+            description = response.html.find(
+                ".b-layout__txt.b-layout__txt_padbot_20", first=True
+            ).text.replace("\n", " ")
         budget_deadline = response.html.find(".b-layout__txt span.b-layout__bold")
         budget = budget_deadline[0].text.lower() if len(budget_deadline) >= 1 else ""
         deadline = budget_deadline[1].text.lower() if len(budget_deadline) >= 2 else ""
@@ -88,6 +93,6 @@ class FLParser:
 
     def run(self):
         projects_info = self.get_projects_info()
-        for info in projects_info[:8]:
+        for info in projects_info:
             project_data = self.get_project_data(info)
             save_parser_entry(project_data)

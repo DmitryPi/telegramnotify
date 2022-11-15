@@ -66,13 +66,13 @@ class SenderBot:
         )
         return msg
 
-    def search_words(self, entry: ParserEntry) -> re.Match:
+    def search_words(self, user: User, entry: ParserEntry) -> re.Match:
         """Build text - concat entry.title, entry.description
         Loop through entry.words and search_word in text
         return re.Match if any
         """
         text = entry.title + " " + entry.description
-        for word in entry.words:
+        for word in user.words:
             match = search_word(text, word)
             if match:
                 return match
@@ -90,11 +90,19 @@ class SenderBot:
 
         for user in users:
             for entry in entries:
+                # search user words on particular entry
+                match = self.search_words(user, entry)
+                if not match:
+                    continue
+                # if there's match
+                message = self.build_message(entry)
                 asyncio.run(
-                    self.raw_send_message(self.env("TELEGRAM_ADMIN_ID"), "test")
+                    self.raw_send_message(
+                        user.tg_id, message, parse_mode=ParseMode.HTML
+                    )
                 )
-
-        # update entries sent=True
+                break
+        # update entries set sent=True
         update_parser_entries_sent(entries)
 
 

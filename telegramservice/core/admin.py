@@ -4,6 +4,14 @@ from django.utils.translation import gettext_lazy as _
 from .models import Order, ParserEntry, Target, Ticket
 
 
+def update_sent_true(modeladmin, request, qs):
+    qs.update(sent=True)
+
+
+def update_sent_false(modeladmin, request, qs):
+    qs.update(sent=False)
+
+
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     readonly_fields = [
@@ -35,6 +43,8 @@ class TicketAdmin(admin.ModelAdmin):
 
 @admin.register(ParserEntry)
 class ParserEntryAdmin(admin.ModelAdmin):
+    actions = [update_sent_true, update_sent_false]
+
     list_display = ["pid", "short_title", "source", "sent", "created"]
 
 
