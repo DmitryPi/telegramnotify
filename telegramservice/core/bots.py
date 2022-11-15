@@ -81,6 +81,8 @@ class SenderBot:
         """Build text - concat entry.title, entry.description
         Loop through entry.words and search_word in text
         return re.Match if any
+
+        TODO: test
         """
         text = entry.title + " " + entry.description
         for word in user.words:
@@ -95,6 +97,8 @@ class SenderBot:
         Loop through users and entries
         If theres match on user words
         => send message to telegram user
+
+        TODO: test
         """
         entries = get_parser_entries()
         users = get_users()

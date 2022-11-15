@@ -17,7 +17,6 @@ class TestSenderBot(TestCase):
     def test_build_message(self):
         parser_entry = ParserEntryFactory()
         message = self.sender_bot.build_message(parser_entry)
-        print(message)
         assert parser_entry.title in message
         assert parser_entry.description in message
         assert parser_entry.budget in message
