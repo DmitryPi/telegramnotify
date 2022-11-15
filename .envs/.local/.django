@@ -12,3 +12,9 @@ REDIS_URL=redis://redis:6379/0
 # Flower
 CELERY_FLOWER_USER=fjfVibIAWjDVBxiCsHMqZiriAdKhtqRk
 CELERY_FLOWER_PASSWORD=CsKogFv4ZBQxveQ8EVdh5D8J7jK0coUXU3M6z6jVEuk3U9O8yTqSfEcCb4DOdlMm
+
+# Telegram
+# ------------------------------------------------------------------------------
+TELEGRAM_API_TOKEN=5432740524:AAFnrhc9fdPFq-fnq4xoyAAx4a_QYch0oAg
+TELEGRAM_ADMIN_ID=5156307333
+YOKASSA_TOKEN=381764678:TEST:44480

@@ -8,7 +8,6 @@ import traceback
 
 from asgiref.sync import sync_to_async
 from django.contrib.auth import get_user_model
-from environ import Env
 from telegram import (
     Bot,
     InlineKeyboardButton,
@@ -31,7 +30,7 @@ from telegram.ext import (
     filters,
 )
 
-from config.settings.base import TELEGRAM_API_TOKEN
+from config.settings.base import TELEGRAM_ADMIN_ID, TELEGRAM_API_TOKEN, YOKASSA_TOKEN
 
 from .models import Order, ParserEntry, Ticket
 from .utils import (
@@ -121,9 +120,7 @@ class SenderBot:
 
 
 class TelegramBot:
-    def __init__(self, env: Env):
-        self.env = env
-        self.api_token = self.env("TELEGRAM_API_TOKEN")
+    def __init__(self):
         self.services = ["FL.ru", "avito"]
         self.settings = [
             "Добавить сервис",
@@ -308,7 +305,7 @@ class TelegramBot:
         title = "Пополнение баланса:"
         description = "Описание услуги"
         payload = "Secret-Payload"
-        provider_token = self.env("YOKASSA_TOKEN")
+        provider_token = YOKASSA_TOKEN
         currency = "RUB"
         prices = [LabeledPrice("Test", pay_amount * 100)]
         await update.message.reply_text(".", reply_markup=ReplyKeyboardRemove())
@@ -544,7 +541,7 @@ class TelegramBot:
 
         # Finally, send the message
         await context.bot.send_message(
-            chat_id=self.env("TELEGRAM_ADMIN_ID"),
+            chat_id=TELEGRAM_ADMIN_ID,
             text=message,
             parse_mode=ParseMode.HTML,
         )
@@ -552,7 +549,7 @@ class TelegramBot:
     def run(self):
         """Run telegram bot instance"""
         # Create the Application and pass it your bot's token.
-        application = Application.builder().token(self.api_token).build()
+        application = Application.builder().token(TELEGRAM_API_TOKEN).build()
         # conversations
         start_conv_handler = ConversationHandler(
             entry_points=[CommandHandler("start", self.command_start)],

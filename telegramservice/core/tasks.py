@@ -4,7 +4,8 @@ from django_celery_beat.models import PeriodicTask
 
 from config import celery_app
 
-from .parsers import FLParser, SenderBot
+from .bots import SenderBot
+from .parsers import FLParser
 from .utils import save_parser_entry
 
 

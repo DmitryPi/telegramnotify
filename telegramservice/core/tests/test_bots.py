@@ -1,7 +1,6 @@
 # import re
 # from collections import namedtuple
 
-import environ
 from django.test import TestCase
 
 from ..bots import SenderBot
@@ -10,9 +9,7 @@ from .factories import ParserEntryFactory
 
 class TestSenderBot(TestCase):
     def setUp(self):
-        env = environ.Env()
-        env.read_env(".env")
-        self.sender_bot = SenderBot(env)
+        self.sender_bot = SenderBot()
 
     def test_build_message(self):
         parser_entry = ParserEntryFactory()
