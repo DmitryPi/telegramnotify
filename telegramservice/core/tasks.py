@@ -4,7 +4,7 @@ from django_celery_beat.models import PeriodicTask
 
 from config import celery_app
 
-from .parsers import FLParser
+from .parsers import FLParser, SenderBot
 from .utils import save_parser_entry
 
 
@@ -26,6 +26,12 @@ def parse_flru_task(self):
         # get data => save data
         project_data = parser.get_project_data(info)
         save_parser_entry(project_data)
+
+
+@celery_app.task(bind=True)
+def sender_bot_task(self):
+    sender_bot = SenderBot()
+    sender_bot.run()
 
 
 @celery_app.task(bind=True)

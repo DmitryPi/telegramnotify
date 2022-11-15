@@ -302,5 +302,8 @@ SOCIALACCOUNT_ADAPTER = "telegramservice.users.adapters.SocialAccountAdapter"
 SOCIALACCOUNT_FORMS = {"signup": "telegramservice.users.forms.UserSocialSignupForm"}
 
 
-# Your stuff...
+# Telegram
 # ------------------------------------------------------------------------------
+TELEGRAM_API_TOKEN = env("TELEGRAM_API_TOKEN")
+TELEGRAM_ADMIN_ID = env("TELEGRAM_ADMIN_ID")
+YOKASSA_TOKEN = env("YOKASSA_TOKEN")

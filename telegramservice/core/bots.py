@@ -31,6 +31,8 @@ from telegram.ext import (
     filters,
 )
 
+from config.settings.base import TELEGRAM_API_TOKEN
+
 from .models import Order, ParserEntry, Ticket
 from .utils import (
     datetime_days_ahead,
@@ -45,9 +47,8 @@ ONE, TWO, THREE, FOUR = (i for i in range(1, 5))
 
 
 class SenderBot:
-    def __init__(self, env: Env):
-        self.env = env
-        self.bot = Bot(self.env("TELEGRAM_API_TOKEN"))
+    def __init__(self):
+        self.bot = Bot(TELEGRAM_API_TOKEN)
 
     async def raw_send_message(self, chat_id, msg) -> None:
         """Raw api send_message: asyncio.run(self.raw_send_message())"""
