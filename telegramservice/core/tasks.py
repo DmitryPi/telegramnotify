@@ -1,3 +1,4 @@
+import asyncio
 import time
 
 from django_celery_beat.models import PeriodicTask
@@ -6,7 +7,12 @@ from config import celery_app
 
 from .bots import SenderBot
 from .parsers import FLParser
-from .utils import save_parser_entry
+from .utils import (
+    get_parser_entries,
+    get_users,
+    save_parser_entry,
+    update_parser_entries_sent,
+)
 
 
 @celery_app.task(ignore_result=True)
@@ -17,6 +23,14 @@ def clean_oneoff_tasks():
 
 @celery_app.task(bind=True)
 def parse_flru_task(self):
+    """
+    Init parser
+    Parse fl.ru projects from /projects page
+    Visit each project
+    save parser entry
+
+    TODO: test
+    """
     parser = FLParser()
     projects_info = parser.get_projects_info()
     for i, info in enumerate(projects_info):
@@ -31,8 +45,35 @@ def parse_flru_task(self):
 
 @celery_app.task(bind=True)
 def sender_bot_task(self):
+    """
+    get entries with sent=False
+    get users
+    Loop through users and entries
+    If theres match on user words
+    => send message to telegram user
+
+    TODO: test
+    """
+    entries = get_parser_entries()
+
+    if not entries:  # save 1 request to db
+        return None
+
+    users = get_users()
     sender_bot = SenderBot()
-    sender_bot.run()
+
+    for i, user in enumerate(users):
+        self.update_state(state="PROGRESS", meta={"current": i, "total": len(users)})
+        for entry in entries:
+            # search user words on particular entry
+            match = sender_bot.search_words(user, entry)
+            if not match:
+                continue
+            # if there's match
+            message = sender_bot.build_message(entry)
+            asyncio.run(sender_bot.raw_send_message(user.tg_id, message))
+    # update entries set sent=True
+    update_parser_entries_sent(entries)
 
 
 @celery_app.task(bind=True)
