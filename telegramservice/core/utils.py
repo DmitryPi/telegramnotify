@@ -1,6 +1,5 @@
 import re
 from collections import namedtuple
-from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -89,10 +88,3 @@ def users_update_premium_expired() -> None:
         if timezone.now() > user.premium_expire:
             user.premium_status = User.PremiumStatus.expired
             user.save(update_fields=["premium_status"])
-
-
-def user_update_bill(user: User) -> None:
-    final_bill = Decimal(0)
-
-    for service in user.services:
-        print(final_bill)

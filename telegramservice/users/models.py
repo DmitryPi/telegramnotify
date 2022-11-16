@@ -57,3 +57,10 @@ class User(AbstractUser):
         """Update wallet value"""
         self.wallet += Decimal(amount)
         self.save()
+
+    def update_bill(self):
+        bill = Decimal(0)
+        for service in self.services:
+            bill += service.daily_price
+        self.bill = bill
+        self.save()

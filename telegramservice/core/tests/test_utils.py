@@ -175,6 +175,3 @@ class TestUtils(TestCase):
         for user in users:
             assert user.premium_status == User.PremiumStatus.permanent
             assert timezone.now() > user.premium_expire
-
-    # def test_user_update_bill(self):
-    #     UserFactory(services=["FL.ru"])
