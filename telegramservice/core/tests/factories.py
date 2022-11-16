@@ -47,6 +47,7 @@ class TargetFactory(DjangoModelFactory):
     title = FuzzyChoice(choices=["FL.ru"])
     url_body = "https://www.fl.ru/"
     url_query = "https://www.fl.ru/projects/"
+    daily_price = FuzzyDecimal(1, 5)
 
     class Meta:
         model = Target
