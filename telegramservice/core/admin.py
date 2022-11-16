@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
-from .models import Order, ParserEntry, Target, Ticket
+from .models import Order, ParserEntry, Service, Ticket
 
 
 def update_sent_true(modeladmin, request, qs):
@@ -48,6 +48,6 @@ class ParserEntryAdmin(admin.ModelAdmin):
     list_display = ["pid", "short_title", "source", "sent", "created"]
 
 
-@admin.register(Target)
-class TargetAdmin(admin.ModelAdmin):
+@admin.register(Service)
+class ServiceAdmin(admin.ModelAdmin):
     list_display = ["title", "url_body", "created"]

@@ -2,7 +2,7 @@ from collections import namedtuple
 
 from requests_html import HTMLSession
 
-from .models import Target
+from .models import Service
 from .utils import get_parser_entry, save_parser_entry
 
 
@@ -15,10 +15,10 @@ class FLParser:
     def set_target_source(self) -> None:
         """Fl.ru target - https://www.fl.ru/projects/"""
         try:
-            target = Target.objects.get(title="FL.ru")
+            target = Service.objects.get(title="FL.ru")
             self.target = target
             self.source = target.title
-        except Target.DoesNotExist as e:
+        except Service.DoesNotExist as e:
             raise e
 
     def get_projects_info(self) -> [(int, str)]:

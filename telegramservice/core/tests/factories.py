@@ -7,7 +7,7 @@ from factory.fuzzy import FuzzyChoice, FuzzyDecimal
 
 from telegramservice.users.tests.factories import UserFactory
 
-from ..models import Order, ParserEntry, Target, Ticket
+from ..models import Order, ParserEntry, Service, Ticket
 
 
 class OrderFactory(DjangoModelFactory):
@@ -43,14 +43,14 @@ class ParserEntryFactory(DjangoModelFactory):
         model = ParserEntry
 
 
-class TargetFactory(DjangoModelFactory):
+class ServiceFactory(DjangoModelFactory):
     title = FuzzyChoice(choices=["FL.ru"])
     url_body = "https://www.fl.ru/"
     url_query = "https://www.fl.ru/projects/"
     daily_price = FuzzyDecimal(1, 5)
 
     class Meta:
-        model = Target
+        model = Service
 
 
 class TicketFactory(DjangoModelFactory):

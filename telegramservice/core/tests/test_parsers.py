@@ -3,12 +3,12 @@ import re
 from django.test import TestCase
 
 from ..parsers import FLParser
-from .factories import TargetFactory
+from .factories import ServiceFactory
 
 
 class TestFLParser(TestCase):
     def setUp(self):
-        self.target = TargetFactory()
+        self.target = ServiceFactory()
         self.fl_parser = FLParser()
         self.projects_info = self.fl_parser.get_projects_info()
 

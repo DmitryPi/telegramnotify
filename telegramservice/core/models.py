@@ -67,8 +67,8 @@ class ParserEntry(TimeStampedModel):
         return self.title[:len]
 
 
-class Target(TimeStampedModel):
-    """Target websites to parse"""
+class Service(TimeStampedModel):
+    """Service websites to parse"""
 
     # fields
     title = models.CharField(_("Title"), max_length=55)
@@ -79,8 +79,8 @@ class Target(TimeStampedModel):
     )
 
     class Meta:
-        verbose_name = _("Target")
-        verbose_name_plural = _("Targets")
+        verbose_name = _("Service")
+        verbose_name_plural = _("Services")
 
     def __str__(self):
         return f"{self.title} : {self.daily_price}"

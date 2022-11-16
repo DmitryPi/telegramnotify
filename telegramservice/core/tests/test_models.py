@@ -1,9 +1,10 @@
 import re
+from decimal import Decimal
 
 from django.test import TestCase
 
-from ..models import Order, ParserEntry, Target, Ticket
-from .factories import OrderFactory, ParserEntryFactory, TargetFactory, TicketFactory
+from ..models import Order, ParserEntry, Service, Ticket
+from .factories import OrderFactory, ParserEntryFactory, ServiceFactory, TicketFactory
 
 
 class TestOrder(TestCase):
@@ -66,10 +67,10 @@ class TestParserEntry(TestCase):
             assert len(obj.short_title) > 1
 
 
-class TestTarget(TestCase):
+class TestService(TestCase):
     def setUp(self):
         self.batch_size = 10
-        self.objects = TargetFactory.create_batch(size=self.batch_size)
+        self.objects = ServiceFactory.create_batch(size=self.batch_size)
 
     def test_create(self):
         assert len(self.objects) == self.batch_size
@@ -85,7 +86,7 @@ class TestTarget(TestCase):
     def test_delete(self):
         for obj in self.objects:
             obj.delete()
-        qs = Target.objects.all()
+        qs = Service.objects.all()
         assert not len(qs)
 
     def test_fields(self):
@@ -93,6 +94,7 @@ class TestTarget(TestCase):
             assert obj.title == "FL.ru"
             assert "https" in obj.url_body
             assert "https" in obj.url_query
+            assert isinstance(obj.daily_price, Decimal)
 
 
 class TestTicket(TestCase):

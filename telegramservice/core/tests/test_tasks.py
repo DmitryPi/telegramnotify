@@ -4,7 +4,7 @@ from django_celery_beat.models import IntervalSchedule, PeriodicTask
 
 from ..models import ParserEntry
 from ..tasks import clean_oneoff_tasks, parse_flru_task, sender_bot_task
-from .factories import ParserEntryFactory, TargetFactory
+from .factories import ParserEntryFactory, ServiceFactory
 
 
 @pytest.mark.django_db
@@ -35,9 +35,9 @@ def test_clean_oneoff_tasks(settings):
 @pytest.mark.django_db
 def test_parse_flru_task(settings):
     settings.CELERY_TASK_ALWAYS_EAGER = True
-    target = TargetFactory()
+    service = ServiceFactory()
     entries = ParserEntry.objects.all()
-    assert target.title == "FL.ru"
+    assert service.title == "FL.ru"
     assert not len(entries)
     # execute task
     result = parse_flru_task.delay()
