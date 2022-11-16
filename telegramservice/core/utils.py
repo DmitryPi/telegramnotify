@@ -15,6 +15,11 @@ def datetime_days_ahead(days: int) -> timezone:
     return now + delta
 
 
+def search_word(text: str, word: str) -> re.Match:
+    """Search whole word in text"""
+    return re.search(rf"\b{word}\b", text, re.IGNORECASE)
+
+
 def get_parser_entry(pid: str) -> ParserEntry:
     """Get parser_entry or None"""
     try:
@@ -52,6 +57,21 @@ def get_users() -> [User]:
     return users
 
 
-def search_word(text: str, word: str) -> re.Match:
-    """Search whole word in text"""
-    return re.search(rf"\b{word}\b", text, re.IGNORECASE)
+def user_set_status_permanent():
+    pass
+
+
+def users_update_premium_expired() -> None:
+    """
+    Loop through users
+    Skip users with premium_status=permanent
+    Check if premium_expire date passed
+        set premium_status=expired
+    """
+    users = get_users()
+    for user in users:
+        if user.premium_status == User.PremiumStatus.permanent:
+            continue
+        if timezone.now() > user.premium_expire:
+            user.premium_status = User.PremiumStatus.expired
+            user.save(update_fields=["premium_status"])

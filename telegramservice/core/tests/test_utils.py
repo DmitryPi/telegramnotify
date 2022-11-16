@@ -3,6 +3,7 @@ from collections import namedtuple
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import timezone
+from factory.fuzzy import FuzzyChoice
 
 from telegramservice.users.tests.factories import UserFactory
 
@@ -15,6 +16,7 @@ from ..utils import (
     save_parser_entry,
     search_word,
     update_parser_entries_sent,
+    users_update_premium_expired,
 )
 from .factories import ParserEntryFactory
 
@@ -57,6 +59,19 @@ class TestUtils(TestCase):
         for dt, res in examples:
             pass
 
+    def test_search_word(self):
+        Test = namedtuple("Test", ["text", "correct", "incorrect"])
+        tests = [
+            Test("Тест telegramстрока", "тест", "telegram"),
+            Test("Тест bot telegramстрока", "BOT", "telegram"),
+            Test("Тест.bot.telegramстрока", "boT", "telegram"),
+            Test("Тест-бот-telegramстрока", "Бот", "telegram"),
+        ]
+
+        for test in tests:
+            assert search_word(test.text, test.correct)
+            assert not search_word(test.text, test.incorrect)
+
     def test_save_parser_entry(self):
         entries = ParserEntry.objects.all()
         assert not len(entries)
@@ -94,15 +109,51 @@ class TestUtils(TestCase):
         for user in users:
             assert user.premium_status != User.PremiumStatus.expired
 
-    def test_search_word(self):
-        Test = namedtuple("Test", ["text", "correct", "incorrect"])
-        tests = [
-            Test("Тест telegramстрока", "тест", "telegram"),
-            Test("Тест bot telegramстрока", "BOT", "telegram"),
-            Test("Тест.bot.telegramстрока", "boT", "telegram"),
-            Test("Тест-бот-telegramстрока", "Бот", "telegram"),
-        ]
+    def test_users_update_premium_expired(self):
+        """Test update for premium_status of trial and regular"""
+        hour_before = timezone.now() - timezone.timedelta(hours=1)
+        hour_ahead = timezone.now() + timezone.timedelta(hours=1)
+        # hour before
+        UserFactory.create_batch(
+            20,
+            premium_status=FuzzyChoice(
+                [User.PremiumStatus.trial, User.PremiumStatus.regular]
+            ),
+            premium_expire=hour_before,
+        )
+        # hour ahead
+        UserFactory.create_batch(
+            10,
+            premium_status=FuzzyChoice(
+                [User.PremiumStatus.trial, User.PremiumStatus.regular]
+            ),
+            premium_expire=hour_ahead,
+        )
+        users = get_users()
+        assert len(users) == 30
+        users_update_premium_expired()
+        users = get_users()
+        assert len(users) == 10
+        for user in users:
+            assert timezone.now() < user.premium_expire
 
-        for test in tests:
-            assert search_word(test.text, test.correct)
-            assert not search_word(test.text, test.incorrect)
+    def test_users_update_premium_expired_permament(self):
+        """
+        Test if permanent users are exluded from evaluation
+        Even if for some reason permanent_status date passed,
+        Permanent status won't be changed
+        """
+        hour_before = timezone.now() - timezone.timedelta(hours=1)
+        UserFactory.create_batch(
+            10,
+            premium_status=User.PremiumStatus.permanent,
+            premium_expire=hour_before,
+        )
+        users = get_users()
+        assert len(users) == 10
+        users_update_premium_expired()
+        users = get_users()
+        assert len(users) == 10
+        for user in users:
+            assert user.premium_status == User.PremiumStatus.permanent
+            assert timezone.now() > user.premium_expire
