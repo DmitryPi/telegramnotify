@@ -13,11 +13,11 @@ class FLParser:
         self.set_target_source()
 
     def set_target_source(self) -> None:
-        """Fl.ru target - https://www.fl.ru/projects/"""
+        """Fl.ru service - https://www.fl.ru/projects/"""
         try:
-            target = Service.objects.get(title="FL.ru")
-            self.target = target
-            self.source = target.title
+            service = Service.objects.get(title="FL.ru")
+            self.target = service
+            self.source = service.title
         except Service.DoesNotExist as e:
             raise e
 
