@@ -74,13 +74,16 @@ class Target(TimeStampedModel):
     title = models.CharField(_("Title"), max_length=55)
     url_body = models.URLField(_("URL body"), max_length=100)
     url_query = models.URLField(_("URL query"), max_length=100, blank=True)
+    daily_price = models.DecimalField(
+        _("Daily Price"), max_digits=5, decimal_places=2, default=0
+    )
 
     class Meta:
         verbose_name = _("Target")
         verbose_name_plural = _("Targets")
 
     def __str__(self):
-        return self.title
+        return f"{self.title} : {self.daily_price}"
 
 
 class Ticket(TimeStampedModel):
