@@ -60,7 +60,7 @@ class User(AbstractUser):
 
     def update_bill(self):
         bill = Decimal(0)
-        for service in self.services:
+        for service in self.services.all():
             bill += service.daily_price
         self.bill = bill
         self.save()

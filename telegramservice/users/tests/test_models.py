@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.test import TestCase
 
+from telegramservice.core.tests.factories import ServiceFactory
 from telegramservice.users.models import User
 
 from .factories import UserFactory
@@ -26,7 +27,25 @@ class TestUser(TestCase):
         # update wallet
         user.update_wallet(55.5)
         user.update_wallet(155.5)
-        user.update_wallet(3)
+        user.update_wallet(3.5)
         user = User.objects.get(pk=user.id)
-        assert user.wallet == 314
+        assert user.wallet == 314.5
         assert isinstance(user.wallet, Decimal)
+
+    def test_update_bill(self):
+        user = UserFactory()
+        services = [
+            ServiceFactory(daily_price=3),
+            ServiceFactory(daily_price=1.5),
+            ServiceFactory(daily_price=2),
+        ]
+        # add services
+        [user.services.add(s) for s in services]
+        user = User.objects.get(pk=user.id)
+        assert user.bill == 0
+        assert len(user.services.all()) == 3
+        # update bill
+        user.update_bill()
+        user = User.objects.get(pk=user.id)
+        assert user.bill == 6.5
+        assert isinstance(user.bill, Decimal)
