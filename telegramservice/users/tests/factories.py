@@ -15,7 +15,6 @@ class UserFactory(DjangoModelFactory):
     username = Faker("user_name")
     email = Faker("email")
     name = Faker("name")
-    services = ["FL.ru"]
     words = ["bot", "api", "апи", "бот"]
     premium_status = FuzzyChoice(
         choices=[
@@ -26,6 +25,14 @@ class UserFactory(DjangoModelFactory):
         ]
     )
     premium_expire = timezone.now()
+
+    @post_generation
+    def services(self, create: bool, extracted: Sequence[Any], **kwargs):
+        if not create or not extracted:
+            # Simple build, or nothing to add, do nothing.
+            return
+        # Add the iterable of groups using bulk addition
+        self.services.add(*extracted)
 
     @post_generation
     def password(self, create: bool, extracted: Sequence[Any], **kwargs):

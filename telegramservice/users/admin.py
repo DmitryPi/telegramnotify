@@ -37,10 +37,10 @@ class UserAdmin(auth_admin.UserAdmin):
         "tg_id",
         "username",
         "name",
-        "services",
         "bill",
         "wallet",
         "premium_status",
         "is_superuser",
     ]
+    filter_horizontal = ("services",)
     search_fields = ["name"]

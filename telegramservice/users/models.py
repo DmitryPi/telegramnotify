@@ -6,6 +6,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+from telegramservice.core.models import Service
+
 
 class User(AbstractUser):
     """
@@ -21,15 +23,13 @@ class User(AbstractUser):
         permanent = "permanent", _("Permanent")
         expired = "expired", _("Expired")
 
+    # relations
+    services = models.ManyToManyField(Service, related_name="%(class)ss", blank=True)
     # fields
     tg_id = models.BigIntegerField(
         _("Telegram ID"), db_index=True, unique=True, null=True, blank=True
     )
     name = models.CharField(_("Name of User"), blank=True, max_length=255)
-    first_name = None  # type: ignore
-    last_name = None  # type: ignore
-    # service fields
-    services = ArrayField(models.CharField(max_length=55), blank=True, default=list)
     words = ArrayField(models.CharField(max_length=112), blank=True, default=list)
     # business logic fields
     bill = models.DecimalField(_("Тариф"), max_digits=11, decimal_places=2, default=0)
@@ -43,6 +43,9 @@ class User(AbstractUser):
         default=PremiumStatus.expired,
     )
     premium_expire = models.DateTimeField(_("Действует до"), null=True, blank=True)
+    # misc
+    first_name = None  # type: ignore
+    last_name = None  # type: ignore
 
     def __str__(self):
         return f"{self.tg_id} : {self.username}"

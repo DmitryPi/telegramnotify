@@ -50,4 +50,4 @@ class ParserEntryAdmin(admin.ModelAdmin):
 
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
-    list_display = ["title", "url_body", "created"]
+    list_display = ["title", "daily_price", "url_body", "created"]
