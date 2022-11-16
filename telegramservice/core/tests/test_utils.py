@@ -13,9 +13,11 @@ from ..utils import (
     get_parser_entries,
     get_parser_entry,
     get_users,
+    get_users_all,
     save_parser_entry,
     search_word,
     update_parser_entries_sent,
+    user_set_status_permanent,
     users_update_premium_expired,
 )
 from .factories import ParserEntryFactory
@@ -103,11 +105,27 @@ class TestUtils(TestCase):
         entries = get_parser_entries()
         assert not len(entries)
 
+    def test_get_users_all(self):
+        UserFactory.create_batch(10)
+        users = get_users_all()
+        assert len(users) == 10
+
     def test_get_users(self):
-        UserFactory.create_batch(20)
+        UserFactory.create_batch(10)
         users = get_users()
         for user in users:
             assert user.premium_status != User.PremiumStatus.expired
+
+    def test_user_set_status_permanent(self):
+        permanent_date = timezone.now() + timezone.timedelta(days=3650)
+        UserFactory.create_batch(10)
+        users = get_users_all()
+        [user_set_status_permanent(user) for user in users]
+        users = get_users()
+        assert len(users) == 10
+        for user in users:
+            assert user.premium_status == User.PremiumStatus.permanent
+            assert permanent_date.year == user.premium_expire.year
 
     def test_users_update_premium_expired(self):
         """Test update for premium_status of trial and regular"""

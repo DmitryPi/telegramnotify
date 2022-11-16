@@ -51,14 +51,27 @@ def update_parser_entries_sent(entries: [ParserEntry]) -> None:
         entry.save(update_fields=["sent"])
 
 
+def get_users_all() -> [User]:
+    """Get all users"""
+    users = User.objects.all()
+    return users
+
+
 def get_users() -> [User]:
-    """Get all users and exclude those with premium_status=expired"""
+    """Get users and exclude those with premium_status=expired"""
     users = User.objects.exclude(premium_status=User.PremiumStatus.expired)
     return users
 
 
-def user_set_status_permanent():
-    pass
+def user_set_status_permanent(user: User) -> None:
+    """
+    Update user premium_status to permanent
+    Add 3650 days to premium_expire
+    """
+    permanent_date = timezone.now() + timezone.timedelta(days=3650)
+    user.premium_status = User.PremiumStatus.permanent
+    user.premium_expire = permanent_date
+    user.save()
 
 
 def users_update_premium_expired() -> None:
