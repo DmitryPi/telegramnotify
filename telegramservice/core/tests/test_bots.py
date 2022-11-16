@@ -18,9 +18,9 @@ class TestSenderBot(TestCase):
             ParserEntry(title="Something-test-", description="terific pfs"),
         ]
 
-    def test_build_message(self):
+    def test_build_entry_message(self):
         parser_entry = ParserEntryFactory()
-        message = self.sender_bot.build_message(parser_entry)
+        message = self.sender_bot.build_entry_message(parser_entry)
         self.assertIn(parser_entry.title, message)
         self.assertIn(parser_entry.description, message)
         self.assertIn(parser_entry.budget, message)

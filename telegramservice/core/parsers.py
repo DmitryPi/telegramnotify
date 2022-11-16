@@ -77,7 +77,11 @@ class FLParser:
             ).text.replace("\n", " ")
         budget_deadline = response.html.find(".b-layout__txt span.b-layout__bold")
         budget = budget_deadline[0].text.lower() if len(budget_deadline) >= 1 else ""
-        deadline = budget_deadline[1].text.lower() if len(budget_deadline) >= 2 else ""
+        deadline = (
+            budget_deadline[1].text.lower()
+            if len(budget_deadline) >= 2
+            else "по договоренности"
+        )
         # build data
         project_data = Data(
             pid=pid,

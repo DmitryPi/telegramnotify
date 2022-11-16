@@ -60,7 +60,7 @@ class SenderBot:
                 protect_content=True,
             )
 
-    def build_message(self, entry: ParserEntry) -> str:
+    def build_entry_message(self, entry: ParserEntry) -> str:
         """Build html message for telegram user"""
         description = (
             f"{entry.description[:300].strip()}..."
@@ -109,7 +109,7 @@ class SenderBot:
                 if not match:
                     continue
                 # if there's match
-                message = self.build_message(entry)
+                message = self.build_entry_message(entry)
                 asyncio.run(self.raw_send_message(user.tg_id, message))
         # update entries set sent=True
         update_parser_entries_sent(entries)
