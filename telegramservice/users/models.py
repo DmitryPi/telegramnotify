@@ -24,7 +24,7 @@ class User(AbstractUser):
         expired = "expired", _("Expired")
 
     # relations
-    services = models.ManyToManyField(Service, related_name="%(class)ss", blank=True)
+    services = models.ManyToManyField(Service, blank=True)
     # fields
     tg_id = models.BigIntegerField(
         _("Telegram ID"), db_index=True, unique=True, null=True, blank=True
