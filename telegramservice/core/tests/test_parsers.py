@@ -1,5 +1,6 @@
 import re
 
+import pytest
 from django.test import TestCase
 
 from ..parsers import FLParser
@@ -16,6 +17,7 @@ class TestFLParser(TestCase):
         assert self.fl_parser.target == self.target
         assert self.fl_parser.source == "FL.ru"
 
+    @pytest.mark.slow
     def test_get_projects_info(self):
         self.projects_info = self.fl_parser.get_projects_info()
         assert len(self.projects_info) > 10
@@ -26,6 +28,7 @@ class TestFLParser(TestCase):
             assert info.url
             assert isinstance(info.url, str)
 
+    @pytest.mark.slow
     def test_get_project_data(self):
         data = self.fl_parser.get_project_data(self.projects_info[10])
         assert len(data) == 8
