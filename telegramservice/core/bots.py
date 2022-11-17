@@ -32,7 +32,7 @@ from telegram.ext import (
 
 from config.settings.base import TELEGRAM_ADMIN_ID, TELEGRAM_API_TOKEN, YOKASSA_TOKEN
 
-from .models import Order, ParserEntry, Ticket
+from .models import Order, ParserEntry, Service, Ticket
 from .utils import (
     datetime_days_ahead,
     get_parser_entries,
@@ -117,7 +117,7 @@ class SenderBot:
 
 class TelegramBot:
     def __init__(self):
-        self.services = ["FL.ru", "avito"]
+        self.services = []
         self.settings = [
             "Добавить сервис",
             "Добавить слова",
@@ -135,6 +135,11 @@ class TelegramBot:
             "techsupport": "/support",
             "cancel": "/cancel",
         }
+        self.set_services()
+
+    def set_services(self):
+        services = Service.objects.all()
+        self.services = [service.title for service in services]
 
     @property
     def auth_invalid_msg(self) -> str:
@@ -165,7 +170,7 @@ class TelegramBot:
         except User.DoesNotExist:
             msg = "\n".join(
                 [
-                    "Привет!",
+                    "Привет!\n",
                     "Я могу оповещать тебя о новых заказах и проектах",
                     "\n<b>Выбери сервис:</b>",
                 ]

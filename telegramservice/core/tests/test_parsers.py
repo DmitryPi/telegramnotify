@@ -18,6 +18,7 @@ class TestFLParser(TestCase):
 
     def test_get_projects_info(self):
         self.projects_info = self.fl_parser.get_projects_info()
+        assert len(self.projects_info) > 10
         assert isinstance(self.projects_info, list)
         for info in self.projects_info:
             assert info.id

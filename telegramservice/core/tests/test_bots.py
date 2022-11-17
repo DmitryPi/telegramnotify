@@ -4,9 +4,9 @@ from django.test import TestCase
 
 from telegramservice.users.tests.factories import UserFactory
 
-from ..bots import SenderBot
+from ..bots import SenderBot, TelegramBot
 from ..models import ParserEntry
-from .factories import ParserEntryFactory
+from .factories import ParserEntryFactory, ServiceFactory
 
 
 class TestSenderBot(TestCase):
@@ -45,3 +45,33 @@ class TestSenderBot(TestCase):
         entries = ParserEntry.objects.all()
         for entry in entries:
             self.assertTrue(entry.sent)
+
+
+class TestTelegramBot(TestCase):
+    def setUp(self):
+        ServiceFactory()
+        self.telegram_bot = TelegramBot()
+
+    def test_init(self):
+        settings = [
+            "Добавить сервис",
+            "Добавить слова",
+            "Удалить сервис",
+            "Удалить слово",
+        ]
+        yesno = ["Да", "Нет"]
+        commands = {
+            "start": "/start",
+            "help": "/help",
+            "pay": "/pay",
+            "balance": "/balance",
+            "bill": "/bill",
+            "settings": "/settings",
+            "techsupport": "/support",
+            "cancel": "/cancel",
+        }
+        assert len(self.telegram_bot.services) == 1
+        assert isinstance(self.telegram_bot.services, list)
+        assert self.telegram_bot.settings == settings
+        assert self.telegram_bot.yesno == yesno
+        assert self.telegram_bot.commands == commands
