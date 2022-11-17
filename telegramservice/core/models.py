@@ -87,7 +87,11 @@ class Service(TimeStampedModel):
 
 
 class Ticket(TimeStampedModel):
-    """User support ticket"""
+    """
+    User support ticket
+
+    TODO: on_save if there's reply and status=solved -> send reply to user
+    """
 
     # choices
     class Status(models.TextChoices):
@@ -97,7 +101,8 @@ class Ticket(TimeStampedModel):
     # relations
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     # fields
-    message = models.TextField(_("Message"))
+    message = models.TextField(_("Вопрос"))
+    reply = models.TextField(_("Ответ"), blank=True)
     status = models.CharField(
         max_length=55, choices=Status.choices, default=Status.UNSOLVED
     )
