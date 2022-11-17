@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-ROOT_DIR_PATH = Path(__file__).parent.resolve()
+ROOT_DIR_PATH = Path(__file__).parent.parent.resolve()
 PRODUCTION_DOTENVS_DIR_PATH = ROOT_DIR_PATH / ".envs" / ".production"
 PRODUCTION_DOTENV_FILE_PATHS = [
     PRODUCTION_DOTENVS_DIR_PATH / ".django",
@@ -63,5 +63,5 @@ def test_merge(tmpdir_factory, merged_file_count: int, append_linesep: bool):
     assert actual_output_file_content == expected_output_file_content
 
 
-if __name__ == "__main__":
+def run():
     main()
