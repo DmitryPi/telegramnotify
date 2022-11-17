@@ -191,7 +191,7 @@ class TelegramBot:
         """Выбор сервиса для поиска"""
         query = update.callback_query
         await query.answer()
-        context.user_data.update({"service": query.data.split(" ")})
+        context.user_data.update({"service": query.data})
         msg = "\n".join(
             [
                 "Вы выбрали - " + query.data,
@@ -241,7 +241,7 @@ class TelegramBot:
         await query.answer()
         answer = query.data
         if answer == "Да":
-            user_service = context.user_data["service"][0]
+            user_service = context.user_data["service"]
             user_words = str(context.user_data["words"])
             msg = "\n".join(
                 [
@@ -267,19 +267,22 @@ class TelegramBot:
     ) -> None:
         """Регистрация пользователя в django-приложении"""
         tg_user = update.effective_user
-        username = tg_user["username"] if tg_user["username"] else tg_user["first_name"]
-        await sync_to_async(User.objects.create)(
+        username = tg_user.username if tg_user.username else tg_user.first_name
+        service = await sync_to_async(Service.objects.get)(
+            title=context.user_data["service"]
+        )
+        user = await sync_to_async(User.objects.create)(
             tg_id=tg_user.id,
             username=username,
             password=str(tg_user.id),
-            name=tg_user["first_name"],
-            services=context.user_data["service"],
+            name=tg_user.first_name,
             words=context.user_data["words"],
             bill=0,
             wallet=0,
             premium_status=User.PremiumStatus.trial,
             premium_expire=datetime_days_ahead(3),
         )
+        await sync_to_async(user.services.add)(service)
 
     async def command_pay(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE

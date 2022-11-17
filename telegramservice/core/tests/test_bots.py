@@ -1,5 +1,6 @@
 import re
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from telegramservice.users.tests.factories import UserFactory
@@ -7,6 +8,8 @@ from telegramservice.users.tests.factories import UserFactory
 from ..bots import SenderBot, TelegramBot
 from ..models import ParserEntry
 from .factories import ParserEntryFactory, ServiceFactory
+
+User = get_user_model()
 
 
 class TestSenderBot(TestCase):
@@ -75,3 +78,26 @@ class TestTelegramBot(TestCase):
         assert self.telegram_bot.settings == settings
         assert self.telegram_bot.yesno == yesno
         assert self.telegram_bot.commands == commands
+
+    def test_auth_invalid_msg(self):
+        msg = f"Пройдите регистрацию.\nИспользуйте команду - {self.telegram_bot.commands['start']}"
+        assert self.telegram_bot.auth_invalid_msg == msg
+
+    def test_error_msg(self):
+        msg = "Ой, что-то пошло не так.\nПрограммист оповещен об этом!"
+        assert self.telegram_bot.error_msg == msg
+
+    # @pytest.mark.db_async
+    # def test_auth_complete(self):
+    #     # Emulate telegram update object
+    #     Update = namedtuple("Update", ["effective_user"])
+    #     UserTG = namedtuple("UserTG", ["id", "username", "first_name"])
+    #     user = UserTG(333, "Test2", "Test")
+    #     # Emulate telegram context object
+    #     Context = namedtuple("Context", ["user_data"])
+    #     user_data = {"words": ["test", "апи", "bot"], "service": "FL.ru"}
+    #     # init update & context
+    #     update = Update(user)
+    #     context = Context(user_data)
+    #     # delete user:
+    #     asyncio.run(self.telegram_bot.auth_complete(update, context))
