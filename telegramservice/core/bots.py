@@ -8,6 +8,7 @@ import traceback
 
 from asgiref.sync import sync_to_async
 from django.contrib.auth import get_user_model
+from django.utils.timezone import localtime
 from telegram import (
     Bot,
     InlineKeyboardButton,
@@ -385,7 +386,7 @@ class TelegramBot:
             [
                 "🙏 <b>Дай бог здоровья!</b>",
                 "",
-                "● Оплата прошла успешно.",
+                f"Счет пополнен на {amount} рублей",
                 "",
                 "<b>Вывести баланс - </b>" + self.commands["balance"],
             ]
@@ -408,18 +409,22 @@ class TelegramBot:
     async def command_balance(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
+        """TODO: rename, add words/services info"""
         try:
             user = await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
+            premium_expire = localtime(user.premium_expire).strftime(
+                "%H:%M:%S %d-%m-%Y"
+            )
             msg = "\n".join(
                 [
                     f"<b>Ваш баланс</b>: {user.wallet} рублей",
                     "",
-                    f"<b>Тарифный план</b>: {user.premium_status}",
+                    f"<b>Тарифный план</b>: {user.premium_status.capitalize()}",
                     "",
                     f"<b>Потребление в день</b>: {user.bill} рубля",
                     f"<b>Потребление в месяц</b>: {user.bill * 30} рублей",
                     "",
-                    f"<b>Действует до: {user.premium_expire}</b>",
+                    f"<b>Действует до: {premium_expire}</b>",
                 ]
             )
             await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
@@ -520,12 +525,13 @@ class TelegramBot:
             msg = "\n".join(
                 [
                     "<b>Доступные команды:</b>",
+                    "",
                     f"{self.commands['start']} - Регистрация",
                     f"{self.commands['help']} - Помошник команд",
+                    f"{self.commands['balance']} - Информация о балансе и тарифе",
                     f"{self.commands['pay']} - Пополнить баланс",
                     f"{self.commands['settings']} - Настройки",
                     f"{self.commands['techsupport']} - Техническая поддержка",
-                    f"{self.commands['cancel']} - Прервать диалог",
                 ]
             )
             await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
