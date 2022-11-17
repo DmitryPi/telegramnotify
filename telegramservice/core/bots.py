@@ -145,6 +145,10 @@ class TelegramBot:
     def auth_invalid_msg(self) -> str:
         return f"Пройдите регистрацию.\nИспользуйте команду - {self.commands['start']}"
 
+    @property
+    def error_msg(self) -> str:
+        return "Ой, что-то пошло не так.\nПрограммист оповещен об этом!"
+
     def build_keyboard(self, context: list[str]) -> list[KeyboardButton]:
         btns = [KeyboardButton(s, callback_data=s) for s in context]
         reply_markup = ReplyKeyboardMarkup([btns])
@@ -171,8 +175,8 @@ class TelegramBot:
             msg = "\n".join(
                 [
                     "Привет!\n",
-                    "Я могу оповещать тебя о новых заказах и проектах",
-                    "\n<b>Выбери сервис:</b>",
+                    "Я могу оповещать Вас о новых заказах и проектах",
+                    "\n<b>Выберите сервис:</b>",
                 ]
             )
             reply_markup = self.build_inline_keyboard(self.services)
@@ -191,12 +195,12 @@ class TelegramBot:
         msg = "\n".join(
             [
                 "Вы выбрали - " + query.data,
-                "\nВведи несколько фраз-слов для поиска.\n",
-                "*Вы можете ввести сразу несколько слов, через запятую*",
-                "*Минимальная длина слова - 3 символа*",
-                "*В пробном периоде доступно до 5 слов-фраз*",
-                f"\nОтмена операции - {self.commands['cancel']}\n",
-                "<b>Пример</b>: парсинг, дизайн страницы, бот, верстка, написать на питоне",
+                "\n<b>Теперь введите несколько фраз-слов для поиска</b>\n",
+                "* Вы можете ввести сразу несколько слов, через запятую",
+                "* Минимальная длина слова - 2 символа",
+                "* В пробном периоде доступно до 5 слов-фраз\n",
+                "<b>Пример</b>: парсинг, дизайн страницы, api, верстка, полиграфия",
+                f"\n<b>Отмена регистрации</b> - {self.commands['cancel']}",
             ]
         )
         await query.edit_message_text(text=msg, parse_mode=ParseMode.HTML)
@@ -205,9 +209,16 @@ class TelegramBot:
     async def auth_words(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
-        """TODO: очистка слов от всего плохого"""
-        words = update.message.text.split(",")[:5]  # only 5 words allowed
-        words = [w.strip() for w in words]
+        """Обработка слов"""
+        word_limit = 5  # only 5 words allowed
+        words = update.message.text.split(",")[:word_limit]
+        words = [w.strip().lower() for w in words if len(w) >= 2]
+
+        if not words:
+            msg = "<b>Минимальная длина слова - 2 символа</b>\nНесколько слов можно ввести через запятую."
+            await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
+            return TWO
+
         context.user_data.update({"words": words})
         msg = "\n".join(
             [
@@ -242,8 +253,9 @@ class TelegramBot:
                     "Вызвав команду - " + self.commands["pay"],
                 ]
             )
-            await query.edit_message_text(text=msg)
+            # authenticate
             await self.auth_complete(update, context)
+            await query.edit_message_text(text=msg)
             return ConversationHandler.END
         else:
             msg = "<b>Введите новые слова:</b>"
@@ -253,6 +265,7 @@ class TelegramBot:
     async def auth_complete(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
+        """Регистрация пользователя в django-приложении"""
         tg_user = update.effective_user
         username = tg_user["username"] if tg_user["username"] else tg_user["first_name"]
         await sync_to_async(User.objects.create)(
