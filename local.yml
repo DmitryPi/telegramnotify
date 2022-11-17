@@ -74,4 +74,4 @@ services:
     depends_on:
       - django
     ports: []
-    command: python manage.py runscript run_telegram_bot
+    command: python manage.py runscript telegram_bot
