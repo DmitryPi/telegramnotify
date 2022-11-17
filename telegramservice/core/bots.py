@@ -130,7 +130,6 @@ class TelegramBot:
             "help": "/help",
             "pay": "/pay",
             "balance": "/balance",
-            "bill": "/bill",
             "settings": "/settings",
             "techsupport": "/support",
             "cancel": "/cancel",
@@ -144,12 +143,12 @@ class TelegramBot:
     @property
     def auth_invalid_msg(self) -> str:
         return (
-            f"🔴 Пройдите регистрацию.\nИспользуйте команду - {self.commands['start']}"
+            f"🔴 Пройдите регистрацию.\n\nИспользуйте команду - {self.commands['start']}"
         )
 
     @property
     def error_msg(self) -> str:
-        return "🔴 Ой, что-то пошло не так.\nПрограммист оповещен об этом!"
+        return "🔴 Ой, что-то пошло не так.\n\nПрограммист оповещен об этом!"
 
     def build_keyboard(self, context: list[str]) -> list[KeyboardButton]:
         btns = [KeyboardButton(s, callback_data=s) for s in context]
@@ -254,7 +253,6 @@ class TelegramBot:
                     "<b>Тех.поддержка - </b>" + self.commands["techsupport"],
                     "<b>Настройки - </b>" + self.commands["settings"],
                     "",
-                    "<b>Тариф - </b>" + self.commands["bill"],
                     "<b>Баланс - </b>" + self.commands["balance"],
                     "<b>Пополните баланс - </b>" + self.commands["pay"],
                 ]
@@ -271,7 +269,11 @@ class TelegramBot:
     async def auth_complete(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
-        """Регистрация пользователя в django-приложении"""
+        """
+        Регистрация пользователя в django-приложении
+
+        TODO: async testing
+        """
         tg_user = update.effective_user
         username = tg_user.username if tg_user.username else tg_user.first_name
         service = await sync_to_async(Service.objects.get)(
@@ -297,12 +299,17 @@ class TelegramBot:
             await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
             msg = "\n".join(
                 [
-                    "Введите желаемое количество для пополнения.",
-                    "Минимальное сумма пополнения - 100 рублей.",
+                    "<b>Введите желаемое количество для пополнения</b>",
+                    "",
+                    "● Минимальное количество - 100 рублей.",
+                    "",
+                    "Отмена операции - /cancel",
                 ]
             )
             reply_markup = self.build_keyboard([100, 200, 300, 400, 500])
-            await update.message.reply_text(msg, reply_markup=reply_markup)
+            await update.message.reply_text(
+                msg, reply_markup=reply_markup, parse_mode=ParseMode.HTML
+            )
             return ONE
         except User.DoesNotExist:
             await update.message.reply_text(self.auth_invalid_msg)
@@ -314,24 +321,26 @@ class TelegramBot:
             pay_amount = int(update.message.text)
             if pay_amount < 100:
                 raise ValueError
-        except ValueError:
+        except (ValueError, AttributeError):
             msg = "\n".join(
                 [
-                    "<b>Неверное количество!</b>",
-                    "Минимальное сумма пополнения - 100 рублей.",
-                    "\nДля отмены - /cancel",
+                    "🔴 <b>Неверное количество!</b>",
+                    "",
+                    "● Минимальное количество - 100 рублей.",
+                    "",
+                    "Отмена операции - /cancel",
                 ]
             )
             await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
             return ONE
         chat_id = update.message.chat_id
         title = "Пополнение баланса:"
-        description = "Описание услуги"
+        description = "-"
         payload = "Secret-Payload"
         provider_token = YOKASSA_TOKEN
         currency = "RUB"
         prices = [LabeledPrice("Test", pay_amount * 100)]
-        await update.message.reply_text(".", reply_markup=ReplyKeyboardRemove())
+        await update.message.reply_text("●", reply_markup=ReplyKeyboardRemove())
         await context.bot.send_invoice(
             chat_id,
             title,
@@ -351,7 +360,7 @@ class TelegramBot:
         # check the payload, is this from your bot?
         if query.invoice_payload != "Secret-Payload":
             # answer False pre_checkout_query
-            await query.answer(ok=False, error_message="Что-то пошло не так...")
+            await query.answer(ok=False, error_message="🔴 Что-то пошло не так...")
         else:
             await query.answer(ok=True)
 
@@ -374,8 +383,11 @@ class TelegramBot:
         amount = decimal.Decimal(order["total_amount"] / 100)
         msg = "\n".join(
             [
-                "Спасибо! Оплата прошла успешно.",
-                "Вывести ваш баланс - " + self.commands["balance"],
+                "🙏 <b>Дай бог здоровья!</b>",
+                "",
+                "● Оплата прошла успешно.",
+                "",
+                "<b>Вывести баланс - </b>" + self.commands["balance"],
             ]
         )
         # wallet update
@@ -391,28 +403,23 @@ class TelegramBot:
             provider_payment_charge_id=order["provider_payment_charge_id"],
         )
         # send success msg
-        await update.message.reply_text(msg)
+        await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
 
     async def command_balance(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
         try:
             user = await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
-            msg = f"<b>Ваш баланс</b>: {user.wallet} рублей"
-            await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
-        except User.DoesNotExist:
-            await update.message.reply_text(self.auth_invalid_msg)
-
-    async def command_bill(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
-    ) -> None:
-        try:
-            user = await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
             msg = "\n".join(
                 [
+                    f"<b>Ваш баланс</b>: {user.wallet} рублей",
+                    "",
                     f"<b>Тарифный план</b>: {user.premium_status}",
+                    "",
                     f"<b>Потребление в день</b>: {user.bill} рубля",
                     f"<b>Потребление в месяц</b>: {user.bill * 30} рублей",
+                    "",
+                    f"<b>Действует до: {user.premium_expire}</b>",
                 ]
             )
             await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
@@ -516,7 +523,6 @@ class TelegramBot:
                     f"{self.commands['start']} - Регистрация",
                     f"{self.commands['help']} - Помошник команд",
                     f"{self.commands['pay']} - Пополнить баланс",
-                    f"{self.commands['bill']} - Текущий тарифный план",
                     f"{self.commands['settings']} - Настройки",
                     f"{self.commands['techsupport']} - Техническая поддержка",
                     f"{self.commands['cancel']} - Прервать диалог",
@@ -621,7 +627,6 @@ class TelegramBot:
         application.add_handler(settings_conv_handler)
         application.add_handler(techsupport_conv_handler)
         application.add_handler(CommandHandler("balance", self.command_balance))
-        application.add_handler(CommandHandler("bill", self.command_bill))
         application.add_handler(CommandHandler("help", self.command_help))
         # payments
         application.add_handler(pay_conv_handler)

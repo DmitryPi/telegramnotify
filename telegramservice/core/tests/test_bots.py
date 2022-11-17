@@ -68,7 +68,6 @@ class TestTelegramBot(TestCase):
             "help": "/help",
             "pay": "/pay",
             "balance": "/balance",
-            "bill": "/bill",
             "settings": "/settings",
             "techsupport": "/support",
             "cancel": "/cancel",
@@ -80,11 +79,11 @@ class TestTelegramBot(TestCase):
         assert self.telegram_bot.commands == commands
 
     def test_auth_invalid_msg(self):
-        msg = f"🔴 Пройдите регистрацию.\nИспользуйте команду - {self.telegram_bot.commands['start']}"
+        msg = f"🔴 Пройдите регистрацию.\n\nИспользуйте команду - {self.telegram_bot.commands['start']}"
         assert self.telegram_bot.auth_invalid_msg == msg
 
     def test_error_msg(self):
-        msg = "🔴 Ой, что-то пошло не так.\nПрограммист оповещен об этом!"
+        msg = "🔴 Ой, что-то пошло не так.\n\nПрограммист оповещен об этом!"
         assert self.telegram_bot.error_msg == msg
 
     # @pytest.mark.db_async
