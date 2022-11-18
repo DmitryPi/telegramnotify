@@ -438,6 +438,8 @@ class TelegramBot:
         Добавление сервис / Добавить слова
         Удалить сервис / Удалить слово
         Отключение/Включение работы
+
+        TODO: button logic
         """
         try:
             user = await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)

@@ -9,6 +9,12 @@ from .models import ParserEntry
 User = get_user_model()
 
 
+def list_into_chunks(lst: list, n=2) -> list[list]:
+    """Split list into chunks [1, 2, 3] => [[1, 2], [3]]"""
+    result = [lst[i : i + n] for i in range(0, len(lst), n)]  # noqa skip
+    return result
+
+
 def datetime_days_ahead(days: int) -> timezone:
     now = timezone.now()
     delta = timezone.timedelta(days=days)

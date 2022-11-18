@@ -14,6 +14,7 @@ from ..utils import (
     get_parser_entry,
     get_users,
     get_users_all,
+    list_into_chunks,
     save_parser_entry,
     search_word,
     update_parser_entries_sent,
@@ -51,15 +52,29 @@ class TestUtils(TestCase):
             sent=False,
         )
 
+    def test_list_into_chunks(self):
+        tests = [
+            ([1], [[1]]),
+            ([1, 2], [[1, 2]]),
+            ([1, 2, 3], [[1, 2], [3]]),
+            ([1, 2, 3, 4], [[1, 2], [3, 4]]),
+        ]
+        for test, res in tests:
+            result = list_into_chunks(test, n=2)
+            assert isinstance(result, list)
+            assert isinstance(result[0], list)
+            assert result == res
+
     def test_datetime_days_ahead(self):
-        """TODO: refactor"""
-        examples = [
+        tests = [
             (datetime_days_ahead(0), timezone.now() + timezone.timedelta(days=0)),
             (datetime_days_ahead(3), timezone.now() + timezone.timedelta(days=3)),
             (datetime_days_ahead(10), timezone.now() + timezone.timedelta(days=10)),
         ]
-        for dt, res in examples:
-            pass
+        for test, res in tests:
+            assert test.day == res.day
+            assert test.month == res.month
+            assert test.year == res.year
 
     def test_search_word(self):
         Test = namedtuple("Test", ["text", "correct", "incorrect"])
