@@ -2,6 +2,12 @@ import re
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from telegram import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    KeyboardButton,
+    ReplyKeyboardMarkup,
+)
 
 from telegramservice.users.tests.factories import UserFactory
 
@@ -54,14 +60,14 @@ class TestTelegramBot(TestCase):
     def setUp(self):
         ServiceFactory()
         self.telegram_bot = TelegramBot()
-
-    def test_init(self):
-        settings = [
+        self.settings = [
             "Добавить сервис",
             "Добавить слова",
             "Удалить сервис",
             "Удалить слово",
         ]
+
+    def test_init(self):
         yesno = ["Да", "Нет"]
         commands = {
             "start": "/start",
@@ -74,7 +80,7 @@ class TestTelegramBot(TestCase):
         }
         assert len(self.telegram_bot.services) == 1
         assert isinstance(self.telegram_bot.services, list)
-        assert self.telegram_bot.settings == settings
+        assert self.telegram_bot.settings == self.settings
         assert self.telegram_bot.yesno == yesno
         assert self.telegram_bot.commands == commands
 
@@ -85,6 +91,34 @@ class TestTelegramBot(TestCase):
     def test_error_msg(self):
         msg = "🔴 Ой, что-то пошло не так.\n\nПрограммист оповещен об этом!"
         assert self.telegram_bot.error_msg == msg
+
+    def test_build_keyboard(self):
+        btns = [100, 200, 300, 400, 500]
+        keyboard = self.telegram_bot.build_keyboard(btns)
+        assert isinstance(keyboard, ReplyKeyboardMarkup)
+        assert isinstance(keyboard["keyboard"], list)
+        assert isinstance(keyboard["keyboard"][0], list)
+        assert isinstance(keyboard["keyboard"][0][0], KeyboardButton)
+        assert keyboard["keyboard"][0][0]["text"] == 100
+        assert keyboard["keyboard"][0][4]["text"] == 500
+
+    def test_build_inline_keyboard(self):
+        """Test inline keyboard of 5 items"""
+        settings = self.settings
+        settings.append("test")
+        # instance
+        keyboard = self.telegram_bot.build_inline_keyboard(settings)
+        assert isinstance(keyboard, InlineKeyboardMarkup)
+        assert isinstance(keyboard["inline_keyboard"][0][0], InlineKeyboardButton)
+        # grid 1
+        keyboard = self.telegram_bot.build_inline_keyboard(settings, grid=1)
+        assert len(keyboard["inline_keyboard"]) == 5
+        # grid 2
+        keyboard = self.telegram_bot.build_inline_keyboard(settings, grid=2)
+        assert len(keyboard["inline_keyboard"]) == 3
+        # grid 3
+        keyboard = self.telegram_bot.build_inline_keyboard(settings, grid=3)
+        assert len(keyboard["inline_keyboard"]) == 2
 
     # @pytest.mark.db_async
     # def test_auth_complete(self):

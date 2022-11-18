@@ -38,6 +38,7 @@ from .utils import (
     datetime_days_ahead,
     get_parser_entries,
     get_users,
+    list_into_chunks,
     search_word,
     update_parser_entries_sent,
 )
@@ -151,14 +152,33 @@ class TelegramBot:
     def error_msg(self) -> str:
         return "🔴 Ой, что-то пошло не так.\n\nПрограммист оповещен об этом!"
 
-    def build_keyboard(self, context: list[str]) -> list[KeyboardButton]:
-        btns = [KeyboardButton(s, callback_data=s) for s in context]
-        reply_markup = ReplyKeyboardMarkup([btns])
+    def build_keyboard(self, buttons: list[str]) -> list[KeyboardButton]:
+        """
+        Suggestion keyboard:
+        {
+            'keyboard': [[{'text': 100}, {'text': 200}]]
+        }
+        """
+        btns = [[KeyboardButton(s, callback_data=s) for s in buttons]]
+        reply_markup = ReplyKeyboardMarkup(btns)
         return reply_markup
 
-    def build_inline_keyboard(self, context: list[str], grid=2) -> InlineKeyboardMarkup:
-        """TODO: btn grid division"""
-        btns = [[InlineKeyboardButton(s, callback_data=s) for s in context]]
+    def build_inline_keyboard(self, buttons: list[str], grid=2) -> InlineKeyboardMarkup:
+        """
+        Chat reply keyboard:
+        {
+            'inline_keyboard': [
+                [
+                    {'callback_data': 'Добавить сервис', 'text': 'Добавить сервис'},
+                    {'callback_data': 'Добавить слова', 'text': 'Добавить слова'},
+                    {'callback_data': 'Удалить сервис', 'text': 'Удалить сервис'},
+                    {'callback_data': 'Удалить слово', 'text': 'Удалить слово'}
+                ]
+            ]
+        }
+        """
+        btns = [InlineKeyboardButton(s, callback_data=s) for s in buttons]
+        btns = list_into_chunks(btns, n=grid)
         reply_markup = InlineKeyboardMarkup(btns)
         return reply_markup
 
@@ -444,7 +464,7 @@ class TelegramBot:
         try:
             user = await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
             context.user_data.update({"user": user})
-            reply_markup = self.build_inline_keyboard(self.settings)
+            reply_markup = self.build_inline_keyboard(self.settings, grid=2)
             msg = "<b>Настройки:</b>"
             await update.message.reply_text(
                 msg, reply_markup=reply_markup, parse_mode=ParseMode.HTML
