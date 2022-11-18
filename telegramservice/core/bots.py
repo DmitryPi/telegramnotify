@@ -131,7 +131,7 @@ class TelegramBot:
             "start": "/start",
             "help": "/help",
             "pay": "/pay",
-            "balance": "/balance",
+            "account": "/account",
             "settings": "/settings",
             "techsupport": "/support",
             "cancel": "/cancel",
@@ -274,7 +274,7 @@ class TelegramBot:
                     "<b>Тех.поддержка - </b>" + self.commands["techsupport"],
                     "<b>Настройки - </b>" + self.commands["settings"],
                     "",
-                    "<b>Баланс - </b>" + self.commands["balance"],
+                    "<b>Личный кабинет - </b>" + self.commands["account"],
                     "<b>Пополните баланс - </b>" + self.commands["pay"],
                 ]
             )
@@ -408,7 +408,7 @@ class TelegramBot:
                 "",
                 f"Счет пополнен на {amount} рублей",
                 "",
-                "<b>Вывести баланс - </b>" + self.commands["balance"],
+                "<b>Вывести баланс - </b>" + self.commands["account"],
             ]
         )
         # wallet update
@@ -426,25 +426,31 @@ class TelegramBot:
         # send success msg
         await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
 
-    async def command_balance(
+    async def command_account(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
-        """TODO: rename, add words/services info"""
         try:
-            user = await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
+            user = await sync_to_async(User.objects.prefetch_related("services").get)(
+                tg_id=update.effective_user.id
+            )
+            services = [s.__str__() for s in user.services.all()]
             premium_expire = localtime(user.premium_expire).strftime(
-                "%H:%M:%S %d-%m-%Y"
+                "%d-%m-%Y %H:%M:%S"
             )
             msg = "\n".join(
                 [
+                    f"<pre>ID: {user.tg_id}</pre>",
+                    "",
                     f"<b>Ваш баланс</b>: {user.wallet} рублей",
                     "",
                     f"<b>Тарифный план</b>: {user.premium_status.capitalize()}",
-                    "",
-                    f"<b>Потребление в день</b>: {user.bill} рубля",
-                    f"<b>Потребление в месяц</b>: {user.bill * 30} рублей",
-                    "",
                     f"<b>Действует до: {premium_expire}</b>",
+                    "",
+                    f"<b>Сервисы:</b> {services}",
+                    f"<b>Слова поиска:</b> {user.words}",
+                    "",
+                    f"<b>Потребление в день:</b> {user.bill} рубля",
+                    f"<b>Потребление в месяц:</b> {user.bill * 30} рублей",
                 ]
             )
             await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
@@ -548,9 +554,7 @@ class TelegramBot:
                 [
                     "<b>Доступные команды:</b>",
                     "",
-                    f"{self.commands['start']} - Регистрация",
-                    f"{self.commands['help']} - Помошник команд",
-                    f"{self.commands['balance']} - Информация о балансе и тарифе",
+                    f"{self.commands['account']} - Личный кабинет",
                     f"{self.commands['pay']} - Пополнить баланс",
                     f"{self.commands['settings']} - Настройки",
                     f"{self.commands['techsupport']} - Техническая поддержка",
@@ -654,7 +658,7 @@ class TelegramBot:
         application.add_handler(start_conv_handler)
         application.add_handler(settings_conv_handler)
         application.add_handler(techsupport_conv_handler)
-        application.add_handler(CommandHandler("balance", self.command_balance))
+        application.add_handler(CommandHandler("account", self.command_account))
         application.add_handler(CommandHandler("help", self.command_help))
         # payments
         application.add_handler(pay_conv_handler)

@@ -73,7 +73,7 @@ class TestTelegramBot(TestCase):
             "start": "/start",
             "help": "/help",
             "pay": "/pay",
-            "balance": "/balance",
+            "account": "/account",
             "settings": "/settings",
             "techsupport": "/support",
             "cancel": "/cancel",
