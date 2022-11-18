@@ -114,6 +114,9 @@ class Ticket(TimeStampedModel):
     def __str__(self):
         return f"{self.user} : {self.status}"
 
+    def save(self, *args, **kwargs):
+        return super().save(*args, **kwargs)
+
     @property
     def short_message(self, len=40):
         return self.message[:len]
