@@ -1,10 +1,21 @@
 import pytest
 from celery.result import EagerResult
+from django.contrib.auth import get_user_model
+from django.utils import timezone
 from django_celery_beat.models import IntervalSchedule, PeriodicTask
 
+from telegramservice.users.tests.factories import UserFactory
+
 from ..models import ParserEntry
-from ..tasks import clean_oneoff_tasks, parse_flru_task, sender_bot_task
+from ..tasks import (
+    clean_oneoff_tasks,
+    parse_flru_task,
+    sender_bot_task,
+    users_update_premium_expired_task,
+)
 from .factories import ParserEntryFactory, ServiceFactory
+
+User = get_user_model()
 
 
 @pytest.mark.django_db
@@ -29,6 +40,22 @@ def test_clean_oneoff_tasks(settings):
     one_off_tasks = PeriodicTask.objects.filter(one_off=True)
     assert isinstance(result, EagerResult)
     assert not len(one_off_tasks)
+
+
+@pytest.mark.django_db
+def test_users_update_premium_expired_task(settings):
+    settings.CELERY_TASK_ALWAYS_EAGER = True
+    UserFactory.create_batch(
+        10, premium_expire=timezone.now() - timezone.timedelta(hours=1)
+    )
+    result = users_update_premium_expired_task.delay()
+    users = User.objects.all()
+    assert isinstance(result, EagerResult)
+    for user in users:
+        if user.premium_status == User.PremiumStatus.permanent:
+            assert user.premium_status == User.PremiumStatus.permanent
+        else:
+            assert user.premium_status == User.PremiumStatus.expired
 
 
 @pytest.mark.slow

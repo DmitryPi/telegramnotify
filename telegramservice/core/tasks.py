@@ -12,6 +12,7 @@ from .utils import (
     get_users,
     save_parser_entry,
     update_parser_entries_sent,
+    users_update_premium_expired,
 )
 
 
@@ -19,6 +20,11 @@ from .utils import (
 def clean_oneoff_tasks():
     """Clean oneoff tasks with enabled=False"""
     PeriodicTask.objects.filter(one_off=True, enabled=False).delete()
+
+
+@celery_app.task()
+def users_update_premium_expired_task():
+    users_update_premium_expired()
 
 
 @celery_app.task(bind=True)
