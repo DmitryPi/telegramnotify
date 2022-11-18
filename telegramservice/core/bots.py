@@ -44,7 +44,7 @@ from .utils import (
 )
 
 User = get_user_model()
-ONE, TWO, THREE, FOUR = (i for i in range(1, 5))
+ONE, TWO, THREE, FOUR, FIVE = (i for i in range(1, 6))
 
 
 class SenderBot:
@@ -122,8 +122,8 @@ class TelegramBot:
         self.services = []
         self.settings = [
             "Добавить сервис",
-            "Добавить слова",
             "Удалить сервис",
+            "Добавить слова",
             "Удалить слово",
         ]
         self.yesno = ["Да", "Нет"]
@@ -482,17 +482,37 @@ class TelegramBot:
         query = update.callback_query
         await query.answer()
         answer = query.data
-        if answer == self.settings[0]:  # Сервисы
+        # choices
+        if answer == "Добавить сервис":
             reply_markup = self.build_inline_keyboard(self.services)
             await query.edit_message_text(text=answer, reply_markup=reply_markup)
             return TWO
-        elif answer == self.settings[1]:  # Слова
+        if answer == "Удалить сервис":
+            reply_markup = self.build_inline_keyboard(self.services)
+            await query.edit_message_text(text=answer, reply_markup=reply_markup)
+            return THREE
+        elif answer == "Добавить слова":
             user_words = json.loads(user.words)
             reply_markup = self.build_inline_keyboard(user_words)
             await query.edit_message_text(text=answer, reply_markup=reply_markup)
-            return THREE
+            return FOUR
+        elif answer == "Добавить слова":
+            user_words = json.loads(user.words)
+            reply_markup = self.build_inline_keyboard(user_words)
+            await query.edit_message_text(text=answer, reply_markup=reply_markup)
+            return FIVE
 
-    async def settings_services(
+    async def settings_add_service(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> int:
+        pass
+
+    async def settings_remove_service(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> int:
+        pass
+
+    async def settings_add_words(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
         print(context.user_data["user"])
@@ -503,16 +523,10 @@ class TelegramBot:
         await query.edit_message_text(text=answer)
         return ConversationHandler.END
 
-    async def settings_words(
+    async def settings_remove_words(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
-        print(context.user_data["user"])
-        query = update.callback_query
-        await query.answer()
-        answer = query.data
-        print(answer)
-        await query.edit_message_text(text=answer)
-        return ConversationHandler.END
+        pass
 
     async def command_techsupport(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -637,8 +651,10 @@ class TelegramBot:
             entry_points=[CommandHandler("settings", self.command_settings)],
             states={
                 ONE: [CallbackQueryHandler(self.settings_choose)],
-                TWO: [CallbackQueryHandler(self.settings_services)],
-                THREE: [CallbackQueryHandler(self.settings_words)],
+                TWO: [CallbackQueryHandler(self.settings_add_service)],
+                THREE: [CallbackQueryHandler(self.settings_remove_service)],
+                FOUR: [CallbackQueryHandler(self.settings_add_words)],
+                FIVE: [CallbackQueryHandler(self.settings_remove_words)],
             },
             fallbacks=[CommandHandler("cancel", self.command_cancel_conv)],
             per_user=True,

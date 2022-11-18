@@ -65,8 +65,8 @@ class TestTelegramBot(TestCase):
         self.telegram_bot = TelegramBot()
         self.settings = [
             "Добавить сервис",
-            "Добавить слова",
             "Удалить сервис",
+            "Добавить слова",
             "Удалить слово",
         ]
 
