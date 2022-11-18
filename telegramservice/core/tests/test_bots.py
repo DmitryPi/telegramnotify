@@ -1,7 +1,7 @@
 import re
 from collections import namedtuple
 
-from asgiref.sync import async_to_sync, sync_to_async
+from asgiref.sync import async_to_sync
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from telegram import (
@@ -137,9 +137,7 @@ class TestTelegramBot(TestCase):
         context = Context(user_data)
         # delete user:
         await self.telegram_bot.auth_complete(update, context)
-        user = await sync_to_async(User.objects.prefetch_related("services").get)(
-            username="Test"
-        )
+        user = await User.objects.prefetch_related("services").aget(username="Test")
         assert user.tg_id == 333
         assert user.username == "Test"
         assert user.bill == 0

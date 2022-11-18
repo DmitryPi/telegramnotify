@@ -293,10 +293,8 @@ class TelegramBot:
         """Регистрация пользователя в django-приложении"""
         tg_user = update.effective_user
         username = tg_user.username if tg_user.username else tg_user.first_name
-        service = await sync_to_async(Service.objects.get)(
-            title=context.user_data["service"]
-        )
-        user = await sync_to_async(User.objects.create)(
+        service = await Service.objects.aget(title=context.user_data["service"])
+        user = await User.objects.acreate(
             tg_id=tg_user.id,
             username=username,
             password=str(tg_user.id),
@@ -313,7 +311,7 @@ class TelegramBot:
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
         try:
-            await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
+            await User.objects.aget(tg_id=update.effective_user.id)
             msg = "\n".join(
                 [
                     "<b>Введите желаемое количество для пополнения</b>",
@@ -394,8 +392,10 @@ class TelegramBot:
              'provider_payment_charge_id': '2af0afbc-0000-198bce8',
              'total_amount': 10000
             }
+
+        TODO: Test
         """
-        user = await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
+        user = await User.objects.aget(tg_id=update.effective_user.id)
         order = update.message.successful_payment
         amount = decimal.Decimal(order["total_amount"] / 100)
         msg = "\n".join(
@@ -410,7 +410,7 @@ class TelegramBot:
         # wallet update
         await sync_to_async(user.update_wallet)(amount)
         # save order info
-        await sync_to_async(Order.objects.create)(
+        await Order.objects.acreate(
             user=user,
             status=Order.Status.SUCCESS,
             invoice_payload=order["invoice_payload"],
@@ -426,7 +426,7 @@ class TelegramBot:
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
         try:
-            user = await sync_to_async(User.objects.prefetch_related("services").get)(
+            user = await User.objects.prefetch_related("services").aget(
                 tg_id=update.effective_user.id
             )
             services = [s.__str__() for s in user.services.all()]
@@ -464,7 +464,7 @@ class TelegramBot:
         TODO: button logic
         """
         try:
-            user = await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
+            user = await User.objects.aget(tg_id=update.effective_user.id)
             context.user_data.update({"user": user})
             reply_markup = self.build_inline_keyboard(self.settings, grid=2)
             msg = "<b>Настройки:</b>"
@@ -517,7 +517,7 @@ class TelegramBot:
     async def command_techsupport(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
-        await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
+        await User.objects.aget(tg_id=update.effective_user.id)
         msg = "<b>Задайте вопрос:</b>\nДля отмены - /cancel"
         await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
         return ONE
@@ -525,11 +525,16 @@ class TelegramBot:
     async def techsupport_msg(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
+        """
+        Create support Ticket
+
+        TODO: Test
+        """
         try:
-            user = await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
+            user = await User.objects.aget(tg_id=update.effective_user.id)
             msg = "<b>Вопрос отправлен!</b>"
             # save Ticket
-            await sync_to_async(Ticket.objects.create)(
+            await Ticket.objects.acreate(
                 user=user,
                 message=str(update.message.text),
                 status=Ticket.Status.UNSOLVED,
@@ -545,7 +550,7 @@ class TelegramBot:
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
         try:
-            await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
+            await User.objects.aget(tg_id=update.effective_user.id)
             msg = "\n".join(
                 [
                     "<b>Доступные команды:</b>",
