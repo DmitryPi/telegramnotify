@@ -186,7 +186,7 @@ class TelegramBot:
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
         try:
-            await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
+            await User.objects.aget(tg_id=update.effective_user.id)
             msg = "\n".join(
                 [
                     "Вы уже зарегистрированы",
@@ -290,11 +290,7 @@ class TelegramBot:
     async def auth_complete(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
-        """
-        Регистрация пользователя в django-приложении
-
-        TODO: async testing
-        """
+        """Регистрация пользователя в django-приложении"""
         tg_user = update.effective_user
         username = tg_user.username if tg_user.username else tg_user.first_name
         service = await sync_to_async(Service.objects.get)(
