@@ -1,5 +1,7 @@
 import re
+from collections import namedtuple
 
+from asgiref.sync import async_to_sync, sync_to_async
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from telegram import (
@@ -13,6 +15,7 @@ from telegramservice.users.tests.factories import UserFactory
 
 from ..bots import SenderBot, TelegramBot
 from ..models import ParserEntry
+from ..utils import datetime_days_ahead
 from .factories import ParserEntryFactory, ServiceFactory
 
 User = get_user_model()
@@ -120,17 +123,31 @@ class TestTelegramBot(TestCase):
         keyboard = self.telegram_bot.build_inline_keyboard(settings, grid=3)
         assert len(keyboard["inline_keyboard"]) == 2
 
-    # @pytest.mark.db_async
-    # def test_auth_complete(self):
-    #     # Emulate telegram update object
-    #     Update = namedtuple("Update", ["effective_user"])
-    #     UserTG = namedtuple("UserTG", ["id", "username", "first_name"])
-    #     user = UserTG(333, "Test2", "Test")
-    #     # Emulate telegram context object
-    #     Context = namedtuple("Context", ["user_data"])
-    #     user_data = {"words": ["test", "апи", "bot"], "service": "FL.ru"}
-    #     # init update & context
-    #     update = Update(user)
-    #     context = Context(user_data)
-    #     # delete user:
-    #     asyncio.run(self.telegram_bot.auth_complete(update, context))
+    @async_to_sync
+    async def test_auth_complete(self):
+        # Emulate telegram update object
+        Update = namedtuple("Update", ["effective_user"])
+        UserTG = namedtuple("UserTG", ["id", "username", "first_name"])
+        user = UserTG(333, "Test", "Test")
+        # Emulate telegram context object
+        Context = namedtuple("Context", ["user_data"])
+        user_data = {"words": ["test", "апи", "bot"], "service": "FL.ru"}
+        # init update & context
+        update = Update(user)
+        context = Context(user_data)
+        # delete user:
+        await self.telegram_bot.auth_complete(update, context)
+        user = await sync_to_async(User.objects.prefetch_related("services").get)(
+            username="Test"
+        )
+        assert user.tg_id == 333
+        assert user.username == "Test"
+        assert user.bill == 0
+        assert user.wallet == 0
+        assert user.words == user_data["words"]
+        assert user.premium_status == User.PremiumStatus.trial
+        assert user.premium_expire.day == datetime_days_ahead(3).day
+        # services
+        services = user.services.all()
+        assert len(services) == 1
+        assert services[0].title == user_data["service"]
