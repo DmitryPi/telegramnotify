@@ -5,7 +5,7 @@ import json
 import logging
 import re
 import traceback
-from warnings import filterwarnings
+import warnings
 
 from asgiref.sync import sync_to_async
 from django.contrib.auth import get_user_model
@@ -48,7 +48,7 @@ from .utils import (
 User = get_user_model()
 ONE, TWO, THREE, FOUR, FIVE = (i for i in range(1, 6))
 
-filterwarnings(
+warnings.filterwarnings(
     action="ignore", message=r".*CallbackQueryHandler", category=PTBUserWarning
 )
 
