@@ -62,3 +62,11 @@ services:
     <<: *django
     image: parserservice_production_flower
     command: /start-flower
+
+  telegram:
+    <<: *django
+    container_name: telegram
+    depends_on:
+      - django
+    ports: []
+    command: python manage.py runscript telegram_bot
