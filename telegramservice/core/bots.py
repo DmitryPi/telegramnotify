@@ -5,6 +5,7 @@ import json
 import logging
 import re
 import traceback
+from warnings import filterwarnings
 
 from asgiref.sync import sync_to_async
 from django.contrib.auth import get_user_model
@@ -30,6 +31,7 @@ from telegram.ext import (
     PreCheckoutQueryHandler,
     filters,
 )
+from telegram.warnings import PTBUserWarning
 
 from config.settings.base import TELEGRAM_ADMIN_ID, TELEGRAM_API_TOKEN, YOKASSA_TOKEN
 
@@ -45,6 +47,10 @@ from .utils import (
 
 User = get_user_model()
 ONE, TWO, THREE, FOUR, FIVE = (i for i in range(1, 6))
+
+filterwarnings(
+    action="ignore", message=r".*CallbackQueryHandler", category=PTBUserWarning
+)
 
 
 class SenderBot:
@@ -635,7 +641,6 @@ class TelegramBot:
                 THREE: [CallbackQueryHandler(self.auth_words_confirm)],
             },
             fallbacks=[CommandHandler("cancel", self.command_cancel_conv)],
-            per_user=True,
         )
         pay_conv_handler = ConversationHandler(
             entry_points=[CommandHandler("pay", self.command_pay)],
@@ -645,7 +650,6 @@ class TelegramBot:
                 ]
             },
             fallbacks=[CommandHandler("cancel", self.command_cancel_conv)],
-            per_user=True,
         )
         settings_conv_handler = ConversationHandler(
             entry_points=[CommandHandler("settings", self.command_settings)],
@@ -657,7 +661,6 @@ class TelegramBot:
                 FIVE: [CallbackQueryHandler(self.settings_remove_words)],
             },
             fallbacks=[CommandHandler("cancel", self.command_cancel_conv)],
-            per_user=True,
         )
         techsupport_conv_handler = ConversationHandler(
             entry_points=[CommandHandler("support", self.command_techsupport)],
@@ -669,7 +672,6 @@ class TelegramBot:
                 ]
             },
             fallbacks=[CommandHandler("cancel", self.command_cancel_conv)],
-            per_user=True,
         )
         # generic handlers
         application.add_handler(start_conv_handler)
