@@ -431,6 +431,7 @@ class TelegramBot:
     async def command_account(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
+        """TODO: улучшить оформление вывода 'Сервисы' и 'Слова поиска'"""
         try:
             user = await User.objects.prefetch_related("services").aget(
                 tg_id=update.effective_user.id
