@@ -575,7 +575,7 @@ class TelegramBot:
                 [
                     "<b>Доступные команды:</b>",
                     "",
-                    f"{self.commands['account']} - Личный кабинет",
+                    f"{self.commands['account']} - Баланс и Личный кабинет",
                     f"{self.commands['pay']} - Пополнить баланс",
                     f"{self.commands['settings']} - Настройки",
                     f"{self.commands['techsupport']} - Техническая поддержка",
