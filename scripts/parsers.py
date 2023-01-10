@@ -1,4 +1,4 @@
-from telegramservice.core.parsers import FLParser
+from telegramnotify.core.parsers import FLParser
 
 
 def run():

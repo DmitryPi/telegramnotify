@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django_celery_beat.models import IntervalSchedule, PeriodicTask
 
-from telegramservice.users.tests.factories import UserFactory
+from telegramnotify.users.tests.factories import UserFactory
 
 from ..models import ParserEntry
 from ..tasks import (

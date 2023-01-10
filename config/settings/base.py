@@ -6,8 +6,8 @@ from pathlib import Path
 import environ
 
 ROOT_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
-# telegramservice/
-APPS_DIR = ROOT_DIR / "telegramservice"
+# telegramnotify/
+APPS_DIR = ROOT_DIR / "telegramnotify"
 env = environ.Env()
 
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=True)
@@ -44,7 +44,7 @@ LOCALE_PATHS = [str(ROOT_DIR / "locale")]
 DATABASES = {
     "default": env.db(
         "DATABASE_URL",
-        default="postgres:///telegramservice",
+        default="postgres:///telegramnotify",
     ),
 }
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
@@ -82,8 +82,8 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    "telegramservice.users",
-    "telegramservice.core",
+    "telegramnotify.users",
+    "telegramnotify.core",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -91,7 +91,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # MIGRATIONS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#migration-modules
-MIGRATION_MODULES = {"sites": "telegramservice.contrib.sites.migrations"}
+MIGRATION_MODULES = {"sites": "telegramnotify.contrib.sites.migrations"}
 
 # AUTHENTICATION
 # ------------------------------------------------------------------------------
@@ -186,7 +186,7 @@ TEMPLATES = [
                 "django.template.context_processors.static",
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
-                "telegramservice.users.context_processors.allauth_settings",
+                "telegramnotify.users.context_processors.allauth_settings",
             ],
         },
     }
@@ -294,13 +294,13 @@ ACCOUNT_EMAIL_REQUIRED = True
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-ACCOUNT_ADAPTER = "telegramservice.users.adapters.AccountAdapter"
+ACCOUNT_ADAPTER = "telegramnotify.users.adapters.AccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/forms.html
-ACCOUNT_FORMS = {"signup": "telegramservice.users.forms.UserSignupForm"}
+ACCOUNT_FORMS = {"signup": "telegramnotify.users.forms.UserSignupForm"}
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-SOCIALACCOUNT_ADAPTER = "telegramservice.users.adapters.SocialAccountAdapter"
+SOCIALACCOUNT_ADAPTER = "telegramnotify.users.adapters.SocialAccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/forms.html
-SOCIALACCOUNT_FORMS = {"signup": "telegramservice.users.forms.UserSocialSignupForm"}
+SOCIALACCOUNT_FORMS = {"signup": "telegramnotify.users.forms.UserSocialSignupForm"}
 
 
 # Telegram

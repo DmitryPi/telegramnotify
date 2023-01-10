@@ -1,6 +1,6 @@
 from django.urls import resolve, reverse
 
-from telegramservice.users.models import User
+from telegramnotify.users.models import User
 
 
 def test_detail(user: User):

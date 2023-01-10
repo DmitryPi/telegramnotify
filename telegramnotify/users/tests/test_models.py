@@ -2,8 +2,8 @@ from decimal import Decimal
 
 from django.test import TestCase
 
-from telegramservice.core.tests.factories import ServiceFactory
-from telegramservice.users.models import User
+from telegramnotify.core.tests.factories import ServiceFactory
+from telegramnotify.users.models import User
 
 from .factories import UserFactory
 

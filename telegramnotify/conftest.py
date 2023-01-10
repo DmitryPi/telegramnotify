@@ -1,9 +1,9 @@
 import pytest
 
-from telegramservice.core.models import ParserEntry
-from telegramservice.core.tests.factories import ParserEntryFactory
-from telegramservice.users.models import User
-from telegramservice.users.tests.factories import UserFactory
+from telegramnotify.core.models import ParserEntry
+from telegramnotify.core.tests.factories import ParserEntryFactory
+from telegramnotify.users.models import User
+from telegramnotify.users.tests.factories import UserFactory
 
 
 @pytest.fixture(autouse=True)

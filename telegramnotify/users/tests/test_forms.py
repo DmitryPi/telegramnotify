@@ -3,8 +3,8 @@ Module for all Form Tests.
 """
 from django.utils.translation import gettext_lazy as _
 
-from telegramservice.users.forms import UserAdminCreationForm
-from telegramservice.users.models import User
+from telegramnotify.users.forms import UserAdminCreationForm
+from telegramnotify.users.models import User
 
 
 class TestUserAdminCreationForm:

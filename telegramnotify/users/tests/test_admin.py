@@ -1,6 +1,6 @@
 from django.urls import reverse
 
-from telegramservice.users.models import User
+from telegramnotify.users.models import User
 
 
 class TestUserAdmin:

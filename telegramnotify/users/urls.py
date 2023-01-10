@@ -1,6 +1,6 @@
 from django.urls import path
 
-from telegramservice.users.views import (
+from telegramnotify.users.views import (
     user_detail_view,
     user_redirect_view,
     user_update_view,

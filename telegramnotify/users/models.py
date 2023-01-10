@@ -6,12 +6,12 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from telegramservice.core.models import Service
+from telegramnotify.core.models import Service
 
 
 class User(AbstractUser):
     """
-    Default custom user model for TelegramService.
+    Default custom user model for TelegramNotify.
     If adding fields that need to be filled at user signup,
     check forms.SignupForm and forms.SocialSignupForms accordingly.
     """

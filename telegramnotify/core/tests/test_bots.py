@@ -11,7 +11,7 @@ from telegram import (
     ReplyKeyboardMarkup,
 )
 
-from telegramservice.users.tests.factories import UserFactory
+from telegramnotify.users.tests.factories import UserFactory
 
 from ..bots import SenderBot, TelegramBot
 from ..models import ParserEntry

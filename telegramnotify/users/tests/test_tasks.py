@@ -1,8 +1,8 @@
 import pytest
 from celery.result import EagerResult
 
-from telegramservice.users.tasks import get_users_count
-from telegramservice.users.tests.factories import UserFactory
+from telegramnotify.users.tasks import get_users_count
+from telegramnotify.users.tests.factories import UserFactory
 
 pytestmark = pytest.mark.django_db
 

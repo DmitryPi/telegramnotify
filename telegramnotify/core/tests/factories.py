@@ -5,7 +5,7 @@ from factory import Faker, LazyAttribute, SubFactory
 from factory.django import DjangoModelFactory
 from factory.fuzzy import FuzzyChoice, FuzzyDecimal
 
-from telegramservice.users.tests.factories import UserFactory
+from telegramnotify.users.tests.factories import UserFactory
 
 from ..models import Order, ParserEntry, Service, Ticket
 
