@@ -7,36 +7,72 @@
 Версия: 1.0.0
 
 ## TODO
+---------------
 
 - TelegramBot - тестирование нескольких функций, у которых имеется TODO в описании
 - TelegramBot - доработка кнопок команды /settings
 - Заглушка на основном домене, ведущая на тг бот
+- Регистрация пользователя - шифрование пароля
 - Очистка проекта от всего лишнего
 
+## Testing
+---------------
 ### Type checks
 
 Running type checks with mypy:
 
-    $ mypy telegramnotify
+    mypy telegramnotify
 
 ### Test coverage
 
 To run the tests, check your test coverage, and generate an HTML coverage report:
 
-    $ coverage run -m pytest
-    $ coverage html
-    $ open htmlcov/index.html
+    coverage run -m pytest
+    coverage html
+    open htmlcov/index.html
 
 #### Running tests with pytest
 
     $ pytest
 
 ## Deployment
+---------------
+1. build the stack
+    `docker-compose -f production.yml build`
 
-The following details how to deploy this application.
+2. migrate db
+    `docker-compose -f production.yml run --rm django python manage.py migrate`
+
+3. run containers
+    `docker-compose -f production.yml up`
+    run detached
+    `docker-compose -f production.yml up -d`
+
+4. create superuser
+    `docker-compose -f production.yml run --rm django python manage.py createsuperuser`
+
+### Optional commands
+    # containers status
+    docker-compose -f production.yml ps
+
+    # containers logs
+    docker-compose -f production.yml logs
+
+    # django shell run
+    docker-compose -f production.yml run --rm django python manage.py shell
+
+    # If you want to scale application (❗ Don’t try to scale postgres, celerybeat, or traefik):
+    docker-compose -f production.yml up --scale django=4
+    docker-compose -f production.yml up --scale celeryworker=2
+
+
+
+### Errors
+1. ACME certificate failure: (unable to generate a certificate for the domains)
 
 
 ## Версии
+---------------
 
 1.0.0 release
 - Регистрация пользователя
