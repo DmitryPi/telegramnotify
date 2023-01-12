@@ -58,28 +58,38 @@ To run the tests, check your test coverage, and generate an HTML coverage report
     `sudo apt install git`
     or
     `sudo apt install python3.10 python3-pip git -y`
+
 3. Установить [Docker](https://docs.docker.com/engine/install/ubuntu/)
     - На джино это упрощенно, через Пакеты приложений + опцию iptables
     - Проверка: `docker run hello-world`
 
 4. Установка и настройка [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/)
-
+    `pip install virtualenvwrapper`
+    `export WORKON_HOME=~/Envs`
+    `export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3.10`
+    `export VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/bin/virtualenv`
+    `source /usr/local/bin/virtualenvwrapper.sh`
 
 ### Setup Project
 
-1. build the stack
-    `docker-compose -f production.yml build`
+1. Активировать virtualenv
+    `workon {env}`
 
-2. migrate db
-    `docker-compose -f production.yml run --rm django python manage.py migrate`
+2. Пулл и инициализация git
+    `git pull https://github.com/DmitryPi/telegramnotify`
+    `git init`
 
-3. run containers
-    `docker-compose -f production.yml up`
-    run detached
-    `docker-compose -f production.yml up -d`
+3. Добавить переменные production в `.envs/.prod`
 
-4. create superuser
-    `docker-compose -f production.yml run --rm django python manage.py createsuperuser`
+4. Билд docker проекта
+    1. Билд
+        `docker-compose -f production.yml build`
+    2. Миграция бд
+        `docker-compose -f production.yml run --rm django python manage.py migrate`
+    3. Создать суперюзера
+    `   docker-compose -f production.yml run --rm django python manage.py createsuperuser`
+    4. Запуск
+        `docker-compose -f production.yml up`
 
 ### Optional commands
     # containers status
