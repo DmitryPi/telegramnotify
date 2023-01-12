@@ -14,6 +14,7 @@
 - Заглушка на основном домене, ведущая на тг бот
 - Регистрация пользователя - шифрование пароля
 - Очистка проекта от всего лишнего
+- PostgreSQL Backups
 
 ## Testing
 ---------------
@@ -65,8 +66,6 @@ To run the tests, check your test coverage, and generate an HTML coverage report
     docker-compose -f production.yml up --scale django=4
     docker-compose -f production.yml up --scale celeryworker=2
 
-
-
 ### Errors
 1. ACME certificate failure: (unable to generate a certificate for the domains)
 
@@ -74,7 +73,7 @@ To run the tests, check your test coverage, and generate an HTML coverage report
 ## Версии
 ---------------
 
-1.0.0 release
+1.0.0 - release - (12.01.2023)
 - Регистрация пользователя
 - Личный кабинет пользователя в телеграм
 - Доступно обновление настроек пользователем
