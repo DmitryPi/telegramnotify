@@ -38,6 +38,35 @@ To run the tests, check your test coverage, and generate an HTML coverage report
 
 ## Deployment
 ---------------
+### First steps
+1. Создать желаемый VPS
+
+2. Подключить домен к VPS
+    1. Обновить указатели домена `ns.*` (Может занять время)
+    2. Добавить запись `CNAME` , если потребуется
+
+3. Подключиться по SSH (putty или консоль)
+    1. `ssh user@host-ip`
+
+### Setup VPS
+1. Обновить linux/ubuntu сервер
+    `sudo apt update && sudo apt upgrade -y`
+
+2. Установить python, pip, git
+    `sudo apt install python3.10`
+    `sudo apt install python3-pip`
+    `sudo apt install git`
+    or
+    `sudo apt install python3.10 python3-pip git -y`
+3. Установить [Docker](https://docs.docker.com/engine/install/ubuntu/)
+    - На джино это упрощенно, через Пакеты приложений + опцию iptables
+    - Проверка: `docker run hello-world`
+
+4. Установка и настройка [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/)
+
+
+### Setup Project
+
 1. build the stack
     `docker-compose -f production.yml build`
 
