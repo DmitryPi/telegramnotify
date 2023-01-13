@@ -7,7 +7,7 @@ from .utils import get_parser_entry, save_parser_entry
 
 
 class FLParser:
-    def __init__(self):
+    def __init__(self) -> None:
         self.target = ""
         self.source = ""
         self.set_target_source()
@@ -95,7 +95,7 @@ class FLParser:
         )
         return project_data
 
-    def run(self):
+    def run(self) -> None:
         projects_info = self.get_projects_info()
         for info in projects_info:
             project_data = self.get_project_data(info)
