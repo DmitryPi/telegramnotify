@@ -21,7 +21,7 @@ class FLParser:
         except Service.DoesNotExist as e:
             raise e
 
-    def get_projects_info(self) -> [(int, str)]:
+    def get_projects_info(self) -> list[tuple(int, str)]:
         """GET target page => parse project id, build url
 
         >> return [Info(proj_id, proj_url)]
@@ -42,7 +42,7 @@ class FLParser:
             projects_info.append(proj_info)
         return projects_info
 
-    def get_project_data(self, info: (int, str)) -> namedtuple:
+    def get_project_data(self, info: tuple(int, str)) -> namedtuple:
         """GET project page data => build data => return Data()"""
         # init named tuple
         Data = namedtuple(

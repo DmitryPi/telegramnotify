@@ -9,7 +9,7 @@ from .models import ParserEntry
 User = get_user_model()
 
 
-def list_into_chunks(lst: list, n=2) -> list[list]:
+def list_into_chunks(lst: list, n: int = 2) -> list[list]:
     """Split list into chunks [1, 2, 3] => [[1, 2], [3]]"""
     result = [lst[i : i + n] for i in range(0, len(lst), n)]  # noqa skip
     return result
@@ -35,7 +35,7 @@ def get_parser_entry(pid: str) -> ParserEntry:
         return None
 
 
-def get_parser_entries() -> [ParserEntry]:
+def get_parser_entries() -> list[ParserEntry]:
     """Get ParserEntry with sent=False"""
     entries = ParserEntry.objects.filter(sent=False)
     return entries
@@ -50,20 +50,20 @@ def save_parser_entry(data: namedtuple) -> None:
     ParserEntry.objects.get_or_create(**data_dict)
 
 
-def update_parser_entries_sent(entries: [ParserEntry]) -> None:
+def update_parser_entries_sent(entries: list[ParserEntry]) -> None:
     """Update field sent=True on given ParserEntry objects"""
     for entry in entries:
         entry.sent = True
         entry.save(update_fields=["sent"])
 
 
-def get_users_all() -> [User]:
+def get_users_all() -> list[User]:
     """Get all users"""
     users = User.objects.all()
     return users
 
 
-def get_users() -> [User]:
+def get_users() -> list[User]:
     """Get users and exclude those with premium_status=expired"""
     users = User.objects.exclude(premium_status=User.PremiumStatus.expired)
     return users
