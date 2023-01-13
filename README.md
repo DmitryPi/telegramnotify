@@ -78,7 +78,8 @@ To run the tests, check your test coverage, and generate an HTML coverage report
 4. Установка и настройка venv или [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/)
 
    1. venv
-      - `python -m venv venv`
+      - `apt install python3.10-venv`
+      - `python3 -m venv venv`
       - `venv\Scripts\activate`
    2. virtualenvwrapper
       - `pip install virtualenvwrapper`
@@ -95,8 +96,11 @@ To run the tests, check your test coverage, and generate an HTML coverage report
 
 2. Пулл и инициализация git
 
-   - `git pull https://github.com/DmitryPi/telegramnotify`
    - `git init`
+   - VPS `ssh-keygen`
+   - Добавить публичный ключ в github ssh `{repo}/settings/keys/new`
+   - Скопировать `id_rsa.pub` в .ssh/ vps
+   - `git pull git@github.com:DmitryPi/telegramnotify.git`
 
 3. Добавить переменные production в `.envs/.prod`
 
