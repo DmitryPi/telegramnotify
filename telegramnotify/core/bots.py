@@ -296,7 +296,9 @@ class TelegramBot:
     async def auth_complete(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
-        """Регистрация пользователя в django-приложении"""
+        """Регистрация пользователя в django-приложении
+        TODO: improve user password handling
+        """
         tg_user = update.effective_user
         username = tg_user.username if tg_user.username else tg_user.first_name
         service = await Service.objects.aget(title=context.user_data["service"])
