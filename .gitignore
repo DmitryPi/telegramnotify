@@ -282,3 +282,4 @@ parserservice/media/
 .envs/*
 !.envs/.local/
 temp.txt
+certs/
