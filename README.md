@@ -37,6 +37,8 @@ To run the tests, check your test coverage, and generate an HTML coverage report
 #### Running tests with pytest
 
     pytest
+    pytest -v -m slow
+    pytest -v -m "not slow"
 
 ## Deployment
 
