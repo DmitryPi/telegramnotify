@@ -146,6 +146,9 @@ To run the tests, check your test coverage, and generate an HTML coverage report
     # containers logs
     docker-compose -f production.yml logs
 
+    # remove unused(dangling) images
+    docker image prune
+
     # django shell run
     docker-compose -f production.yml run --rm django python manage.py shell
 
