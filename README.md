@@ -106,7 +106,8 @@ To run the tests, check your test coverage, and generate an HTML coverage report
    - `git init`
    - VPS `ssh-keygen`
    - Добавить публичный ключ vps в github ssh `{repo}/settings/keys/new`
-   - `git pull git@github.com:DmitryPi/telegramnotify.git`
+   - `git remote add origin git@github.com:DmitryPi/telegramnotify.git`
+   - `git pull origin main`
 
 2. Добавить переменные production в `.envs/.prod`
 
