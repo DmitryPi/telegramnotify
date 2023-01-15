@@ -15,6 +15,7 @@
 - TelegramBot - доработка кнопок команды /settings
 - Заглушка на главную, ведущая на тг бот
 - PostgreSQL Backups
+- Веб версия страница в виде паралакс "змейки" - скрин паралакс по x/y
 
 ## Testing
 
@@ -132,7 +133,7 @@ To run the tests, check your test coverage, and generate an HTML coverage report
 
 1. ACME certificate failure
 
-   - Возможен конфликт хост сервиса, если он предоставляет функцию авто ssl
+   - Возможен конфликт хост сервиса, если он предоставляет функцию ssl сертификации
    - Let's encrypt рейт лимит достигнут (5 в неделю) - [проверить](https://crt.sh/)
 
 2. ERR_TOO_MANY_REDIRECTS
