@@ -123,6 +123,10 @@ To run the tests, check your test coverage, and generate an HTML coverage report
    5. Ребилд
       - `docker-compose -f production.yml up --build`
 
+4. Проверить логин/регистрацию
+
+5. Проверить mailgun/sentry
+
 ### Дополнительные команды:
 
     # containers status
@@ -155,6 +159,9 @@ To run the tests, check your test coverage, and generate an HTML coverage report
    - Конфликт ssl-сертификатов
    - Анализ: изменить лог-левел на DEBUG в traefik.yml
    - Решение: убрать tls настройки из traefik.yml
+
+4. Django POST 403 csrf - Origin checking failed
+   - В production.py обновить CSRF_TRUSTED_ORIGINS
 
 ## Версии
 
