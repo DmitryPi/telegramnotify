@@ -127,6 +127,17 @@ To run the tests, check your test coverage, and generate an HTML coverage report
 
 5. Проверить mailgun/sentry
 
+6. supervisord
+   1. Установка
+      `pip install supervisor`
+   2. Старт
+      - `supervisord`
+   3. Стоп
+      - `supervisorctl stop all`
+      - `sudo unlink /tmp/supervisor.sock` или `sudo unlink /var/run/supervisor.sock`
+   4. Дополнительные команды
+      - `supervisorctl status`
+
 ### Дополнительные команды:
 
     # containers status
