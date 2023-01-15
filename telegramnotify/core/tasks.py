@@ -55,6 +55,9 @@ def sender_bot_task(self):
     Loop through users and entries
     If theres match on user words
     => send message to telegram user
+
+    TODO: test build_entry_message-build_message incorrect func name
+    TODO: async search_words / send message
     """
     entries = get_parser_entries()
 
@@ -73,7 +76,7 @@ def sender_bot_task(self):
             if not match:
                 continue
             # if there's match
-            message = sender_bot.build_message(entry)
+            message = sender_bot.build_entry_message(entry)
             asyncio.run(sender_bot.raw_send_message(user.tg_id, message))
     # update entries set sent=True
     update_parser_entries_sent(entries)

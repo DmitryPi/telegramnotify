@@ -191,6 +191,9 @@ class TelegramBot:
     async def command_start(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
+        """
+        TODO: self.services not loading if object was created during the run
+        """
         try:
             await User.objects.aget(tg_id=update.effective_user.id)
             msg = "\n".join(
