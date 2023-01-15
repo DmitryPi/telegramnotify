@@ -63,7 +63,16 @@ To run the tests, check your test coverage, and generate an HTML coverage report
 
    - `sudo apt update && sudo apt upgrade -y`
 
-2. Установить python, pip, git
+2. Обновить часовой пояс
+
+   1. Проверить текущее время
+      - `timedatectl`
+   2. Доступные пояса
+      - `timedatectl list-timezones`
+   3. Задать часовой пояс
+      - `sudo timedatectl set-timezone Europe/Moscow`
+
+3. Установить python, pip, git
 
    - `sudo apt install python3.10`
    - `sudo apt install python3-pip`
@@ -71,13 +80,13 @@ To run the tests, check your test coverage, and generate an HTML coverage report
    -
    - `sudo apt install python3.10 python3-pip git -y`
 
-3. Установить Docker
+4. Установить Docker
 
    - Инструкция [Docker ubuntu](https://docs.docker.com/engine/install/ubuntu/)
    - На джино это упрощенно, через Пакеты приложений + опцию iptables
    - Проверка: `docker run hello-world`
 
-4. Установка и настройка venv или [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/) (Если потребуется)
+5. Установка и настройка venv или [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/) (Если потребуется)
 
    1. venv
       - `apt install python3.10-venv`
@@ -138,11 +147,13 @@ To run the tests, check your test coverage, and generate an HTML coverage report
 
 2. ERR_TOO_MANY_REDIRECTS
 
-   - Происходит из-за рекурсии редиректа порта 80-443 и наоборот
+   - Происходит из-за рекурсии портов 80<-->443(http-https)
 
 3. Traefik 404 error
 
-   - TODO
+   - Конфликт ssl-сертификатов
+   - Анализ: изменить лог-левел на DEBUG в traefik.yml
+   - Решение: убрать tls настройки из traefik.yml
 
 ## Версии
 
