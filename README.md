@@ -14,7 +14,7 @@
 - TelegramBot - тестирование нескольких функций, у которых имеется TODO в описании
 - TelegramBot - доработка кнопок команды /settings
 - Заглушка на главную, ведущая на тг бот (страница в виде паралакс "змейки" - скрин паралакс по x/y)
-- PostgreSQL Backups
+- PostgreSQL Backups на VPS
 - В продакшене научиться выводить flower/traefik dashboard
 
 ## Testing
