@@ -21,14 +21,6 @@ def clean_oneoff_tasks():
     PeriodicTask.objects.filter(one_off=True, enabled=False).delete()
 
 
-@celery_app.task(bind=True)
-def ticket_send_reply_msg_task(self):
-    """
-    TODO: this
-    """
-    pass
-
-
 @celery_app.task()
 def users_update_premium_expired_task():
     users_update_premium_expired()

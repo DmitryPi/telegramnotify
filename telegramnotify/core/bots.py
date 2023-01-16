@@ -68,6 +68,16 @@ class SenderBot:
                 protect_content=True,
             )
 
+    def build_reply_message(self, ticket: Ticket) -> str:
+        """Build html reply message for telegram user"""
+        msg = "".join(
+            [
+                "@admin: ",
+                ticket.reply,
+            ]
+        )
+        return msg
+
     def build_entry_message(self, entry: ParserEntry) -> str:
         """Build html message for telegram user"""
         description = (

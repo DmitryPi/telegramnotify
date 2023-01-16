@@ -26,7 +26,7 @@ def search_word(text: str, word: str) -> re.Match:
     return re.search(rf"\b{word}\b", text, re.IGNORECASE)
 
 
-def get_parser_entry(pid: str) -> ParserEntry:
+def get_parser_entry(pid: str) -> ParserEntry | None:
     """Get parser_entry or None"""
     try:
         parser_entry = ParserEntry.objects.get(pid=pid)

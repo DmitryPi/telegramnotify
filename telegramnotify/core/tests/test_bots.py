@@ -16,7 +16,7 @@ from telegramnotify.users.tests.factories import UserFactory
 from ..bots import SenderBot, TelegramBot
 from ..models import ParserEntry
 from ..utils import datetime_days_ahead
-from .factories import ParserEntryFactory, ServiceFactory
+from .factories import ParserEntryFactory, ServiceFactory, TicketFactory
 
 User = get_user_model()
 
@@ -29,6 +29,11 @@ class TestSenderBot(TestCase):
             ParserEntry(title="Something БОТ", description="test pfs"),
             ParserEntry(title="Something-test-", description="terific pfs"),
         ]
+
+    def test_build_reply_message(self):
+        ticket = TicketFactory(reply="test")
+        message = self.sender_bot.build_reply_message(ticket)
+        assert message == "@admin: test"
 
     def test_build_entry_message(self):
         parser_entry = ParserEntryFactory()
