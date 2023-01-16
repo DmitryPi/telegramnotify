@@ -1,5 +1,7 @@
 import asyncio
 
+from django.contrib.auth import get_user_model
+from django.utils import timezone
 from django_celery_beat.models import PeriodicTask
 from telegram.error import BadRequest
 
@@ -13,8 +15,9 @@ from .utils import (
     get_users,
     save_parser_entry,
     update_parser_entries_sent,
-    users_update_premium_expired,
 )
+
+User = get_user_model()
 
 
 @celery_app.task(ignore_result=True)
@@ -40,9 +43,18 @@ def ticket_send_reply_msg_task(self, ticket_id: int):
 @celery_app.task()
 def users_update_premium_expired_task():
     """
-    TODO: refactor to fat task
+    Loop through users
+    Skip users with premium_status=permanent
+    Check if premium_expire date passed
+        set premium_status=expired
     """
-    users_update_premium_expired()
+    users = get_users()
+    for user in users:
+        if user.premium_status == User.PremiumStatus.permanent:
+            continue
+        if timezone.now() > user.premium_expire:
+            user.premium_status = User.PremiumStatus.expired
+            user.save(update_fields=["premium_status"])
 
 
 @celery_app.task(bind=True)

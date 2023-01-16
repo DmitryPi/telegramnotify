@@ -78,19 +78,3 @@ def user_set_status_permanent(user: User) -> None:
     user.premium_status = User.PremiumStatus.permanent
     user.premium_expire = permanent_date
     user.save()
-
-
-def users_update_premium_expired() -> None:
-    """
-    Loop through users
-    Skip users with premium_status=permanent
-    Check if premium_expire date passed
-        set premium_status=expired
-    """
-    users = get_users()
-    for user in users:
-        if user.premium_status == User.PremiumStatus.permanent:
-            continue
-        if timezone.now() > user.premium_expire:
-            user.premium_status = User.PremiumStatus.expired
-            user.save(update_fields=["premium_status"])

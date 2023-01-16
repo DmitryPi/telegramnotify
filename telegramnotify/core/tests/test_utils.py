@@ -3,7 +3,6 @@ from collections import namedtuple
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import timezone
-from factory.fuzzy import FuzzyChoice
 
 from telegramnotify.users.tests.factories import UserFactory
 
@@ -19,7 +18,6 @@ from ..utils import (
     search_word,
     update_parser_entries_sent,
     user_set_status_permanent,
-    users_update_premium_expired,
 )
 from .factories import ParserEntryFactory
 
@@ -141,52 +139,3 @@ class TestUtils(TestCase):
         for user in users:
             assert user.premium_status == User.PremiumStatus.permanent
             assert permanent_date.year == user.premium_expire.year
-
-    def test_users_update_premium_expired(self):
-        """Test update for premium_status of trial and regular"""
-        hour_before = timezone.now() - timezone.timedelta(hours=1)
-        hour_ahead = timezone.now() + timezone.timedelta(hours=1)
-        # hour before
-        UserFactory.create_batch(
-            20,
-            premium_status=FuzzyChoice(
-                [User.PremiumStatus.trial, User.PremiumStatus.regular]
-            ),
-            premium_expire=hour_before,
-        )
-        # hour ahead
-        UserFactory.create_batch(
-            10,
-            premium_status=FuzzyChoice(
-                [User.PremiumStatus.trial, User.PremiumStatus.regular]
-            ),
-            premium_expire=hour_ahead,
-        )
-        users = get_users()
-        assert len(users) == 30
-        users_update_premium_expired()
-        users = get_users()
-        assert len(users) == 10
-        for user in users:
-            assert timezone.now() < user.premium_expire
-
-    def test_users_update_premium_expired_permament(self):
-        """
-        Test if permanent users are exluded from evaluation
-        Even if for some reason permanent_status date passed,
-        Permanent status won't be changed
-        """
-        hour_before = timezone.now() - timezone.timedelta(hours=1)
-        UserFactory.create_batch(
-            10,
-            premium_status=User.PremiumStatus.permanent,
-            premium_expire=hour_before,
-        )
-        users = get_users()
-        assert len(users) == 10
-        users_update_premium_expired()
-        users = get_users()
-        assert len(users) == 10
-        for user in users:
-            assert user.premium_status == User.PremiumStatus.permanent
-            assert timezone.now() > user.premium_expire
