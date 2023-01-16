@@ -13,9 +13,9 @@
 
 - TelegramBot - тестирование нескольких функций, у которых имеется TODO в описании
 - TelegramBot - доработка кнопок команды /settings
-- Заглушка на главную, ведущая на тг бот
+- Заглушка на главную, ведущая на тг бот (страница в виде паралакс "змейки" - скрин паралакс по x/y)
 - PostgreSQL Backups
-- Веб версия страница в виде паралакс "змейки" - скрин паралакс по x/y
+- В продакшене научиться выводить flower/traefik dashboard
 
 ## Testing
 
@@ -112,6 +112,7 @@ To run the tests, check your test coverage, and generate an HTML coverage report
 2. Добавить переменные production в `.envs/.prod`
 
 3. Билд docker проекта
+
    1. Билд
       - `docker-compose -f production.yml build`
    2. Миграция бд
