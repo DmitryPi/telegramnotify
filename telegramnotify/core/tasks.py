@@ -1,5 +1,4 @@
 import asyncio
-import time
 
 from django_celery_beat.models import PeriodicTask
 
@@ -20,6 +19,14 @@ from .utils import (
 def clean_oneoff_tasks():
     """Clean oneoff tasks with enabled=False"""
     PeriodicTask.objects.filter(one_off=True, enabled=False).delete()
+
+
+@celery_app.task(bind=True)
+def ticket_send_reply_msg_task(self):
+    """
+    TODO: this
+    """
+    pass
 
 
 @celery_app.task()
@@ -80,13 +87,3 @@ def sender_bot_task(self):
             asyncio.run(sender_bot.raw_send_message(user.tg_id, message))
     # update entries set sent=True
     update_parser_entries_sent(entries)
-
-
-@celery_app.task(bind=True)
-def long_running_task(self):
-    for i in range(50):
-        self.update_state(state="PROGRESS", meta={"current": i, "total": 50})
-        self.args = "test"
-        print(i)
-        print(self.AsyncResult(self.request.id).state)
-        time.sleep(1)
