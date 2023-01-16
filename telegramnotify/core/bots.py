@@ -155,6 +155,7 @@ class TelegramBot:
         self.set_services()
 
     def set_services(self):
+        """GET all Service objects and update self.services"""
         services = Service.objects.all()
         self.services = [service.title for service in services]
 
@@ -201,9 +202,6 @@ class TelegramBot:
     async def command_start(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
-        """
-        TODO: self.services not loading if object was created during the run
-        """
         try:
             await User.objects.aget(tg_id=update.effective_user.id)
             msg = "\n".join(
@@ -220,6 +218,7 @@ class TelegramBot:
                     "\n<b>Выберите сервис:</b>",
                 ]
             )
+            await sync_to_async(self.set_services)()
             reply_markup = self.build_inline_keyboard(self.services)
             await update.message.reply_text(
                 msg, reply_markup=reply_markup, parse_mode=ParseMode.HTML
@@ -504,6 +503,8 @@ class TelegramBot:
         query = update.callback_query
         await query.answer()
         answer = query.data
+        # update services
+        await sync_to_async(self.set_services)()
         # choices
         if answer == "Добавить сервис":
             reply_markup = self.build_inline_keyboard(self.services)
