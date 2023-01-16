@@ -1,10 +1,12 @@
 import asyncio
 
 from django_celery_beat.models import PeriodicTask
+from telegram.error import BadRequest
 
 from config import celery_app
 
 from .bots import SenderBot
+from .models import Ticket
 from .parsers import FLParser
 from .utils import (
     get_parser_entries,
@@ -21,8 +23,25 @@ def clean_oneoff_tasks():
     PeriodicTask.objects.filter(one_off=True, enabled=False).delete()
 
 
+@celery_app.task(bind=True)
+def ticket_send_reply_msg_task(self, ticket_id: int):
+    try:
+        sender_bot = SenderBot()
+        ticket = Ticket.objects.get(id=ticket_id)
+        message = sender_bot.build_reply_message(ticket)
+        asyncio.run(sender_bot.raw_send_message(ticket.user.tg_id, message))
+    except BadRequest:  # Chat not found (bot blocked or other)
+        pass  # jump to finally block
+    finally:
+        ticket.status = Ticket.Status.SOLVED
+        ticket.save()
+
+
 @celery_app.task()
 def users_update_premium_expired_task():
+    """
+    TODO: refactor to fat task
+    """
     users_update_premium_expired()
 
 

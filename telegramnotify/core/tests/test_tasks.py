@@ -6,14 +6,15 @@ from django_celery_beat.models import IntervalSchedule, PeriodicTask
 
 from telegramnotify.users.tests.factories import UserFactory
 
-from ..models import ParserEntry
+from ..models import ParserEntry, Ticket
 from ..tasks import (
     clean_oneoff_tasks,
     parse_flru_task,
     sender_bot_task,
+    ticket_send_reply_msg_task,
     users_update_premium_expired_task,
 )
-from .factories import ParserEntryFactory, ServiceFactory
+from .factories import ParserEntryFactory, ServiceFactory, TicketFactory
 
 User = get_user_model()
 
@@ -40,6 +41,15 @@ def test_clean_oneoff_tasks(settings):
     one_off_tasks = PeriodicTask.objects.filter(one_off=True)
     assert isinstance(result, EagerResult)
     assert not len(one_off_tasks)
+
+
+@pytest.mark.django_db
+def test_ticket_send_reply_msg_task(settings):
+    settings.CELERY_TASK_ALWAYS_EAGER = True
+    ticket = TicketFactory(reply="test", status=Ticket.Status.UNSOLVED)
+    ticket_send_reply_msg_task(ticket.id)
+    ticket = Ticket.objects.get(id=ticket.id)
+    assert ticket.status == Ticket.Status.SOLVED
 
 
 @pytest.mark.django_db
