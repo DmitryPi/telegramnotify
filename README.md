@@ -44,6 +44,18 @@ To run the tests, check your test coverage, and generate an HTML coverage report
     pytest -v -m slow
     pytest -v -m "not slow"
 
+## Frontend
+---
+
+    Gulp + Sass
+
+    # Установка:
+    npm install
+    # Запустить сервер
+    gulp
+
+
+
 ## Deployment
 
 ---
