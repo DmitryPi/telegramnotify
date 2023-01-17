@@ -72,6 +72,11 @@ class SenderBot:
         except BadRequest:
             print(f"Chat {chat_id} was not found. Message was not sent.")
 
+    @property
+    def premium_expired_message(self) -> str:
+        message = "🔴 Срок премиума истёк."
+        return message
+
     def build_reply_message(self, ticket: Ticket) -> str:
         """Build html reply message for telegram user"""
         msg = "".join(

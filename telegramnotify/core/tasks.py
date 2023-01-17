@@ -17,6 +17,7 @@ from .utils import (
 )
 
 User = get_user_model()
+sender_bot = SenderBot()
 
 
 @celery_app.task(ignore_result=True)
@@ -27,7 +28,6 @@ def clean_oneoff_tasks():
 
 @celery_app.task(bind=True)
 def ticket_send_reply_msg_task(self, ticket_id: int):
-    sender_bot = SenderBot()
     ticket = Ticket.objects.get(id=ticket_id)
     message = sender_bot.build_reply_message(ticket)
     asyncio.run(sender_bot.raw_send_message(ticket.user.tg_id, message))
@@ -42,7 +42,6 @@ def users_update_premium_expired_task():
     Skip users with premium_status=permanent
     Check if premium_expire date passed
         set premium_status=expired
-    TODO: send notification message
     """
     users = get_users()
     for user in users:
@@ -51,6 +50,11 @@ def users_update_premium_expired_task():
         if timezone.now() > user.premium_expire:
             user.premium_status = User.PremiumStatus.expired
             user.save(update_fields=["premium_status"])
+            asyncio.run(
+                sender_bot.raw_send_message(
+                    user.tg_id, sender_bot.premium_expired_message
+                )
+            )
 
 
 @celery_app.task(bind=True)
@@ -92,7 +96,6 @@ def sender_bot_task(self):
         return None
 
     users = get_users()
-    sender_bot = SenderBot()
 
     for i, user in enumerate(users):
         # update task progress
