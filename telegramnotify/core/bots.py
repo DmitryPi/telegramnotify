@@ -312,9 +312,7 @@ class TelegramBot:
     async def auth_complete(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
-        """Регистрация пользователя в django-приложении
-        TODO: improve user password handling
-        """
+        """Регистрация пользователя в django-приложении"""
         tg_user = update.effective_user
         username = tg_user.username if tg_user.username else tg_user.first_name
         service = await Service.objects.aget(title=context.user_data["service"])
@@ -416,8 +414,7 @@ class TelegramBot:
              'provider_payment_charge_id': '2af0afbc-0000-198bce8',
              'total_amount': 10000
             }
-
-        TODO: Test
+        TODO: more tests
         """
         user = await User.objects.aget(tg_id=update.effective_user.id)
         order = update.message.successful_payment

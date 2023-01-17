@@ -15,7 +15,7 @@ from telegram import (
 from telegramnotify.users.tests.factories import UserFactory
 
 from ..bots import SenderBot, TelegramBot
-from ..models import ParserEntry, Ticket
+from ..models import Order, ParserEntry, Ticket
 from ..utils import datetime_days_ahead
 from .factories import ParserEntryFactory, ServiceFactory, TicketFactory
 
@@ -25,13 +25,18 @@ Context: TypeAlias = namedtuple
 
 
 def emulate_update_object(
-    tg_id=333, username="Test", first_name="Test Name", text="test text"
+    tg_id=333,
+    username="Test",
+    first_name="Test Name",
+    text="test text",
+    order_total_amount=10000,
 ) -> Update:
     """Эмуляция объекта Update для телеграм бота
 
     Examples:
         Update.effective_user.id
         Update.message.text
+        Update.message.successful_payment
 
     Args:
         tg_id (int, optional): Telegram user id defaults to 333.
@@ -43,14 +48,21 @@ def emulate_update_object(
         Update: namedtuple with fields: id, username, first_name
     """
     Update = namedtuple("Update", ["effective_user", "message"])
-    Message = namedtuple("Message", ["text"])
+    order = {
+        "total_amount": order_total_amount,
+        "currency": "RUB",
+        "invoice_payload": "payload",
+        "telegram_payment_charge_id": "test_id",
+        "provider_payment_charge_id": "test_id",
+    }
     User = namedtuple("UserTG", ["id", "username", "first_name"])
     user = User(id=tg_id, username=username, first_name=first_name)
-    message = Message(text=text)
+    Message = namedtuple("Message", ["text", "successful_payment"])
+    message = Message(text=text, successful_payment=order)
     return Update(user, message)
 
 
-def emulate_context_object(context_dict: dict) -> Context:
+def emulate_context_object(context_dict: dict = {}) -> Context:
     """Эмуляция объекта Context для телеграм бота
 
     Args:
@@ -214,3 +226,31 @@ class TestTelegramBot(TestCase):
             assert ticket.user.tg_id == user.tg_id
             assert ticket.message == "test text"
             assert not ticket.reply
+
+    @async_to_sync
+    async def test_successful_payment_callback(self):
+        # init update & context
+        user = await sync_to_async(UserFactory)(tg_id=333)
+        order = await Order.objects.afirst()
+        update = await sync_to_async(emulate_update_object)(tg_id=user.tg_id)
+        context = await sync_to_async(emulate_context_object)()
+        # test order
+        assert not order
+        # run successful_payment_callback
+        try:
+            await self.telegram_bot.successful_payment_callback(update, context)
+        except AttributeError:  # handle update.message.reply_text line
+            pass
+        finally:
+            user = await User.objects.aget(tg_id=user.tg_id)
+            order = await Order.objects.prefetch_related("user").afirst()
+            # test user data
+            assert user.wallet == 100
+            # test order data
+            assert order.user == user
+            assert order.status == Order.Status.SUCCESS
+            assert order.invoice_payload == "payload"
+            assert order.currency == "RUB"
+            assert order.total_amount == 100
+            assert order.telegram_payment_charge_id == "test_id"
+            assert order.provider_payment_charge_id == "test_id"
