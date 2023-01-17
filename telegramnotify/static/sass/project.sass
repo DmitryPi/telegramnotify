@@ -1,6 +1,12 @@
 @import "fonts"
 
 ////////////////////////////////
+ //Variables//
+////////////////////////////////
+
+$accent: #F15F
+
+////////////////////////////////
     //Defaults//
 ////////////////////////////////
 
@@ -12,12 +18,79 @@
     padding: 0
     font: inherit
 
-.container
-    display: flex
+li, a, button, .btn, ::placeholder
+    transition: all .3s ease-in-out
+
+a
+    color: white
+    text-decoration: none
+    &:hover
+        color: $accent
+    &:focus
+        outline: none
+
+ul
+    margin: 0
+    padding: 0
+    list-style-type: none
 
 ////////////////////////////////
     //Main//
 ////////////////////////////////
+
+body
+    color: #F1F1F1
+    background-color: black
+
+.hero
+    position: relative
+    padding: 0 1em
+    display: grid
+    grid-template-rows: 1fr 0.15fr
+    align-items: center
+    min-height: 100vh
+    &::after
+        content: ""
+        position: absolute
+        bottom: 1.8em
+        width: 100%
+        height: 1px
+        background-color: darken(#fff, 50%)
+    .hero-title
+        margin: 0
+        text-transform: uppercase
+        text-align: center
+        font-size: 4rem
+        font-weight: 100
+    .hero-parallax
+        display: flex
+        justify-content: center
+        .nav-list
+            display: flex
+            flex-direction: row
+            .nav-link
+                flex-shrink: 0
+                letter-spacing: 3px
+                font-size: 0.9rem
+                font-weight: 100
+                color: darken(white, 40%)
+                transition: .3s ease-out
+                &:hover, &:active, &:focus
+                    color: #eee
+                &:after
+                    content: ""
+                    position: relative
+                    width: 0
+                    height: 1px
+                    display: block
+                    z-index: 100
+                    background-color: cyan
+                    transition: .3s ease-out
+                    left: 50%
+                    top: 5px
+                    transform: translateX(-50%)
+                &:hover:after
+                    width: 50px
 
 ////////////////////////////////
     //Media//

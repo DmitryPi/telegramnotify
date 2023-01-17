@@ -36,7 +36,12 @@
 
   <body>
 
-    {% block content %}Content block{% endblock content %}
+
+    {% block hero %}{% endblock hero %}
+
+    <main class="container">
+      {% block content %}Content block{% endblock content %}
+    </main>
 
     {% block modal %}{% endblock modal %}
 
