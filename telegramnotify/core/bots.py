@@ -565,11 +565,7 @@ class TelegramBot:
     async def techsupport_msg(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
-        """
-        Create support Ticket
-
-        TODO: Test
-        """
+        """Create support Ticket"""
         try:
             user = await User.objects.aget(tg_id=update.effective_user.id)
             msg = "<b>Вопрос отправлен!</b>"
