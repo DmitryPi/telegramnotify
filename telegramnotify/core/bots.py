@@ -554,10 +554,13 @@ class TelegramBot:
     async def command_techsupport(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
-        await User.objects.aget(tg_id=update.effective_user.id)
-        msg = "<b>Задайте вопрос:</b>\nДля отмены - /cancel"
-        await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
-        return ONE
+        try:
+            await User.objects.aget(tg_id=update.effective_user.id)
+            msg = "<b>Задайте вопрос:</b>\nДля отмены - /cancel"
+            await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
+            return ONE
+        except User.DoesNotExist:
+            await update.message.reply_text(self.auth_invalid_msg)
 
     async def techsupport_msg(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE

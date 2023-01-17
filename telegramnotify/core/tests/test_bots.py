@@ -1,7 +1,8 @@
 import re
 from collections import namedtuple
+from typing import TypeAlias
 
-from asgiref.sync import async_to_sync
+from asgiref.sync import async_to_sync, sync_to_async
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from telegram import (
@@ -14,11 +15,52 @@ from telegram import (
 from telegramnotify.users.tests.factories import UserFactory
 
 from ..bots import SenderBot, TelegramBot
-from ..models import ParserEntry
+from ..models import ParserEntry, Ticket
 from ..utils import datetime_days_ahead
 from .factories import ParserEntryFactory, ServiceFactory, TicketFactory
 
 User = get_user_model()
+Update: TypeAlias = namedtuple
+Context: TypeAlias = namedtuple
+
+
+def emulate_update_object(
+    tg_id=333, username="Test", first_name="Test Name", text="test text"
+) -> Update:
+    """Эмуляция объекта Update для телеграм бота
+
+    Examples:
+        Update.effective_user.id
+        Update.message.text
+
+    Args:
+        tg_id (int, optional): Telegram user id defaults to 333.
+        username (str, optional): Default to 'Test'
+        first_name (str, optional): Default to 'Test Name'
+        text (str, optional): Default to 'test text'
+
+    Returns:
+        Update: namedtuple with fields: id, username, first_name
+    """
+    Update = namedtuple("Update", ["effective_user", "message"])
+    Message = namedtuple("Message", ["text"])
+    User = namedtuple("UserTG", ["id", "username", "first_name"])
+    user = User(id=tg_id, username=username, first_name=first_name)
+    message = Message(text=text)
+    return Update(user, message)
+
+
+def emulate_context_object(context_dict: dict) -> Context:
+    """Эмуляция объекта Context для телеграм бота
+
+    Args:
+        context_dict (dict): Telegram user_context_data
+
+    Returns:
+        Context: namedtuple with fields user_data
+    """
+    Context = namedtuple("Context", ["user_data"])
+    return Context(context_dict)
 
 
 class TestSenderBot(TestCase):
@@ -130,27 +172,45 @@ class TestTelegramBot(TestCase):
 
     @async_to_sync
     async def test_auth_complete(self):
-        # Emulate telegram update object
-        Update = namedtuple("Update", ["effective_user"])
-        UserTG = namedtuple("UserTG", ["id", "username", "first_name"])
-        user = UserTG(333, "Test", "Test")
-        # Emulate telegram context object
-        Context = namedtuple("Context", ["user_data"])
-        user_data = {"words": ["test", "апи", "bot"], "service": "FL.ru"}
         # init update & context
-        update = Update(user)
-        context = Context(user_data)
-        # delete user:
+        context_data = {"words": ["test", "апи", "bot"], "service": "FL.ru"}
+        update = await sync_to_async(emulate_update_object)()
+        context = await sync_to_async(emulate_context_object)(context_data)
+        # create user
         await self.telegram_bot.auth_complete(update, context)
+        # load user
         user = await User.objects.prefetch_related("services").aget(username="Test")
+        # test created user data
         assert user.tg_id == 333
         assert user.username == "Test"
         assert user.bill == 0
         assert user.wallet == 0
-        assert user.words == user_data["words"]
+        assert user.words == context_data["words"]
         assert user.premium_status == User.PremiumStatus.trial
         assert user.premium_expire.day == datetime_days_ahead(3).day
-        # services
+        # test user services
         services = user.services.all()
         assert len(services) == 1
-        assert services[0].title == user_data["service"]
+        assert services[0].title == context_data["service"]
+
+    @async_to_sync
+    async def test_techsupport_msg(self):
+        """Test Ticket creation"""
+        # init update & context
+        context_data = {"words": ["test", "апи", "bot"], "service": "FL.ru"}
+        update = await sync_to_async(emulate_update_object)()
+        context = await sync_to_async(emulate_context_object)(context_data)
+        # create user
+        await self.telegram_bot.auth_complete(update, context)
+        # load user
+        user = await User.objects.aget(username="Test")
+        # run techsupport_msg
+        try:
+            await self.telegram_bot.techsupport_msg(update, context)
+        except AttributeError:  # handle update.message.reply_text line
+            pass
+        finally:
+            ticket = await Ticket.objects.prefetch_related("user").afirst()
+            assert ticket.user.tg_id == user.tg_id
+            assert ticket.message == "test text"
+            assert not ticket.reply
