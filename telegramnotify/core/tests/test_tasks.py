@@ -47,10 +47,7 @@ def test_clean_oneoff_tasks(settings):
 
 @pytest.mark.django_db
 def test_ticket_send_reply_msg_task(settings):
-    """
-    Эмуляция отправки сообщения в телеграм.
-    Тест всегда возвращает Telegram BadRequest - т.к. user_id неизвестен
-    """
+    """Эмуляция отправки Ticket.reply сообщения в телеграм."""
     settings.CELERY_TASK_ALWAYS_EAGER = True
     ticket = TicketFactory(reply="test", status=Ticket.Status.UNSOLVED)
     result = ticket_send_reply_msg_task.delay(ticket.id)
@@ -150,13 +147,20 @@ def test_users_update_premium_expired_with_permanent_task(settings):
 @pytest.mark.django_db
 def test_sender_bot_task(settings):
     settings.CELERY_TASK_ALWAYS_EAGER = True
-    ParserEntryFactory.create_batch(10)
+    # create test objects
+    words = ["bot", "test", "python"]
+    UserFactory(words=words)
+    for word in words:
+        ParserEntryFactory(title={word.capitalize()})
+    ParserEntryFactory.create_batch(7)
+    # run pre-tests
     entries = ParserEntry.objects.all()
     assert len(entries) == 10
     for entry in entries:
         assert not entry.sent
     # execute task
     result = sender_bot_task.delay()
+    # run tests
     entries = ParserEntry.objects.all()
     assert isinstance(result, EagerResult)
     for entry in entries:

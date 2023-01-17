@@ -21,6 +21,7 @@ from telegram import (
     Update,
 )
 from telegram.constants import ParseMode
+from telegram.error import BadRequest
 from telegram.ext import (
     Application,
     CallbackQueryHandler,
@@ -59,14 +60,17 @@ class SenderBot:
 
     async def raw_send_message(self, chat_id, msg) -> None:
         """Raw api send_message: asyncio.run(self.raw_send_message())"""
-        async with self.bot as bot:
-            await bot.send_message(
-                chat_id,
-                msg,
-                parse_mode=ParseMode.HTML,
-                disable_web_page_preview=True,
-                protect_content=True,
-            )
+        try:
+            async with self.bot as bot:
+                await bot.send_message(
+                    chat_id,
+                    msg,
+                    parse_mode=ParseMode.HTML,
+                    disable_web_page_preview=True,
+                    protect_content=True,
+                )
+        except BadRequest:
+            print(f"Chat {chat_id} was not found. Message was not sent.")
 
     def build_reply_message(self, ticket: Ticket) -> str:
         """Build html reply message for telegram user"""

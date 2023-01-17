@@ -3,7 +3,6 @@ import asyncio
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django_celery_beat.models import PeriodicTask
-from telegram.error import BadRequest
 
 from config import celery_app
 
@@ -28,16 +27,12 @@ def clean_oneoff_tasks():
 
 @celery_app.task(bind=True)
 def ticket_send_reply_msg_task(self, ticket_id: int):
-    try:
-        sender_bot = SenderBot()
-        ticket = Ticket.objects.get(id=ticket_id)
-        message = sender_bot.build_reply_message(ticket)
-        asyncio.run(sender_bot.raw_send_message(ticket.user.tg_id, message))
-    except BadRequest:  # Chat not found (bot blocked or other)
-        pass  # jump to finally block
-    finally:
-        ticket.status = Ticket.Status.SOLVED
-        ticket.save()
+    sender_bot = SenderBot()
+    ticket = Ticket.objects.get(id=ticket_id)
+    message = sender_bot.build_reply_message(ticket)
+    asyncio.run(sender_bot.raw_send_message(ticket.user.tg_id, message))
+    ticket.status = Ticket.Status.SOLVED
+    ticket.save()
 
 
 @celery_app.task()
@@ -80,18 +75,19 @@ def parse_flru_task(self):
 @celery_app.task(bind=True)
 def sender_bot_task(self):
     """
-    get entries with sent=False
-    get users
-    Loop through users and entries
-    If theres match on user words
-    => send message to telegram user
+    Description:
+        get ParserEntry with sent=False
+        get Users
+        Loop through Users and ParserEntry
+            If theres match on user words
+                send message to telegram user
+        update ParserEntry to sent=True
 
-    TODO: test build_entry_message-build_message incorrect func name
     TODO: async search_words / send message
     """
     entries = get_parser_entries()
 
-    if not entries:  # save 1 request to db
+    if not entries:
         return None
 
     users = get_users()
