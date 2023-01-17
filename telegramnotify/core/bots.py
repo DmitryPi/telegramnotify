@@ -414,7 +414,7 @@ class TelegramBot:
              'provider_payment_charge_id': '2af0afbc-0000-198bce8',
              'total_amount': 10000
             }
-        TODO: more tests
+        TODO: more tests (scenarios: small/big/random number, multiple payments)
         """
         user = await User.objects.aget(tg_id=update.effective_user.id)
         order = update.message.successful_payment
