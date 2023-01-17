@@ -42,6 +42,7 @@ def users_update_premium_expired_task():
     Skip users with premium_status=permanent
     Check if premium_expire date passed
         set premium_status=expired
+    TODO: send notification message
     """
     users = get_users()
     for user in users:
