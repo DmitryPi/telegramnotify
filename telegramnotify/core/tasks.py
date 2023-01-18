@@ -2,7 +2,6 @@ import asyncio
 
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from django_celery_beat.models import PeriodicTask
 
 from config import celery_app
 from telegramnotify.utils.orm import (
@@ -13,26 +12,10 @@ from telegramnotify.utils.orm import (
 )
 
 from .bots import SenderBot
-from .models import Ticket
 from .parsers import FLParser
 
 User = get_user_model()
 sender_bot = SenderBot()
-
-
-@celery_app.task(ignore_result=True)
-def clean_oneoff_tasks():
-    """Clean oneoff tasks with enabled=False"""
-    PeriodicTask.objects.filter(one_off=True, enabled=False).delete()
-
-
-@celery_app.task(bind=True)
-def ticket_send_reply_msg_task(self, ticket_id: int):
-    ticket = Ticket.objects.get(id=ticket_id)
-    message = sender_bot.build_reply_message(ticket)
-    asyncio.run(sender_bot.raw_send_message(ticket.user.tg_id, message))
-    ticket.status = Ticket.Status.SOLVED
-    ticket.save()
 
 
 @celery_app.task()

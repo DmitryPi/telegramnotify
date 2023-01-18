@@ -85,6 +85,7 @@ LOCAL_APPS = [
     "telegramnotify.contrib.apps.CustomAdminConfig",
     "telegramnotify.users",
     "telegramnotify.core",
+    "telegramnotify.tickets",
     "telegramnotify.utils",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
