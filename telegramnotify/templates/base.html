@@ -4,7 +4,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>{% block title %}TelegramNotify{% endblock title %}</title>
+    <title>
+      {% block title %}{% endblock title %}
+      {% block subtitle %}Telegram Notify{% endblock subtitle %}
+    </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Телеграм бот оповещений о новых заках и проектах">
     <meta name="author" content="Endless Pursuit">
