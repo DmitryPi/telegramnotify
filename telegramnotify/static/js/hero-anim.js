@@ -20,7 +20,7 @@ let RandomCharacterAnimation = function (options) {
     this.getLettersChanges = [];
     this.kerningSize = [];
     this.currentChange = 0;
-    this.char = 'abcdefghijklmnopqrstuvwxyz0123456789!?*()@£$%^&_-+=[]{}:;\'"\\|<>,./~`×';
+    this.char = 'abcdefghijklmnopqrstuvwxyz0123456789!?£$%^&_-+=\\\|<>,./~`×';
     this.charArray = [];
     this.requestId;
 
