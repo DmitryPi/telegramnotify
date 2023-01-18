@@ -2,7 +2,6 @@ import pytest
 from celery.result import EagerResult
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from django_celery_beat.models import IntervalSchedule, PeriodicTask
 from factory.fuzzy import FuzzyChoice
 
 from telegramnotify.users.tests.factories import UserFactory
@@ -10,7 +9,6 @@ from telegramnotify.utils.orm import get_users_exclude_expired
 
 from ..models import ParserEntry, Ticket
 from ..tasks import (
-    clean_oneoff_tasks,
     parse_flru_task,
     sender_bot_task,
     ticket_send_reply_msg_task,
@@ -19,30 +17,6 @@ from ..tasks import (
 from .factories import ParserEntryFactory, ServiceFactory, TicketFactory
 
 User = get_user_model()
-
-
-@pytest.mark.django_db
-def test_clean_oneoff_tasks(settings):
-    settings.CELERY_TASK_ALWAYS_EAGER = True
-    schedule, created = IntervalSchedule.objects.get_or_create(
-        every=10,
-        period=IntervalSchedule.SECONDS,
-    )
-    for i in range(5):
-        PeriodicTask.objects.create(
-            interval=schedule,
-            name=f"task {i}",
-            task=f"test task {i}",
-            one_off=True,
-            enabled=False,
-        )
-    one_off_tasks = PeriodicTask.objects.filter(one_off=True)
-    assert len(one_off_tasks) == 5
-    # execute task
-    result = clean_oneoff_tasks.delay()
-    one_off_tasks = PeriodicTask.objects.filter(one_off=True)
-    assert isinstance(result, EagerResult)
-    assert not len(one_off_tasks)
 
 
 @pytest.mark.django_db
