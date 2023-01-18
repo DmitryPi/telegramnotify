@@ -197,6 +197,12 @@ To run the tests, check your test coverage, and generate an HTML coverage report
 
 ---
 
+1.1.0 - (18.01.2023)
+
+- Редизайн фронтальной страницы
+- Система обратной связи
+- Покрытие тестами
+
 1.0.0 - release - (10.01.2023)
 
 - Регистрация пользователя
