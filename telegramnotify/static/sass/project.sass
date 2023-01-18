@@ -3,9 +3,16 @@
 ////////////////////////////////
  //Variables//
 ////////////////////////////////
-
+// Colors
+$main-text: #F1F1F1
+$main-bg: #000
 $accent: #F15F
-$accent-bg: cyan
+$accent-bg: #00FFFF
+$accent-light: #eee
+$accent-dark: darken(#fff, 80%)
+// Fonts
+$main-font: 'roboto' // available 100, 400, 700
+$eng-font: 'poppins' // available 100, 400, 500, 700
 
 ////////////////////////////////
     //Defaults//
@@ -40,9 +47,9 @@ ul
 ////////////////////////////////
 
 body
-    color: #F1F1F1
-    background-color: black
-    font-family: 'roboto'
+    color: $main-text
+    background-color: $main-bg
+    font-family: $main-font
 
 .hero
     position: relative
@@ -51,14 +58,14 @@ body
     grid-template-rows: 1fr 0.1fr
     align-items: center
     min-height: 97vh
-    border-bottom: 1px solid darken(#fff, 80%)
+    border-bottom: 1px solid $accent-dark
     .hero-title
         margin: 0
         text-align: center
         cursor: pointer
         &--headline
             text-transform: uppercase
-            font-family: 'poppins'
+            font-family: $eng-font
             font-size: 4rem
             font-weight: 700
     .hero-parallax
@@ -76,7 +83,7 @@ body
                 letter-spacing: 2px
                 color: darken(white, 50%)
                 &:hover, &:active, &:focus
-                    color: #eee
+                    color: $accent-light
                 &:after
                     content: ""
                     position: relative
