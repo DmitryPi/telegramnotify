@@ -28,7 +28,6 @@ function pathsConfig(appName) {
 
     return {
         vendorsJs: [
-            `${vendorsRoot}/@popperjs/core/dist/umd/popper.js`,
             `${vendorsRoot}/bootstrap/dist/js/bootstrap.js`,
         ],
         app: this.app,
@@ -144,7 +143,7 @@ function watchPaths() {
 const generateAssets = parallel(
     styles,
     scripts,
-    vendorScripts,
+    // vendorScripts,
     imgCompression
 )
 
