@@ -18,7 +18,7 @@ def test_post_save_create_ticket_send_reply_msg_task():
     tasks_qs = PeriodicTask.objects.all()
     task = tasks_qs[0]
     assert len(tasks_qs) == 1
-    assert task.task == "telegramnotify.core.tasks.ticket_send_reply_msg_task"
+    assert task.task == "telegramnotify.tickets.tasks.ticket_send_reply_msg_task"
     assert task.enabled
     assert task.one_off
     assert json.loads(task.args)[0] == ticket.id
@@ -48,6 +48,6 @@ def test_post_save_create_ticket_send_reply_msg_task_if_unsolved_and_reply():
     assert len(tasks_qs) == 2
     for task in tasks_qs:
         print(task)
-        assert task.task == "telegramnotify.core.tasks.ticket_send_reply_msg_task"
+        assert task.task == "telegramnotify.tickets.tasks.ticket_send_reply_msg_task"
         assert task.enabled
         assert task.one_off

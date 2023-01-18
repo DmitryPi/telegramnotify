@@ -24,7 +24,7 @@ def post_save_create_ticket_send_reply_msg_task(sender, instance, **kwargs):
         )
         PeriodicTask.objects.create(
             name=f"Send reply to tg [{instance.user}] : salt{salt}",
-            task="telegramnotify.core.tasks.ticket_send_reply_msg_task",
+            task="telegramnotify.tickets.tasks.ticket_send_reply_msg_task",
             interval=schedule,
             enabled=True,
             one_off=True,
