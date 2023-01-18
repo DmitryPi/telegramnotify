@@ -35,6 +35,11 @@ from telegram.ext import (
 from telegram.warnings import PTBUserWarning
 
 from config.settings.base import TELEGRAM_ADMIN_ID, TELEGRAM_API_TOKEN, YOKASSA_TOKEN
+from telegramnotify.utils.orm import (
+    get_parser_entries,
+    get_users_exclude_expired,
+    update_parser_entries_sent,
+)
 from telegramnotify.utils.other import (
     datetime_days_ahead,
     list_into_chunks,
@@ -42,7 +47,6 @@ from telegramnotify.utils.other import (
 )
 
 from .models import Order, ParserEntry, Service, Ticket
-from .utils import get_parser_entries, get_users, update_parser_entries_sent
 
 User = get_user_model()
 ONE, TWO, THREE, FOUR, FIVE = (i for i in range(1, 6))
@@ -122,7 +126,7 @@ class SenderBot:
         => send message to telegram user
         """
         entries = get_parser_entries()
-        users = get_users()
+        users = get_users_exclude_expired()
 
         if not entries:
             return None

@@ -2,8 +2,9 @@ from collections import namedtuple
 
 from requests_html import HTMLSession
 
+from telegramnotify.utils.orm import get_parser_entry, save_parser_entry
+
 from .models import Service
-from .utils import get_parser_entry, save_parser_entry
 
 
 class FLParser:

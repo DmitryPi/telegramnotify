@@ -5,16 +5,16 @@ from django.utils import timezone
 from django_celery_beat.models import PeriodicTask
 
 from config import celery_app
+from telegramnotify.utils.orm import (
+    get_parser_entries,
+    get_users_exclude_expired,
+    save_parser_entry,
+    update_parser_entries_sent,
+)
 
 from .bots import SenderBot
 from .models import Ticket
 from .parsers import FLParser
-from .utils import (
-    get_parser_entries,
-    get_users,
-    save_parser_entry,
-    update_parser_entries_sent,
-)
 
 User = get_user_model()
 sender_bot = SenderBot()
@@ -43,7 +43,7 @@ def users_update_premium_expired_task():
     Check if premium_expire date passed
         set premium_status=expired
     """
-    users = get_users()
+    users = get_users_exclude_expired()
     for user in users:
         if user.premium_status == User.PremiumStatus.permanent:
             continue
@@ -95,7 +95,7 @@ def sender_bot_task(self):
     if not entries:
         return None
 
-    users = get_users()
+    users = get_users_exclude_expired()
 
     for i, user in enumerate(users):
         # update task progress

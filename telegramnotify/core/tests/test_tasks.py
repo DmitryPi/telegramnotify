@@ -6,6 +6,7 @@ from django_celery_beat.models import IntervalSchedule, PeriodicTask
 from factory.fuzzy import FuzzyChoice
 
 from telegramnotify.users.tests.factories import UserFactory
+from telegramnotify.utils.orm import get_users_exclude_expired
 
 from ..models import ParserEntry, Ticket
 from ..tasks import (
@@ -15,7 +16,6 @@ from ..tasks import (
     ticket_send_reply_msg_task,
     users_update_premium_expired_task,
 )
-from ..utils import get_users
 from .factories import ParserEntryFactory, ServiceFactory, TicketFactory
 
 User = get_user_model()
@@ -109,10 +109,10 @@ def test_users_update_premium_expired_with_trial_or_regular_task(settings):
         ),
         premium_expire=hour_ahead,
     )
-    users = get_users()
+    users = get_users_exclude_expired()
     assert len(users) == 30
     result = users_update_premium_expired_task.delay()
-    users = get_users()
+    users = get_users_exclude_expired()
     assert len(users) == 10
     assert isinstance(result, EagerResult)
     for user in users:
@@ -133,10 +133,10 @@ def test_users_update_premium_expired_with_permanent_task(settings):
         premium_status=User.PremiumStatus.permanent,
         premium_expire=hour_before,
     )
-    users = get_users()
+    users = get_users_exclude_expired()
     assert len(users) == 10
     result = users_update_premium_expired_task.delay()
-    users = get_users()
+    users = get_users_exclude_expired()
     assert len(users) == 10
     assert isinstance(result, EagerResult)
     for user in users:

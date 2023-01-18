@@ -45,7 +45,7 @@ def get_users_all() -> list[User]:
     return users
 
 
-def get_users() -> list[User]:
+def get_users_exclude_expired() -> list[User]:
     """Get users and exclude those with premium_status=expired"""
     users = User.objects.exclude(premium_status=User.PremiumStatus.expired)
     return users
