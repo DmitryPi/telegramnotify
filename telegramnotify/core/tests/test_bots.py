@@ -13,10 +13,10 @@ from telegram import (
 )
 
 from telegramnotify.users.tests.factories import UserFactory
+from telegramnotify.utils.other import datetime_days_ahead
 
 from ..bots import SenderBot, TelegramBot
 from ..models import Order, ParserEntry, Ticket
-from ..utils import datetime_days_ahead
 from .factories import ParserEntryFactory, ServiceFactory, TicketFactory
 
 User = get_user_model()

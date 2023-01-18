@@ -35,16 +35,14 @@ from telegram.ext import (
 from telegram.warnings import PTBUserWarning
 
 from config.settings.base import TELEGRAM_ADMIN_ID, TELEGRAM_API_TOKEN, YOKASSA_TOKEN
-
-from .models import Order, ParserEntry, Service, Ticket
-from .utils import (
+from telegramnotify.utils.other import (
     datetime_days_ahead,
-    get_parser_entries,
-    get_users,
     list_into_chunks,
     search_word,
-    update_parser_entries_sent,
 )
+
+from .models import Order, ParserEntry, Service, Ticket
+from .utils import get_parser_entries, get_users, update_parser_entries_sent
 
 User = get_user_model()
 ONE, TWO, THREE, FOUR, FIVE = (i for i in range(1, 6))
