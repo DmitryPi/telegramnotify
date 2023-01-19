@@ -1,4 +1,4 @@
-from telegramnotify.core.bots import TelegramBot
+from telegramnotify.tgbots.bots import TelegramBot
 
 
 def run():

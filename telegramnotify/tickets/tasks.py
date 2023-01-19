@@ -1,7 +1,7 @@
 import asyncio
 
 from config import celery_app
-from telegramnotify.core.bots import SenderBot
+from telegramnotify.tgbots.bots import SenderBot
 
 from .models import Ticket
 

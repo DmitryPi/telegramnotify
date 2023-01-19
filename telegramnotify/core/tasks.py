@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 
 from config import celery_app
+from telegramnotify.tgbots.bots import SenderBot
 from telegramnotify.utils.orm import (
     get_parser_entries,
     get_users_exclude_expired,
@@ -11,7 +12,6 @@ from telegramnotify.utils.orm import (
     update_parser_entries_sent,
 )
 
-from .bots import SenderBot
 from .parsers import FLParser
 
 User = get_user_model()
