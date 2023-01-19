@@ -249,6 +249,12 @@ To run the tests, check your test coverage, and generate an HTML coverage report
     # django shell run
     docker-compose -f production.yml run --rm django python manage.py shell
 
+    # django dump db data
+    docker-compose -f production.yml run --rm django bash
+    python -Xutf8 manage.py dumpdata core.ParserEntry -o parserentry.json
+    # Открыть вторую консоль
+    docker cp 5f5cecd3798e:/app/parserentry.json ./parserentry.json
+
     # If you want to scale application
     # ❗ Don’t try to scale postgres, celerybeat, or traefik
     docker-compose -f production.yml up --scale django=4
