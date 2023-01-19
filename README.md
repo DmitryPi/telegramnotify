@@ -11,18 +11,15 @@
 
 ---
 
-
-- Почистить миграции core
-- Нарисовать архитектуру приложения
+- Обновить описание бота в телеграм
 - Добавить новых пользователей с разными правами
 - Проанализировать возможность привязать сообщения тг-бота к бд
-
-- Refactor import mud-ball
+- Доработать celery-задачи бизнес-системы (биллинг)
 - Refactor SenderBot
-
+- Refactor import mud-ball
 - Prod dump: python -Xutf8 manage.py dumpdata core.ParserEntry -o parserentry.json
 
-- Обновить описание бота в телеграм
+
 - TelegramBot - доработка кнопок команды /settings
 - Подключить магазин
 - PostgreSQL Backups на VPS
@@ -30,7 +27,62 @@
 - Реклама по средству прокси-ботов
 - Реферальная система
 - В продакшене научиться выводить flower/traefik dashboard
-- Рефактор структуры проекта и разграничение доменов
+
+## Архитектура
+---
+### Бизнес система
+
+```mermaid
+sequenceDiagram
+   participant user
+   participant telegrambot
+   participant core
+   participant celery
+```
+---
+### Парсер сервисы
+```mermaid
+sequenceDiagram
+   participant user
+   participant celery
+   participant parser
+   participant db
+
+   celery->>parser: Задача
+   loop
+      parser->>parser: Парсинг ресурса
+   end
+   parser->>db: Сохранение записей
+   Note over parser,db: ParserEntry sent=False
+   loop
+      celery->>celery: Поиск новых ParserEntry
+   end
+   celery->>user: Отправка ParserEntry в телеграм
+   Note over celery,user: Если подходит по критериям
+   celery-->>db: обновление ParserEntry sent=True
+```
+---
+### Система поддержки
+
+```mermaid
+sequenceDiagram
+   participant user
+   participant telegrambot
+   participant tickets
+   participant admin
+   participant celery
+
+
+   user->>telegrambot: Сообщение
+   telegrambot->>tickets: Создание тикета
+   admin-->>tickets: Обновляет ticket.reply
+   tickets->>celery: Создание задачи
+   Note over tickets,celery: post_save: if reply и status=UNSOLVED
+
+   celery-->>tickets: Обновление status=SOLVED
+   celery->>user: Оправка reply-сообщения в телеграм
+
+```
 
 ## Testing
 

@@ -6,20 +6,7 @@ from model_utils.models import TimeStampedModel
 
 class Ticket(TimeStampedModel):
     """
-    Система технической поддержки пользователя
-
-    Процедура:
-        1. Пользователь вызывает команду /support в телеграм боте и отправляет сообщение
-        2. Сохраняется Ticket
-        3. Администратор заходит в редактор Ticket
-            - Пишет сообщение в reply
-        4. Сохранение тикета save()
-            - post_save signal: ticket_post_save_create_ticket_send_reply_msg_task
-            - Если status=UNSOLVED и reply
-                - Создать celery задачу ticket_send_reply_msg_task
-        5. Задача отпрабатывает
-        6. Пользователю в телеграм приходит ответ администратора
-
+    Тикет технической поддержки
     TODO: Добавить поддержку диалога.
     """
 

@@ -11,10 +11,8 @@ from .models import Ticket
 @receiver(post_save, sender=Ticket)
 def post_save_create_ticket_send_reply_msg_task(sender, instance, **kwargs):
     """
-    Проверка если ticket reply и status=UNSOLVED
-        - Сигнал создает celery-задачу ticket_send_reply_msg_task
-
-    Полная процедура описана в моделе Ticket
+    Eсли ticket.reply и ticket.status=UNSOLVED
+        Создать celery-задачу ticket_send_reply_msg_task
     """
 
     if instance.reply and instance.status == instance.Status.UNSOLVED:
