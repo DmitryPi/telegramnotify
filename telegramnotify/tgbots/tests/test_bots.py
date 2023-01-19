@@ -19,7 +19,7 @@ from telegramnotify.tickets.tests.factories import TicketFactory
 from telegramnotify.users.tests.factories import UserFactory
 from telegramnotify.utils.other import datetime_days_ahead
 
-from .bots import SenderBot, TelegramBot
+from ..bots import SenderBot, TelegramBot
 
 User = get_user_model()
 Update: TypeAlias = namedtuple
