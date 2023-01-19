@@ -86,6 +86,7 @@ LOCAL_APPS = [
     "telegramnotify.users",
     "telegramnotify.core",
     "telegramnotify.tickets",
+    "telegramnotify.parsers",
     "telegramnotify.tgbots",
     "telegramnotify.utils",
 ]

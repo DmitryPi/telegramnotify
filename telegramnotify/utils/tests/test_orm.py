@@ -4,8 +4,8 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
-from telegramnotify.core.models import ParserEntry
-from telegramnotify.core.tests.factories import ParserEntryFactory
+from telegramnotify.parsers.models import ParserEntry
+from telegramnotify.parsers.tests.factories import ParserEntryFactory
 from telegramnotify.users.tests.factories import UserFactory
 
 from ..orm import (

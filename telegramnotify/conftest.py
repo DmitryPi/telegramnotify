@@ -1,7 +1,7 @@
 import pytest
 
-from telegramnotify.core.models import ParserEntry
-from telegramnotify.core.tests.factories import ParserEntryFactory
+from telegramnotify.parsers.models import ParserEntry
+from telegramnotify.parsers.tests.factories import ParserEntryFactory
 from telegramnotify.users.models import User
 from telegramnotify.users.tests.factories import UserFactory
 

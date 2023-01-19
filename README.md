@@ -12,13 +12,15 @@
 ---
 
 
-- Экспорт/Импорт данных в новую таблицу ParserEntry
 - Почистить миграции core
+- Нарисовать архитектуру приложения
 - Добавить новых пользователей с разными правами
 - Проанализировать возможность привязать сообщения тг-бота к бд
 
 - Refactor import mud-ball
 - Refactor SenderBot
+
+- Prod dump: python -Xutf8 manage.py dumpdata core.ParserEntry -o parserentry.json
 
 - Обновить описание бота в телеграм
 - TelegramBot - доработка кнопок команды /settings

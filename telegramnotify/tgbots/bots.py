@@ -35,7 +35,8 @@ from telegram.ext import (
 from telegram.warnings import PTBUserWarning
 
 from config.settings.base import TELEGRAM_ADMIN_ID, TELEGRAM_API_TOKEN, YOKASSA_TOKEN
-from telegramnotify.core.models import Order, ParserEntry, Service
+from telegramnotify.core.models import Order, Service
+from telegramnotify.parsers.models import ParserEntry
 from telegramnotify.tickets.models import Ticket
 from telegramnotify.utils.orm import (
     get_parser_entries,

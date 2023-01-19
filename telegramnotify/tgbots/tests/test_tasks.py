@@ -1,8 +1,8 @@
 import pytest
 from celery.result import EagerResult
 
-from telegramnotify.core.models import ParserEntry
-from telegramnotify.core.tests.factories import ParserEntryFactory
+from telegramnotify.parsers.models import ParserEntry
+from telegramnotify.parsers.tests.factories import ParserEntryFactory
 from telegramnotify.users.tests.factories import UserFactory
 
 from ..tasks import sender_bot_task

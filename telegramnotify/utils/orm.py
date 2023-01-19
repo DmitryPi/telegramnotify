@@ -3,7 +3,7 @@ from collections import namedtuple
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
-from telegramnotify.core.models import ParserEntry
+from telegramnotify.parsers.models import ParserEntry
 
 User = get_user_model()
 

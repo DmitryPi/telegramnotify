@@ -12,8 +12,10 @@ from telegram import (
     ReplyKeyboardMarkup,
 )
 
-from telegramnotify.core.models import Order, ParserEntry
-from telegramnotify.core.tests.factories import ParserEntryFactory, ServiceFactory
+from telegramnotify.core.models import Order
+from telegramnotify.core.tests.factories import ServiceFactory
+from telegramnotify.parsers.models import ParserEntry
+from telegramnotify.parsers.tests.factories import ParserEntryFactory
 from telegramnotify.tickets.models import Ticket
 from telegramnotify.tickets.tests.factories import TicketFactory
 from telegramnotify.users.tests.factories import UserFactory

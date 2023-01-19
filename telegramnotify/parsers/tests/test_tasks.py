@@ -2,9 +2,9 @@ import pytest
 from celery.result import EagerResult
 from django.contrib.auth import get_user_model
 
-from telegramnotify.core.models import ParserEntry
 from telegramnotify.core.tests.factories import ServiceFactory
 
+from ..models import ParserEntry
 from ..tasks import parse_flru_task
 
 User = get_user_model()
