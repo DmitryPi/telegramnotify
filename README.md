@@ -34,16 +34,34 @@
 
 ```mermaid
 sequenceDiagram
-   participant user
+   actor user
    participant telegrambot
+   participant Payment Broker
+   participant User
    participant core
    participant celery
+
+   user->>telegrambot: Пополнение счета
+   user-->>Payment Broker: Проведение оплаты
+   Payment Broker-->>telegrambot: Подтверждение оплаты
+   telegrambot->>User: Пополнение кошелька пользователя
+   Note over telegrambot,User: Обновление User wallet, bill, premium_status
+   telegrambot->>core: Сохранение записи пополнения (Order)
+   core->>celery: Менеджмент подписок
+   celery->>User: Обновление premium_status
+   core->>celery: Биллинг пользователя
+   celery->>User: Ежедневное обновление bill
+   user->>telegrambot: Добавление сервиса
+   telegrambot->>User: Обновление services, bill
+   Note over telegrambot,User: Списание средств за 1 календарный день
+   user->>telegrambot: Удаление сервиса
+   telegrambot->>User: Обновление services, bill
 ```
 ---
 ### Парсер сервисы
 ```mermaid
 sequenceDiagram
-   participant user
+   actor user
    participant celery
    participant parser
    participant db
@@ -54,9 +72,7 @@ sequenceDiagram
    end
    parser->>db: Сохранение записей
    Note over parser,db: ParserEntry sent=False
-   loop
-      celery->>celery: Поиск новых ParserEntry
-   end
+   celery->>db: Обработка ParserEntry
    celery->>user: Отправка ParserEntry в телеграм
    Note over celery,user: Если подходит по критериям
    celery-->>db: обновление ParserEntry sent=True
@@ -66,10 +82,10 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-   participant user
+   actor user
    participant telegrambot
    participant tickets
-   participant admin
+   actor admin
    participant celery
 
 
@@ -79,8 +95,8 @@ sequenceDiagram
    tickets->>celery: Создание задачи
    Note over tickets,celery: post_save: if reply и status=UNSOLVED
 
-   celery-->>tickets: Обновление status=SOLVED
    celery->>user: Оправка reply-сообщения в телеграм
+   celery->>tickets: Обновление status=SOLVED
 
 ```
 
@@ -263,7 +279,7 @@ To run the tests, check your test coverage, and generate an HTML coverage report
 
 1.1.0 - (18.01.2023)
 
-- Редизайн фронтальной страницы
+- Редизайн веб-версии сайта
 - Система обратной связи
 - Покрытие тестами
 
