@@ -8,8 +8,8 @@ from telegramnotify.users.tests.factories import UserFactory
 from telegramnotify.utils.orm import get_users_exclude_expired
 
 from ..models import ParserEntry
-from ..tasks import parse_flru_task, sender_bot_task, users_update_premium_expired_task
-from .factories import ParserEntryFactory, ServiceFactory
+from ..tasks import sender_bot_task, users_update_premium_expired_task
+from .factories import ParserEntryFactory
 
 User = get_user_model()
 
@@ -28,21 +28,6 @@ def test_users_update_premium_expired_task(settings):
             assert user.premium_status == User.PremiumStatus.permanent
         else:
             assert user.premium_status == User.PremiumStatus.expired
-
-
-@pytest.mark.slow
-@pytest.mark.django_db
-def test_parse_flru_task(settings):
-    settings.CELERY_TASK_ALWAYS_EAGER = True
-    service = ServiceFactory()
-    entries = ParserEntry.objects.all()
-    assert service.title == "FL.ru"
-    assert not len(entries)
-    # execute task
-    result = parse_flru_task.delay()
-    entries = ParserEntry.objects.all()
-    assert isinstance(result, EagerResult)
-    assert len(entries) > 10
 
 
 @pytest.mark.django_db
