@@ -1,23 +1,21 @@
 # [TelegramNotify](https://telegramnotify.ru/)
 
-> Телеграм сервис оповещений о новых заказах и проектах по ключевым словам
-> Реализован на языке Python, путем слияния django и telegram-bot-api
+    Телеграм парсер-сервис оповещений по ключевым словам
 
-> Функцинал: регистрации пользователя, пополнение кошелька, настройка оповещений, обратная связь, парсеры, celery-задачи
+    Стэк: Django 4.1, Telegram API, asyncio, selenium, celery, docker
 
-Версия: 1.0.0
 
 ## TODO
 
 ---
 
+- Prod dump: python -Xutf8 manage.py dumpdata core.ParserEntry -o parserentry.json
 - Обновить описание бота в телеграм
 - Добавить новых пользователей с разными правами
 - Проанализировать возможность привязать сообщения тг-бота к бд
 - Доработать celery-задачи бизнес-системы (биллинг)
 - Refactor SenderBot
 - Refactor import mud-ball
-- Prod dump: python -Xutf8 manage.py dumpdata core.ParserEntry -o parserentry.json
 
 
 - TelegramBot - доработка кнопок команды /settings
@@ -29,6 +27,7 @@
 - В продакшене научиться выводить flower/traefik dashboard
 
 ## Архитектура
+
 ---
 ### Бизнес система
 
@@ -57,6 +56,7 @@ sequenceDiagram
    user->>telegrambot: Удаление сервиса
    telegrambot->>User: Обновление services, bill
 ```
+
 ---
 ### Парсер сервисы
 ```mermaid
@@ -77,6 +77,7 @@ sequenceDiagram
    Note over celery,user: Если подходит по критериям
    celery-->>db: обновление ParserEntry sent=True
 ```
+
 ---
 ### Система поддержки
 
@@ -276,6 +277,10 @@ To run the tests, check your test coverage, and generate an HTML coverage report
 ## Версии
 
 ---
+
+1.2.0 - (19.01.2023)
+
+- Редизайн архитектуры проекта
 
 1.1.0 - (18.01.2023)
 
