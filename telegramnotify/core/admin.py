@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
-from .models import Order, ParserEntry, Service, Ticket
+from .models import Order, ParserEntry, Service
 
 
 def update_sent_true(modeladmin, request, qs):
@@ -34,11 +34,6 @@ class OrderAdmin(admin.ModelAdmin):
     )
 
     list_display = ["uuid", "status", "total_amount", "currency", "created"]
-
-
-@admin.register(Ticket)
-class TicketAdmin(admin.ModelAdmin):
-    list_display = ["user", "short_message", "status", "created"]
 
 
 @admin.register(ParserEntry)

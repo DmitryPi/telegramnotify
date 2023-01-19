@@ -3,8 +3,8 @@ from decimal import Decimal
 
 from django.test import TestCase
 
-from ..models import Order, ParserEntry, Service, Ticket
-from .factories import OrderFactory, ParserEntryFactory, ServiceFactory, TicketFactory
+from ..models import Order, ParserEntry, Service
+from .factories import OrderFactory, ParserEntryFactory, ServiceFactory
 
 
 class TestOrder(TestCase):
@@ -95,33 +95,3 @@ class TestService(TestCase):
             assert "https" in obj.url_body
             assert "https" in obj.url_query
             assert isinstance(obj.daily_price, Decimal)
-
-
-class TestTicket(TestCase):
-    def setUp(self):
-        self.batch_size = 10
-        self.objects = TicketFactory.create_batch(size=self.batch_size)
-
-    def test_create(self):
-        assert len(self.objects) == self.batch_size
-
-    def test_update(self):
-        new_title = "new title"
-        for obj in self.objects:
-            obj.title = new_title
-            obj.save()
-        for obj in self.objects:
-            assert obj.title == new_title
-
-    def test_delete(self):
-        for obj in self.objects:
-            obj.delete()
-        qs = Ticket.objects.all()
-        assert not len(qs)
-
-    def test_fields(self):
-        for obj in self.objects:
-            assert obj.user.id
-            assert len(obj.message) > 1
-            assert isinstance(obj.status, Ticket.Status)
-            assert len(obj.short_message) > 1

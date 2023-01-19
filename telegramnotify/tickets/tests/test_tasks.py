@@ -1,10 +1,9 @@
 import pytest
 from celery.result import EagerResult
 
-from telegramnotify.core.models import Ticket
-from telegramnotify.core.tests.factories import TicketFactory
-
+from ..models import Ticket
 from ..tasks import ticket_send_reply_msg_task
+from .factories import TicketFactory
 
 
 @pytest.mark.django_db

@@ -12,12 +12,14 @@ from telegram import (
     ReplyKeyboardMarkup,
 )
 
+from telegramnotify.tickets.models import Ticket
+from telegramnotify.tickets.tests.factories import TicketFactory
 from telegramnotify.users.tests.factories import UserFactory
 from telegramnotify.utils.other import datetime_days_ahead
 
 from ..bots import SenderBot, TelegramBot
-from ..models import Order, ParserEntry, Ticket
-from .factories import ParserEntryFactory, ServiceFactory, TicketFactory
+from ..models import Order, ParserEntry
+from .factories import ParserEntryFactory, ServiceFactory
 
 User = get_user_model()
 Update: TypeAlias = namedtuple

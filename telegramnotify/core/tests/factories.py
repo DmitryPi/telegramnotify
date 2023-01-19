@@ -7,7 +7,7 @@ from factory.fuzzy import FuzzyChoice, FuzzyDecimal
 
 from telegramnotify.users.tests.factories import UserFactory
 
-from ..models import Order, ParserEntry, Service, Ticket
+from ..models import Order, ParserEntry, Service
 
 
 class OrderFactory(DjangoModelFactory):
@@ -51,17 +51,3 @@ class ServiceFactory(DjangoModelFactory):
 
     class Meta:
         model = Service
-
-
-class TicketFactory(DjangoModelFactory):
-    user = SubFactory(UserFactory)
-    message = Faker("text", locale="ru_RU")
-    status = FuzzyChoice(
-        choices=[
-            Ticket.Status.SOLVED,
-            Ticket.Status.UNSOLVED,
-        ]
-    )
-
-    class Meta:
-        model = Ticket

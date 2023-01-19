@@ -3,8 +3,8 @@ import json
 import pytest
 from django_celery_beat.models import PeriodicTask
 
-from telegramnotify.core.models import Ticket
-from telegramnotify.core.tests.factories import TicketFactory
+from ..models import Ticket
+from .factories import TicketFactory
 
 
 @pytest.mark.django_db

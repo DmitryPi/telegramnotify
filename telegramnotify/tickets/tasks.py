@@ -2,7 +2,8 @@ import asyncio
 
 from config import celery_app
 from telegramnotify.core.bots import SenderBot
-from telegramnotify.core.models import Ticket
+
+from .models import Ticket
 
 
 @celery_app.task(bind=True)
