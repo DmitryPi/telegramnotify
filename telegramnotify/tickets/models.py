@@ -37,3 +37,7 @@ class Ticket(TimeStampedModel):
     @property
     def short_message(self, len=40):
         return self.message[:len]
+
+    @property
+    def short_reply(self, len=40):
+        return self.reply[:len]

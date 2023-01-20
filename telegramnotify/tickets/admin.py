@@ -5,4 +5,4 @@ from .models import Ticket
 
 @admin.register(Ticket)
 class TicketAdmin(admin.ModelAdmin):
-    list_display = ["user", "short_message", "status", "created"]
+    list_display = ["user", "short_message", "short_message", "status", "created"]

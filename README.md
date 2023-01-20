@@ -9,11 +9,9 @@
 
 ---
 
-- Prod dump: python -Xutf8 manage.py dumpdata core.ParserEntry -o parserentry.json
 - Обновить описание бота в телеграм
-- Добавить новых пользователей с разными правами
 - Проанализировать возможность привязать сообщения тг-бота к бд
-- Доработать celery-задачи бизнес-системы (биллинг)
+- Доработать бизнес систему (биллинг)
 - Refactor SenderBot
 - Refactor import mud-ball
 
@@ -235,7 +233,7 @@ To run the tests, check your test coverage, and generate an HTML coverage report
    4. Дополнительные команды
       - `supervisorctl status`
 
-### Дополнительные команды:
+### Полезные команды:
 
     # containers status
     docker-compose -f production.yml ps
@@ -251,9 +249,9 @@ To run the tests, check your test coverage, and generate an HTML coverage report
 
     # django dump db data
     docker-compose -f production.yml run --rm django bash
-    python -Xutf8 manage.py dumpdata core.ParserEntry -o parserentry.json
-    # Открыть вторую консоль
-    docker cp 5f5cecd3798e:/app/parserentry.json ./parserentry.json
+    python -Xutf8 manage.py dumpdata {app}.{Model -o data.json
+      # Открыть вторую консоль, сохраняя сессию в старой
+      docker cp 5f5cecd3798e:/app/data.json ./data.json
 
     # If you want to scale application
     # ❗ Don’t try to scale postgres, celerybeat, or traefik
