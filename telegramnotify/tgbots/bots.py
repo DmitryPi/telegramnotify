@@ -423,6 +423,7 @@ class TelegramBot:
              'total_amount': 10000
             }
         TODO: more tests (scenarios: small/big/random number, multiple payments)
+        TODO: decouple
         """
         user = await User.objects.aget(tg_id=update.effective_user.id)
         order = update.message.successful_payment

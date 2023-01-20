@@ -1,4 +1,6 @@
 import uuid as uuid_lib
+from decimal import Decimal
+from random import randint, uniform
 
 from factory import SubFactory
 from factory.django import DjangoModelFactory
@@ -36,3 +38,12 @@ class ServiceFactory(DjangoModelFactory):
 
     class Meta:
         model = Service
+
+
+def build_services() -> tuple[tuple[Service], Decimal]:
+    service_prices = [
+        Decimal(str(round(uniform(1, 5), 1))) for _ in range(randint(1, 5))
+    ]
+    total_price = sum(service_prices)
+    services = (ServiceFactory(daily_price=i) for i in service_prices)
+    return (services, total_price)
