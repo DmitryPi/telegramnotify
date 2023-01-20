@@ -31,8 +31,10 @@ class User(AbstractUser):
     )
     name = models.CharField(_("Name of User"), blank=True, max_length=255)
     words = ArrayField(models.CharField(max_length=112), blank=True, default=list)
-    # business logic fields
-    bill = models.DecimalField(_("Тариф"), max_digits=11, decimal_places=2, default=0)
+    # service layer fields
+    pay_rate = models.DecimalField(
+        _("Ставка Оплаты"), max_digits=11, decimal_places=2, default=0
+    )
     wallet = models.DecimalField(
         _("Баланс"), max_digits=11, decimal_places=2, default=0
     )
@@ -58,9 +60,9 @@ class User(AbstractUser):
         self.wallet += Decimal(amount)
         self.save()
 
-    def update_bill(self):
-        bill = Decimal(0)
+    def update_pay_rate(self):
+        pay_rate = Decimal(0)
         for service in self.services.all():
-            bill += service.daily_price
-        self.bill = bill
+            pay_rate += service.daily_price
+        self.pay_rate = pay_rate
         self.save()

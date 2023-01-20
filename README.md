@@ -10,6 +10,13 @@
 ---
 
 - Доработать бизнес систему (биллинг)
+   - bill -> bill_rate / cost / daily_bill / daily_cost / daily_rate / pay_rate
+      - Актуальное динамичное значение на основе пересчета сметы
+      - Конструктор расчета pay_rate по дням
+   - Расширение User сервис методов
+   - Разделить users_update_premium_expired_task на более малые компоненты в services.py
+   - Рефактор TestUser
+
 - Проанализировать возможность привязать сообщения тг-бота к бд
 - Refactor SenderBot
 - Refactor import mud-ball
@@ -40,17 +47,17 @@ sequenceDiagram
    user-->>Payment Broker: Проведение оплаты
    Payment Broker-->>telegrambot: Подтверждение оплаты
    telegrambot->>User: Пополнение кошелька пользователя
-   Note over telegrambot,User: Обновление User wallet, bill, premium_status
+   Note over telegrambot,User: Обновление User wallet, pay_rate, premium_status
    telegrambot->>core: Сохранение записи пополнения (Order)
    core->>celery: Менеджмент подписок
    celery->>User: Обновление premium_status
    core->>celery: Биллинг пользователя
-   celery->>User: Ежедневное обновление bill
+   celery->>User: Ежедневное обновление pay_rate
    user->>telegrambot: Добавление сервиса
-   telegrambot->>User: Обновление services, bill
+   telegrambot->>User: Обновление services, pay_rate
    Note over telegrambot,User: Списание средств за 1 календарный день
    user->>telegrambot: Удаление сервиса
-   telegrambot->>User: Обновление services, bill
+   telegrambot->>User: Обновление services, pay_rate
 ```
 
 ---

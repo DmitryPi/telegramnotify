@@ -17,7 +17,7 @@ class UserAdmin(auth_admin.UserAdmin):
         (None, {"fields": ("tg_id", "username", "password")}),
         (None, {"fields": ("name", "email")}),
         (_("Сервисы"), {"fields": ("services", "words")}),
-        (_("Кошелек"), {"fields": ("bill", "wallet")}),
+        (_("Кошелек"), {"fields": ("pay_rate", "wallet")}),
         (_("Премиум"), {"fields": ("premium_status", "premium_expire")}),
         (
             _("Permissions"),
@@ -37,7 +37,7 @@ class UserAdmin(auth_admin.UserAdmin):
         "tg_id",
         "username",
         "name",
-        "bill",
+        "pay_rate",
         "wallet",
         "premium_status",
         "is_superuser",

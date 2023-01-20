@@ -330,7 +330,7 @@ class TelegramBot:
             password=str(tg_user.id),
             name=tg_user.first_name,
             words=context.user_data["words"],
-            bill=0,
+            pay_rate=0,
             wallet=0,
             premium_status=User.PremiumStatus.trial,
             premium_expire=datetime_days_ahead(3),
@@ -475,8 +475,8 @@ class TelegramBot:
                     f"<b>Сервисы:</b> {services}",
                     f"<b>Слова поиска:</b> {user.words}",
                     "",
-                    f"<b>Потребление в день:</b> {user.bill} рубля",
-                    f"<b>Потребление в месяц:</b> {user.bill * 30} рублей",
+                    f"<b>Потребление в день:</b> {user.pay_rate} рубля",
+                    f"<b>Потребление в месяц:</b> {user.pay_rate * 30} рублей",
                 ]
             )
             await update.message.reply_text(msg, parse_mode=ParseMode.HTML)

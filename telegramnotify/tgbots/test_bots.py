@@ -199,7 +199,7 @@ class TestTelegramBot(TestCase):
         # test created user data
         assert user.tg_id == 333
         assert user.username == "Test"
-        assert user.bill == 0
+        assert user.pay_rate == 0
         assert user.wallet == 0
         assert user.words == context_data["words"]
         assert user.premium_status == User.PremiumStatus.trial

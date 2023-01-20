@@ -42,10 +42,10 @@ class TestUser(TestCase):
         # add services
         [user.services.add(s) for s in services]
         user = User.objects.get(pk=user.id)
-        assert user.bill == 0
+        assert user.pay_rate == 0
         assert len(user.services.all()) == 3
-        # update bill
-        user.update_bill()
+        # update pay_rate
+        user.update_pay_rate()
         user = User.objects.get(pk=user.id)
-        assert user.bill == 6.5
-        assert isinstance(user.bill, Decimal)
+        assert user.pay_rate == 6.5
+        assert isinstance(user.pay_rate, Decimal)
