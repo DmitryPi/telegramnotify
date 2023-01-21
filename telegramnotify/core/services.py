@@ -13,8 +13,12 @@ def user_wallet_decrement_by_pay_rate(user: User) -> None:
     1. Обновить актуальное значение сметы: User.update_pay_rate
     2. Получить обновленного юзера
     3. Произвести декремент кошелька, значением user.pay_rate
+
+    TODO: more tests
     """
     with transaction.atomic():
+        if user.premium_status == User.PremiumStatus.permanent:
+            return None
         user.update_pay_rate()
         user = User.objects.get(pk=user.id)
         user.update_wallet(-user.pay_rate)

@@ -8,17 +8,17 @@ from .factories import build_services
 User = get_user_model()
 
 
-def test_user_wallet_decrement_by_pay_rate(user):
-    user_old = user
+def test_user_wallet_decrement_by_pay_rate(user_regular):
+    user_old = user_regular
     services, total_price = build_services()
     for s in services:
-        user.services.add(s)
+        user_regular.services.add(s)
     # update
-    user_wallet_decrement_by_pay_rate(user)
-    user = User.objects.get(pk=user.id)
+    user_wallet_decrement_by_pay_rate(user_regular)
+    user_regular = User.objects.get(pk=user_regular.id)
     # tests
     assert isinstance(total_price, Decimal)
-    assert isinstance(user.pay_rate, Decimal)
-    assert user.pay_rate == total_price
-    assert user.wallet < user_old.wallet
-    assert user.wallet == Decimal(user_old.wallet - total_price)
+    assert isinstance(user_regular.pay_rate, Decimal)
+    assert user_regular.pay_rate == total_price
+    assert user_regular.wallet < user_old.wallet
+    assert user_regular.wallet == Decimal(user_old.wallet - total_price)

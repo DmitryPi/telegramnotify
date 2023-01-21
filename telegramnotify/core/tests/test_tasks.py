@@ -7,7 +7,10 @@ from factory.fuzzy import FuzzyChoice
 from telegramnotify.users.tests.factories import UserFactory
 from telegramnotify.utils.orm import get_users_exclude_expired
 
-from ..tasks import users_update_premium_expired_task
+from ..tasks import (
+    users_update_premium_expired_task,
+    users_update_wallet_decrement_by_pay_rate_task,
+)
 
 User = get_user_model()
 
@@ -83,3 +86,10 @@ def test_users_update_premium_expired_with_permanent_task(settings):
     for user in users:
         assert user.premium_status == User.PremiumStatus.permanent
         assert timezone.now() > user.premium_expire
+
+
+@pytest.mark.django_db
+def test_users_update_wallet_decrement_by_pay_rate_task(settings):
+    settings.CELERY_TASK_ALWAYS_EAGER = True
+    result = users_update_wallet_decrement_by_pay_rate_task.delay()
+    assert isinstance(result, EagerResult)

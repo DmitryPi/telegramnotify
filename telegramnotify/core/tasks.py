@@ -7,6 +7,8 @@ from config import celery_app
 from telegramnotify.tgbots.bots import SenderBot
 from telegramnotify.utils.orm import get_users_exclude_expired
 
+from .services import user_wallet_decrement_by_pay_rate
+
 User = get_user_model()
 sender_bot = SenderBot()
 
@@ -18,6 +20,7 @@ def users_update_premium_expired_task():
     Skip users with premium_status=permanent
     Check if premium_expire date passed
         set premium_status=expired
+    TODO: make it dumb
     """
     users = get_users_exclude_expired()
     for user in users:
@@ -31,3 +34,11 @@ def users_update_premium_expired_task():
                     user.tg_id, sender_bot.premium_expired_message
                 )
             )
+
+
+@celery_app.task()
+def users_update_wallet_decrement_by_pay_rate_task():
+    """Dumb task: to loop over users and call user_wallet_decrement_by_pay_rate()"""
+    users = get_users_exclude_expired()
+    for user in users:
+        user_wallet_decrement_by_pay_rate(user)

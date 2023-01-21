@@ -39,3 +39,13 @@ class TestParserEntry(TestCase):
             assert obj.source == "FL.ru"
             assert isinstance(obj.sent, bool)
             assert len(obj.short_title) > 1
+
+    def test_parser_entry_str_method(self):
+        entry = ParserEntryFactory(title="Test Entry", source="Test Source")
+        assert str(entry) == "Test Source : Test Entry"
+
+    def test_parser_entry_short_title(self):
+        entry = ParserEntryFactory(
+            title="This is a very long title that should be shortened"
+        )
+        assert entry.short_title == entry.title[:40]
