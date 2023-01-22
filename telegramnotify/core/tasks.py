@@ -43,7 +43,9 @@ def users_update_premium_expired_task(self):
 
 @celery_app.task(bind=True, max_retries=3, default_retry_delay=60)
 def users_update_wallet_decrement_by_pay_rate_task(self):
-    """Dumb task: to loop over users and call user_wallet_decrement_by_pay_rate()"""
+    """Dumb task: to loop over users and call user_wallet_decrement_by_pay_rate()
+    TODO: mock task failure and retry
+    """
     with transaction.atomic():
         try:
             users = get_users_exclude_expired()
