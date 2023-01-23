@@ -10,7 +10,6 @@
 ---
 
 - Доработать бизнес систему (биллинг)
-   - bill -> bill_rate / cost / daily_bill / daily_cost / daily_rate / pay_rate
       - Актуальное динамичное значение на основе пересчета сметы
       - Конструктор расчета pay_rate по дням
    - Расширение User сервис методов
@@ -18,7 +17,7 @@
 
 - Проанализировать возможность привязать сообщения тг-бота к бд
 - Refactor SenderBot
-- Refactor import mud-ball
+- Refactor "import mud-ball"
 
 - TelegramBot - доработка кнопок команды /settings
 - Подключить магазин
@@ -275,9 +274,9 @@ To run the tests, check your test coverage, and generate an HTML coverage report
 
 3. Traefik 404 error
 
-   - Конфликт ssl-сертификатов
-   - Анализ: изменить лог-левел на DEBUG в traefik.yml
-   - Решение: убрать tls настройки из traefik.yml
+   - Конфликт ssl-сертификатов или отсутствие выделенного IP
+      - Анализ: изменить лог-левел на DEBUG в traefik.yml
+      - Решение: убрать tls настройки из traefik.yml, купить выделенный ip
 
 4. Django POST 403 csrf - Origin checking failed
    - В production.py обновить CSRF_TRUSTED_ORIGINS
