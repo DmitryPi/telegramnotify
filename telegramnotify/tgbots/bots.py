@@ -572,13 +572,9 @@ class TelegramBot:
         answer = query.data
         # Update user words
         user = context.user_data["user"]
-        try:
-            user.words.remove(str(answer))
-        except ValueError:
-            await query.edit_message_text(text="Произошла ошибка при удалении")
-        finally:
-            await sync_to_async(user.save)()
-            await query.edit_message_text(text="Слово удалено")
+        user.words.remove(str(answer))
+        await sync_to_async(user.save)()
+        await query.edit_message_text(text="Слово удалено")
         return ConversationHandler.END
 
     async def command_techsupport(
