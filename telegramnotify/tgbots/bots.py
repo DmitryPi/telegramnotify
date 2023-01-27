@@ -320,7 +320,10 @@ class TelegramBot:
     async def auth_complete(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
-        """Регистрация пользователя в django-приложении"""
+        """Регистрация пользователя в django-приложении
+
+        TODO: acreate to create_user
+        """
         tg_user = update.effective_user
         username = tg_user.username if tg_user.username else tg_user.first_name
         service = await Service.objects.aget(title=context.user_data["service"])
@@ -495,45 +498,50 @@ class TelegramBot:
         TODO: button logic
         """
         try:
-            user = await User.objects.aget(tg_id=update.effective_user.id)
+            user = await User.objects.prefetch_related("services").aget(
+                tg_id=update.effective_user.id
+            )
             context.user_data.update({"user": user})
             reply_markup = self.build_inline_keyboard(self.settings, grid=2)
-            msg = "<b>Настройки:</b>"
+            msg = "<b>Настройки: /cancel</b>"
             await update.message.reply_text(
                 msg, reply_markup=reply_markup, parse_mode=ParseMode.HTML
             )
-            return ConversationHandler.END
+            # return ONE
+            return ONE
         except User.DoesNotExist:
             await update.message.reply_text(self.auth_invalid_msg)
 
     async def settings_choose(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
-        user = context.user_data["user"]
         query = update.callback_query
         await query.answer()
+        user = context.user_data["user"]
         answer = query.data
         # update services
         await sync_to_async(self.set_services)()
         # choices
-        if answer == "Добавить сервис":
-            reply_markup = self.build_inline_keyboard(self.services)
-            await query.edit_message_text(text=answer, reply_markup=reply_markup)
-            return TWO
-        if answer == "Удалить сервис":
-            reply_markup = self.build_inline_keyboard(self.services)
-            await query.edit_message_text(text=answer, reply_markup=reply_markup)
-            return THREE
-        elif answer == "Добавить слова":
-            user_words = json.loads(user.words)
-            reply_markup = self.build_inline_keyboard(user_words)
-            await query.edit_message_text(text=answer, reply_markup=reply_markup)
-            return FOUR
-        elif answer == "Добавить слова":
-            user_words = json.loads(user.words)
-            reply_markup = self.build_inline_keyboard(user_words)
-            await query.edit_message_text(text=answer, reply_markup=reply_markup)
-            return FIVE
+        match answer:
+            case "Добавить сервис":
+                reply_markup = self.build_inline_keyboard(self.services)
+                await query.edit_message_text(text=answer, reply_markup=reply_markup)
+                return TWO
+            case "Удалить сервис":
+                reply_markup = self.build_inline_keyboard(self.services)
+                await query.edit_message_text(text=answer, reply_markup=reply_markup)
+                return THREE
+            case "Добавить слова":
+                user_words = json.loads(user.words)
+                reply_markup = self.build_inline_keyboard(user_words)
+                await query.edit_message_text(text=answer, reply_markup=reply_markup)
+                return FOUR
+            case "Удалить слово":
+                if not user.words:
+                    return ONE
+                reply_markup = self.build_inline_keyboard(user.words)
+                await query.edit_message_text(text=answer, reply_markup=reply_markup)
+                return FIVE
 
     async def settings_add_service(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -556,10 +564,22 @@ class TelegramBot:
         await query.edit_message_text(text=answer)
         return ConversationHandler.END
 
-    async def settings_remove_words(
+    async def settings_remove_word(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
-        pass
+        query = update.callback_query
+        await query.answer()
+        answer = query.data
+        # Update user words
+        user = context.user_data["user"]
+        try:
+            user.words.remove(str(answer))
+        except ValueError:
+            await query.edit_message_text(text="Произошла ошибка при удалении")
+        finally:
+            await sync_to_async(user.save)()
+            await query.edit_message_text(text="Слово удалено")
+        return ConversationHandler.END
 
     async def command_techsupport(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -578,7 +598,7 @@ class TelegramBot:
         """Create support Ticket"""
         try:
             user = await User.objects.aget(tg_id=update.effective_user.id)
-            msg = "<b>Вопрос отправлен!</b>"
+            msg = "<b>Запрос отправлен!</b>"
             # save Ticket
             await Ticket.objects.acreate(
                 user=user,
@@ -684,7 +704,7 @@ class TelegramBot:
                 TWO: [CallbackQueryHandler(self.settings_add_service)],
                 THREE: [CallbackQueryHandler(self.settings_remove_service)],
                 FOUR: [CallbackQueryHandler(self.settings_add_words)],
-                FIVE: [CallbackQueryHandler(self.settings_remove_words)],
+                FIVE: [CallbackQueryHandler(self.settings_remove_word)],
             },
             fallbacks=[CommandHandler("cancel", self.command_cancel_conv)],
         )
@@ -712,6 +732,6 @@ class TelegramBot:
             MessageHandler(filters.SUCCESSFUL_PAYMENT, self.successful_payment_callback)
         )
         #  error handler
-        application.add_error_handler(self.error_handler)
+        # application.add_error_handler(self.error_handler)
         # Run the bot until the user presses Ctrl-C
         application.run_polling()
