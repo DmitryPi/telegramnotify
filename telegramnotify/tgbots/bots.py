@@ -34,7 +34,12 @@ from telegram.ext import (
 )
 from telegram.warnings import PTBUserWarning
 
-from config.settings.base import TELEGRAM_ADMIN_ID, TELEGRAM_API_TOKEN, YOKASSA_TOKEN
+from config.settings.base import (
+    DEBUG,
+    TELEGRAM_ADMIN_ID,
+    TELEGRAM_API_TOKEN,
+    YOKASSA_TOKEN,
+)
 from telegramnotify.core.models import Order, Service
 from telegramnotify.parsers.models import ParserEntry
 from telegramnotify.tickets.models import Ticket
@@ -804,6 +809,7 @@ class TelegramBot:
             MessageHandler(filters.SUCCESSFUL_PAYMENT, self.successful_payment_callback)
         )
         #  error handler
-        # application.add_error_handler(self.error_handler)
+        if not DEBUG:
+            application.add_error_handler(self.error_handler)
         # Run the bot until the user presses Ctrl-C
         application.run_polling()
