@@ -250,8 +250,9 @@ class TelegramBot:
                 "Вы выбрали - " + query.data,
                 "" "\n<b>→ Теперь введите несколько фраз-слов для поиска</b>\n",
                 "● Вы можете ввести сразу несколько слов, через запятую",
+                "● Максимальная длина слова - 50 символов",
                 "● Минимальная длина слова - 2 символа",
-                "● В пробном периоде доступно до 5 слов-фраз\n",
+                "● В пробном периоде доступно до 5 фраз-слов\n",
                 "<b>Пример</b>: парсинг, дизайн страницы, api, верстка, полиграфия",
                 f"\n<b>Отмена регистрации</b> - {self.commands['cancel']}",
             ]
@@ -259,16 +260,28 @@ class TelegramBot:
         await query.edit_message_text(text=msg, parse_mode=ParseMode.HTML)
         return TWO
 
+    async def _validate_words(self, words: str, word_limit=5) -> list[str] | None:
+        """Обработать, очистить слова поиска пользователя
+
+        Args:
+            words (str): Слова пользователя, через запятую
+            word_limit (int, optional): Ограничение слов. Defaults to 5.
+
+        Returns:
+            list[str] | None: Список слов без пробелов, меньше 50 символов, больше 2
+        """
+        word_list = words.split(",")[:word_limit]
+        word_list = [w.strip().lower() for w in word_list if len(w) < 50 and len(w) > 2]
+        return word_list
+
     async def auth_words(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
         """Обработка слов"""
-        word_limit = 5  # only 5 words allowed
-        words = update.message.text.split(",")[:word_limit]
-        words = [w.strip().lower() for w in words if len(w) >= 2]
+        words = await self._validate_words(update.message.text)
 
         if not words:
-            msg = "<b>🔴 Минимальная длина слова - 2 символа</b>"
+            msg = "<b>🔴 Слова не подходят или отсутствуют</b>"
             await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
             return TWO
 
@@ -539,7 +552,9 @@ class TelegramBot:
                 return FOUR
             case "Удалить слово":
                 if not user.words:
-                    await query.edit_message_text(text="Слова отсутствуют")
+                    await query.edit_message_text(
+                        text="<b>Слова отсутствуют</b>", parse_mode=ParseMode.HTML
+                    )
                     return END
                 reply_markup = self.build_inline_keyboard(user.words)
                 await query.edit_message_text(text=answer, reply_markup=reply_markup)
