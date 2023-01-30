@@ -546,9 +546,7 @@ class TelegramBot:
                 await query.edit_message_text(text=answer, reply_markup=reply_markup)
                 return THREE
             case "Добавить слова":
-                user_words = json.loads(user.words)
-                reply_markup = self.build_inline_keyboard(user_words)
-                await query.edit_message_text(text=answer, reply_markup=reply_markup)
+                await query.edit_message_text(text=answer, parse_mode=ParseMode.HTML)
                 return FOUR
             case "Удалить слово":
                 if not user.words:
@@ -559,6 +557,14 @@ class TelegramBot:
                 reply_markup = self.build_inline_keyboard(user.words)
                 await query.edit_message_text(text=answer, reply_markup=reply_markup)
                 return FIVE
+
+    def _user_add_words(self, user: User, words: list[str]) -> None:
+        user.words += words
+        user.save()
+
+    def _user_remove_word(self, user: User, word: str) -> None:
+        user.words.remove(str(word))
+        user.save()
 
     async def settings_add_service(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -573,17 +579,19 @@ class TelegramBot:
     async def settings_add_words(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
-        print(context.user_data["user"])
-        query = update.callback_query
-        await query.answer()
-        answer = query.data
-        print(answer)
-        await query.edit_message_text(text=answer)
-        return END
+        user = context.user_data["user"]
+        words = await self._validate_words(update.message.text)
 
-    def _user_remove_word(self, user: User, word: str) -> None:
-        user.words.remove(str(word))
-        user.save()
+        if not words:
+            msg = "<b>🔴 Слова не подходят или отсутствуют</b>"
+            await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
+            return FOUR
+        else:
+            await sync_to_async(self._user_add_words)(user, words)
+
+        msg = "<b>Слова обновлены!</b>"
+        await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
+        return END
 
     async def settings_remove_word(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -719,7 +727,11 @@ class TelegramBot:
                 ONE: [CallbackQueryHandler(self.settings_choose)],
                 TWO: [CallbackQueryHandler(self.settings_add_service)],
                 THREE: [CallbackQueryHandler(self.settings_remove_service)],
-                FOUR: [CallbackQueryHandler(self.settings_add_words)],
+                FOUR: [
+                    MessageHandler(
+                        filters.TEXT & ~filters.COMMAND, self.settings_add_words
+                    )
+                ],
                 FIVE: [CallbackQueryHandler(self.settings_remove_word)],
             },
             fallbacks=[CommandHandler("cancel", self.command_cancel_conv)],
