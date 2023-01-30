@@ -51,6 +51,7 @@ from telegramnotify.utils.other import (
 
 User = get_user_model()
 ONE, TWO, THREE, FOUR, FIVE = (i for i in range(1, 6))
+END = ConversationHandler.END
 
 warnings.filterwarnings(
     action="ignore", message=r".*CallbackQueryHandler", category=PTBUserWarning
@@ -311,7 +312,7 @@ class TelegramBot:
             # authenticate
             await self.auth_complete(update, context)
             await query.edit_message_text(text=msg, parse_mode=ParseMode.HTML)
-            return ConversationHandler.END
+            return END
         else:
             msg = "<b>Введите новые слова:</b>"
             await query.edit_message_text(text=msg, parse_mode=ParseMode.HTML)
@@ -398,7 +399,7 @@ class TelegramBot:
             currency,
             prices,
         )
-        return ConversationHandler.END
+        return END
 
     async def precheckout_callback(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -538,7 +539,8 @@ class TelegramBot:
                 return FOUR
             case "Удалить слово":
                 if not user.words:
-                    return ONE
+                    await query.edit_message_text(text="Слова отсутствуют")
+                    return END
                 reply_markup = self.build_inline_keyboard(user.words)
                 await query.edit_message_text(text=answer, reply_markup=reply_markup)
                 return FIVE
@@ -562,7 +564,11 @@ class TelegramBot:
         answer = query.data
         print(answer)
         await query.edit_message_text(text=answer)
-        return ConversationHandler.END
+        return END
+
+    def _user_remove_word(self, user: User, word: str) -> None:
+        user.words.remove(str(word))
+        user.save()
 
     async def settings_remove_word(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -572,10 +578,9 @@ class TelegramBot:
         answer = query.data
         # Update user words
         user = context.user_data["user"]
-        user.words.remove(str(answer))
-        await sync_to_async(user.save)()
+        await sync_to_async(self._user_remove_word)(user, answer)
         await query.edit_message_text(text="Слово удалено")
-        return ConversationHandler.END
+        return END
 
     async def command_techsupport(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -603,10 +608,10 @@ class TelegramBot:
             )
             # send succes msg
             await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
-            return ConversationHandler.END
+            return END
         except IndexError:
             await update.message.reply_text(self.auth_invalid_msg)
-            return ConversationHandler.END
+            return END
 
     async def command_help(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -633,7 +638,7 @@ class TelegramBot:
         """Cancels and ends the conversation."""
         msg = "Операция прервана"
         await update.message.reply_text(msg, reply_markup=ReplyKeyboardRemove())
-        return ConversationHandler.END
+        return END
 
     async def error_handler(
         self, update: object, context: ContextTypes.DEFAULT_TYPE
