@@ -19,7 +19,6 @@
 - Refactor SenderBot
 - Refactor "import mud-ball"
 
-- TelegramBot - доработка кнопок команды /settings
 - Подключить магазин
 - Добавление новых парсер-сервисов
 - Реклама по средству прокси-ботов
