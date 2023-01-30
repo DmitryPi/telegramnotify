@@ -540,6 +540,9 @@ class TelegramBot:
         # choices
         match answer:
             case "Добавить сервис":
+                """
+                TODO: динамика кнопок - сервисы - юзер сервисы
+                """
                 reply_markup = self.build_inline_keyboard(self.services)
                 await query.edit_message_text(text=answer, reply_markup=reply_markup)
                 return TWO
@@ -565,6 +568,23 @@ class TelegramBot:
                 await query.edit_message_text(text=answer, reply_markup=reply_markup)
                 return FIVE
 
+    def _user_add_service(self, user: User, service: str) -> None:
+        """
+        TODO: Добавить списание средств за 1 календарный день, обновление статуса
+        """
+        service = Service.objects.get(title=service)
+        # user_services = user.services.all()
+        # if service in user_services:
+        #     pass
+        # else:
+        user.services.add(service)
+        user.save()
+
+    def _user_remove_service(self, user: User, service: str) -> None:
+        service = Service.objects.get(title=service)
+        user.services.remove(service)
+        user.save()
+
     def _user_add_words(self, user: User, words: list[str]) -> None:
         user.words += words
         user.save()
@@ -573,15 +593,17 @@ class TelegramBot:
         user.words.remove(word)
         user.save()
 
-    def _user_remove_service(self, user: User, service: str) -> None:
-        service = Service.objects.get(title=service)
-        user.services.remove(service)
-        user.save()
-
     async def settings_add_service(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
-        pass
+        query = update.callback_query
+        await query.answer()
+        answer = query.data
+        # add user service
+        user = context.user_data["user"]
+        await sync_to_async(self._user_add_service)(user, answer)
+        await query.edit_message_text(text="Сервис добавлен")
+        return END
 
     async def settings_remove_service(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -589,7 +611,7 @@ class TelegramBot:
         query = update.callback_query
         await query.answer()
         answer = query.data
-        # Update user words
+        # Remove user service
         user = context.user_data["user"]
         await sync_to_async(self._user_remove_service)(user, answer)
         await query.edit_message_text(text="Сервис удалён")
