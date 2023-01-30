@@ -531,8 +531,10 @@ class TelegramBot:
     ) -> int:
         query = update.callback_query
         await query.answer()
-        user = context.user_data["user"]
         answer = query.data
+        user = context.user_data["user"]
+        user_services = user.services.all()
+        user_services_title = [s.title for s in user_services]
         # update services
         await sync_to_async(self.set_services)()
         # choices
@@ -542,7 +544,12 @@ class TelegramBot:
                 await query.edit_message_text(text=answer, reply_markup=reply_markup)
                 return TWO
             case "Удалить сервис":
-                reply_markup = self.build_inline_keyboard(self.services)
+                if not user_services:
+                    await query.edit_message_text(
+                        text="<b>Сервисы отсутствуют</b>", parse_mode=ParseMode.HTML
+                    )
+                    return END
+                reply_markup = self.build_inline_keyboard(user_services_title)
                 await query.edit_message_text(text=answer, reply_markup=reply_markup)
                 return THREE
             case "Добавить слова":
@@ -563,7 +570,12 @@ class TelegramBot:
         user.save()
 
     def _user_remove_word(self, user: User, word: str) -> None:
-        user.words.remove(str(word))
+        user.words.remove(word)
+        user.save()
+
+    def _user_remove_service(self, user: User, service: str) -> None:
+        service = Service.objects.get(title=service)
+        user.services.remove(service)
         user.save()
 
     async def settings_add_service(
@@ -574,7 +586,14 @@ class TelegramBot:
     async def settings_remove_service(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
-        pass
+        query = update.callback_query
+        await query.answer()
+        answer = query.data
+        # Update user words
+        user = context.user_data["user"]
+        await sync_to_async(self._user_remove_service)(user, answer)
+        await query.edit_message_text(text="Сервис удалён")
+        return END
 
     async def settings_add_words(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
