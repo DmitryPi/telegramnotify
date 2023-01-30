@@ -50,6 +50,7 @@ from telegramnotify.utils.other import (
 )
 
 User = get_user_model()
+AUTH_CHOOSE_SERVICE, AUTH_SET_WORDS, AUTH_CONFIRM_WORDS = map(chr, range(3))
 ONE, TWO, THREE, FOUR, FIVE = (i for i in range(1, 6))
 END = ConversationHandler.END
 
@@ -236,7 +237,7 @@ class TelegramBot:
             await update.message.reply_text(
                 msg, reply_markup=reply_markup, parse_mode=ParseMode.HTML
             )
-            return ONE
+            return AUTH_CHOOSE_SERVICE
 
     async def auth_service(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -258,7 +259,7 @@ class TelegramBot:
             ]
         )
         await query.edit_message_text(text=msg, parse_mode=ParseMode.HTML)
-        return TWO
+        return AUTH_SET_WORDS
 
     async def _validate_words(self, words: str, word_limit=5) -> list[str] | None:
         """Обработать, очистить слова поиска пользователя
@@ -283,7 +284,7 @@ class TelegramBot:
         if not words:
             msg = "<b>🔴 Слова не подходят или отсутствуют</b>"
             await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
-            return TWO
+            return AUTH_SET_WORDS
 
         context.user_data.update({"words": words})
         msg = "\n".join(
@@ -297,7 +298,7 @@ class TelegramBot:
         await update.message.reply_text(
             msg, reply_markup=reply_markup, parse_mode=ParseMode.HTML
         )
-        return THREE
+        return AUTH_CONFIRM_WORDS
 
     async def auth_words_confirm(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -329,7 +330,7 @@ class TelegramBot:
         else:
             msg = "<b>Введите новые слова:</b>"
             await query.edit_message_text(text=msg, parse_mode=ParseMode.HTML)
-            return TWO
+            return AUTH_SET_WORDS
 
     async def auth_complete(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -747,9 +748,11 @@ class TelegramBot:
         start_conv_handler = ConversationHandler(
             entry_points=[CommandHandler("start", self.command_start)],
             states={
-                ONE: [CallbackQueryHandler(self.auth_service)],
-                TWO: [MessageHandler(filters.TEXT & ~filters.COMMAND, self.auth_words)],
-                THREE: [CallbackQueryHandler(self.auth_words_confirm)],
+                AUTH_CHOOSE_SERVICE: [CallbackQueryHandler(self.auth_service)],
+                AUTH_SET_WORDS: [
+                    MessageHandler(filters.TEXT & ~filters.COMMAND, self.auth_words)
+                ],
+                AUTH_CONFIRM_WORDS: [CallbackQueryHandler(self.auth_words_confirm)],
             },
             fallbacks=[CommandHandler("cancel", self.command_cancel_conv)],
         )
