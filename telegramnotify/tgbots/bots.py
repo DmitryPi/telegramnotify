@@ -55,8 +55,13 @@ from telegramnotify.utils.other import (
 )
 
 User = get_user_model()
+
 AUTH_CHOOSE_SERVICE, AUTH_SET_WORDS, AUTH_CONFIRM_WORDS = map(chr, range(3))
-ONE, TWO, THREE, FOUR, FIVE = (i for i in range(1, 6))
+PAYMENT_BUILD_INVOICE = map(chr, range(3, 4))
+SETTINGS_CHOOSE, ADD_SERVICE, REMOVE_SERVICE, ADD_WORDS, REMOVE_WORD = map(
+    chr, range(4, 9)
+)
+SEND_TECHSUPPORT_MSG = map(chr, range(9, 10))
 END = ConversationHandler.END
 
 warnings.filterwarnings(
@@ -378,7 +383,7 @@ class TelegramBot:
             await update.message.reply_text(
                 msg, reply_markup=reply_markup, parse_mode=ParseMode.HTML
             )
-            return ONE
+            return PAYMENT_BUILD_INVOICE
         except User.DoesNotExist:
             await update.message.reply_text(self.auth_invalid_msg)
 
@@ -400,7 +405,7 @@ class TelegramBot:
                 ]
             )
             await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
-            return ONE
+            return PAYMENT_BUILD_INVOICE
         chat_id = update.message.chat_id
         title = "Пополнение баланса:"
         description = "-"
@@ -478,7 +483,9 @@ class TelegramBot:
     async def command_account(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
-        """TODO: улучшить оформление вывода 'Сервисы' и 'Слова поиска'"""
+        """
+        TODO: улучшить оформление вывода 'Сервисы' и 'Слова поиска'
+        """
         try:
             user = await User.objects.prefetch_related("services").aget(
                 tg_id=update.effective_user.id
@@ -527,8 +534,7 @@ class TelegramBot:
             await update.message.reply_text(
                 msg, reply_markup=reply_markup, parse_mode=ParseMode.HTML
             )
-            # return ONE
-            return ONE
+            return SETTINGS_CHOOSE
         except User.DoesNotExist:
             await update.message.reply_text(self.auth_invalid_msg)
 
@@ -551,7 +557,7 @@ class TelegramBot:
                 """
                 reply_markup = self.build_inline_keyboard(self.services)
                 await query.edit_message_text(text=answer, reply_markup=reply_markup)
-                return TWO
+                return ADD_SERVICE
             case "Удалить сервис":
                 if not user_services:
                     await query.edit_message_text(
@@ -560,10 +566,10 @@ class TelegramBot:
                     return END
                 reply_markup = self.build_inline_keyboard(user_services_title)
                 await query.edit_message_text(text=answer, reply_markup=reply_markup)
-                return THREE
+                return REMOVE_SERVICE
             case "Добавить слова":
                 await query.edit_message_text(text=answer, parse_mode=ParseMode.HTML)
-                return FOUR
+                return ADD_WORDS
             case "Удалить слово":
                 if not user.words:
                     await query.edit_message_text(
@@ -572,7 +578,7 @@ class TelegramBot:
                     return END
                 reply_markup = self.build_inline_keyboard(user.words)
                 await query.edit_message_text(text=answer, reply_markup=reply_markup)
-                return FIVE
+                return REMOVE_WORD
 
     def _user_add_service(self, user: User, service: str) -> None:
         """
@@ -599,7 +605,7 @@ class TelegramBot:
         user.words.remove(word)
         user.save()
 
-    async def settings_add_service(
+    async def option_add_service(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
         query = update.callback_query
@@ -611,7 +617,7 @@ class TelegramBot:
         await query.edit_message_text(text="Сервис добавлен")
         return END
 
-    async def settings_remove_service(
+    async def option_remove_service(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
         query = update.callback_query
@@ -623,7 +629,7 @@ class TelegramBot:
         await query.edit_message_text(text="Сервис удалён")
         return END
 
-    async def settings_add_words(
+    async def option_add_words(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
         user = context.user_data["user"]
@@ -632,7 +638,7 @@ class TelegramBot:
         if not words:
             msg = "<b>🔴 Слова не подходят или отсутствуют</b>"
             await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
-            return FOUR
+            return ADD_WORDS
         else:
             await sync_to_async(self._user_add_words)(user, words)
 
@@ -640,7 +646,7 @@ class TelegramBot:
         await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
         return END
 
-    async def settings_remove_word(
+    async def option_remove_word(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> int:
         query = update.callback_query
@@ -659,7 +665,7 @@ class TelegramBot:
             await User.objects.aget(tg_id=update.effective_user.id)
             msg = "<b>Задайте вопрос:</b>\nДля отмены - /cancel"
             await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
-            return ONE
+            return SEND_TECHSUPPORT_MSG
         except User.DoesNotExist:
             await update.message.reply_text(self.auth_invalid_msg)
 
@@ -669,7 +675,7 @@ class TelegramBot:
         """Create support Ticket"""
         try:
             user = await User.objects.aget(tg_id=update.effective_user.id)
-            msg = "<b>Запрос отправлен!</b>"
+            msg = "<b>Вопрос отправлен!</b>"
             # save Ticket
             await Ticket.objects.acreate(
                 user=user,
@@ -764,7 +770,7 @@ class TelegramBot:
         pay_conv_handler = ConversationHandler(
             entry_points=[CommandHandler("pay", self.command_pay)],
             states={
-                ONE: [
+                PAYMENT_BUILD_INVOICE: [
                     MessageHandler(filters.TEXT & ~filters.COMMAND, self.build_invoice)
                 ]
             },
@@ -773,22 +779,22 @@ class TelegramBot:
         settings_conv_handler = ConversationHandler(
             entry_points=[CommandHandler("settings", self.command_settings)],
             states={
-                ONE: [CallbackQueryHandler(self.settings_choose)],
-                TWO: [CallbackQueryHandler(self.settings_add_service)],
-                THREE: [CallbackQueryHandler(self.settings_remove_service)],
-                FOUR: [
+                SETTINGS_CHOOSE: [CallbackQueryHandler(self.settings_choose)],
+                ADD_SERVICE: [CallbackQueryHandler(self.option_add_service)],
+                REMOVE_SERVICE: [CallbackQueryHandler(self.option_remove_service)],
+                ADD_WORDS: [
                     MessageHandler(
-                        filters.TEXT & ~filters.COMMAND, self.settings_add_words
+                        filters.TEXT & ~filters.COMMAND, self.option_add_words
                     )
                 ],
-                FIVE: [CallbackQueryHandler(self.settings_remove_word)],
+                REMOVE_WORD: [CallbackQueryHandler(self.option_remove_word)],
             },
             fallbacks=[CommandHandler("cancel", self.command_cancel_conv)],
         )
         techsupport_conv_handler = ConversationHandler(
             entry_points=[CommandHandler("support", self.command_techsupport)],
             states={
-                ONE: [
+                SEND_TECHSUPPORT_MSG: [
                     MessageHandler(
                         filters.TEXT & ~filters.COMMAND, self.techsupport_msg
                     )
