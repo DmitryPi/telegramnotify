@@ -2,7 +2,7 @@
 
     Телеграм парсер-сервис оповещений по ключевым словам
 
-    Стэк: Django 4.1, Telegram API, asyncio, selenium, celery, docker
+    Стeк: Django 4.1, Telegram API, asyncio, selenium, celery, docker
 
 
 ## TODO
