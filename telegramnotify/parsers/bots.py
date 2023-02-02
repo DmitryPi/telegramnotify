@@ -35,6 +35,8 @@ class FLParser:
         projects = response.html.find(".b-post__link")
         projects_info = []
         for proj in projects:
+            if "/projects/?kind=" in proj.attrs["href"]:  # not a project link
+                continue
             proj_id = int(proj.attrs["href"].split("/")[2])
             # https://www.fl.ru/ + projects/<id>/<slug>
             proj_url = self.target.url_body + proj.attrs["href"][1:]
