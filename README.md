@@ -168,42 +168,56 @@ To run the tests, check your test coverage, and generate an HTML coverage report
    3. Задать часовой пояс
       - `sudo timedatectl set-timezone Europe/Moscow`
 
-3. Установить python, pip, git
+3. Установить Supervisor
+   - `sudo apt-get -y install supervisor`
+   - `sudo systemctl enable supervisor`
+   - `sudo systemctl start supervisor`
 
+4. Установить python, pip, git, venv
    - `sudo apt install python3.10`
    - `sudo apt install python3-pip`
+   - `apt install python3.10-venv`
    - `sudo apt install git`
    -
    - `sudo apt install python3.10 python3-pip git -y`
 
-4. Установить Docker
-
+5. Установить Docker
    - Инструкция [Docker ubuntu](https://docs.docker.com/engine/install/ubuntu/)
    - На джино это упрощенно, через Пакеты приложений + опцию iptables
    - Проверка: `docker run hello-world`
 
-5. Установка и настройка venv или [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/) (Если потребуется)
+6. Создать нового пользователя
+   - `adduser USER` - находится в home/USER
+   - `gpasswd -a USER sudo` - добавить sudo права
+   - `su - USER` - сменить пользователя
+
+7. Создать ssh ключи
+   - `ssh-keygen`
+   - Добавить публичный ключ vps в github ssh `{repo}/settings/keys/new`
+
+
+### Setup Project
+
+1. Инициализация git и Пулл проекта
+   - `mkdir PROJECT`
+   - `cd PROJECT`
+   - `git init`
+   - `git remote add origin git@github.com:DmitryPi/stripe-test.git`
+   - `git pull origin main`
+
+2. Установка и настройка venv или [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/) (Если потребуется)
 
    1. venv
       - `apt install python3.10-venv`
       - `python3 -m venv venv`
-      - `venv\Scripts\activate`
+      - `chmod +x venv/bin/activate` - предоставить права
+      - `venv/bin/activate`
    2. virtualenvwrapper
       - `pip install virtualenvwrapper`
       - `export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3.10`
       - `export WORKON_HOME=~/Envs`
       - `export VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/bin/virtualenv`
       - `source /usr/local/bin/virtualenvwrapper.sh`
-
-### Setup Project
-
-1. Пулл и инициализация git
-
-   - `git init`
-   - VPS `ssh-keygen`
-   - Добавить публичный ключ vps в github ssh `{repo}/settings/keys/new`
-   - `git remote add origin git@github.com:DmitryPi/telegramnotify.git`
-   - `git pull origin main`
 
 2. Добавить переменные production в `.envs/.prod`
 
